@@ -1,6 +1,6 @@
 exports.handler = async (event) => {
   try {
-    const botToken = process.env.BOT_TOKEN;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.CHAT_ID;
 
     const data = JSON.parse(event.body);
