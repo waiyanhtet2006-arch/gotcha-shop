@@ -49,37 +49,47 @@ input, select, textarea{
 <textarea id="address" placeholder="Delivery Address"></textarea>
 
 <h3>Scan KBZPay QR</h3>
+  <h3>Select Payment Method</h3>
+
+<select id="payment">
+  <option value="">Choose Payment</option>
+  <option value="kbz">KBZ Pay (Prepay)</option>
+  <option value="cod">Cash On Delivery</option>
+</select>
 <img src="IMG_5466.jpeg" width="250">
 
-<input type="file" id="screenshot">
 
 <button onclick="sendOrder()">Confirm Order</button>
 
 <script>
-async function sendOrder(){
+function sendOrder() {
 
-const name = document.getElementById("name").value;
-const phone = document.getElementById("phone").value;
-const address = document.getElementById("address").value;
-const file = document.getElementById("screenshot").files[0];
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+  const payment = document.getElementById("payment").value;
 
-if(!file){
-  alert("Upload payment screenshot");
-  return;
-}
+  if(!name || !phone || !address || !payment){
+    alert("Please fill all fields");
+    return;
+  }
 
-let formData = new FormData();
-formData.append("name", name);
-formData.append("phone", phone);
-formData.append("address", address);
-formData.append("photo", file);
+  let paymentText = payment === "kbz"
+    ? "KBZ Pay (Prepay)"
+    : "Cash On Delivery";
 
-await fetch("/.netlify/functions/send-order",{
-  method:"POST",
-  body:formData
-});
+  const message =
+    "🛒 NEW ORDER\n\n" +
+    "Name: " + name + "\n" +
+    "Phone: " + phone + "\n" +
+    "Address: " + address + "\n" +
+    "Payment: " + paymentText;
 
-alert("Order sent successfully!");
+  const telegramUsername = "YOUR_USERNAME"; // change this
+
+  const url = "https://t.me/" + telegramUsername + "?text=" + encodeURIComponent(message);
+
+  window.open(url, "_blank");
 }
 </script>
 
