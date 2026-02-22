@@ -149,7 +149,9 @@ async function sendOrder() {
       })
     });
 
-    alert("Order sent successfully!");
+    document.getElementById("orderSection").style.display = "none";
+document.getElementById("successSection").style.display = "block";
+document.getElementById("displayOrderId").innerText = orderId;
   } catch (error) {
     alert("Error sending order. Check console.");
   }
