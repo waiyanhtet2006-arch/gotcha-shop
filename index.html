@@ -94,7 +94,8 @@ async function sendOrder() {
     return;
   }
 
-   const total = pricePerItem * quantity; 
+   const subtotal = pricePerItem * quantity;
+const total = subtotal + shippingFee;
 
   let paymentText = payment === "kbz"
     ? "KBZ Pay (Prepay)"
