@@ -19,12 +19,13 @@ body{
 }
 img{width:100%;}
 button{
-  padding:10px;
+  padding:12px;
   width:100%;
   margin-top:10px;
   background:#12c9c0;
   border:none;
   cursor:pointer;
+  font-weight:bold;
 }
 input, select, textarea{
   width:100%;
@@ -51,7 +52,6 @@ input, select, textarea{
 <textarea id="address" placeholder="Delivery Address"></textarea>
 
 <h3>Select Payment Method</h3>
-
 <select id="payment">
   <option value="">Choose Payment</option>
   <option value="kbz">KBZ Pay (Prepay)</option>
@@ -60,42 +60,54 @@ input, select, textarea{
 
 <h3>Scan KBZPay QR</h3>
 <img src="IMG_5466.jpeg" width="250">
+
 <h3>Select Size</h3>
 <select id="size">
   <option value="">Choose Size</option>
+  <option value="S">Small (S)</option>
+  <option value="M">Medium (M)</option>
   <option value="L">Large (L)</option>
   <option value="XL">Extra Large (XL)</option>
 </select>
+
 <input type="number" id="quantity" placeholder="Quantity" min="1" value="1">
-<p>Total: <span id="totalPrice">48000</span> MMK</p>
+
+<p>Shipping: 3,000 MMK</p>
+<p>Total: <span id="totalPrice">51000</span> MMK</p>
 
 <button onclick="sendOrder()">Confirm Order</button>
 
 <script>
 
 const pricePerItem = 48000;
+const shippingFee = 3000;
 
-// Auto total update
+// Auto update total when quantity changes
 document.getElementById("quantity").addEventListener("input", function(){
-  const qty = this.value;
-  document.getElementById("totalPrice").innerText = qty * pricePerItem;
+  const qty = parseInt(this.value) || 1;
+  const subtotal = pricePerItem * qty;
+  const total = subtotal + shippingFee;
+  document.getElementById("totalPrice").innerText = total;
 });
 
 async function sendOrder() {
 
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const address = document.getElementById("address").value;
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
   const payment = document.getElementById("payment").value;
-  const quantity = document.getElementById("quantity").value;
+  const quantity = parseInt(document.getElementById("quantity").value);
+  const size = document.getElementById("size").value;
 
-  if(!name || !phone || !address || !payment || !quantity){
+  if(!name || !phone || !address || !payment || !quantity || !size){
     alert("Please fill all fields");
     return;
   }
 
-   const subtotal = pricePerItem * quantity;
-const total = subtotal + shippingFee;
+  const orderId = "GOTCHA-" + Math.floor(Math.random() * 100000);
+
+  const subtotal = pricePerItem * quantity;
+  const total = subtotal + shippingFee;
 
   let paymentText = payment === "kbz"
     ? "KBZ Pay (Prepay)"
@@ -103,30 +115,37 @@ const total = subtotal + shippingFee;
 
   const message =
     "🛒 NEW ORDER\n\n" +
+    "Order ID: " + orderId + "\n\n" +
     "Product: CULTURAL TREASURE (WHITE)\n" +
+    "Size: " + size + "\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
     "Address: " + address + "\n" +
     "Quantity: " + quantity + "\n" +
+    "Subtotal: " + subtotal + " MMK\n" +
+    "Shipping: " + shippingFee + " MMK\n" +
     "Total: " + total + " MMK\n" +
     "Payment: " + paymentText;
 
-  const token = "8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU"
-;
-  const chat_id = "7194426571";
+  const token = "PUT_YOUR_REAL_BOT_TOKEN_HERE";
+  const chat_id = "PUT_YOUR_REAL_CHAT_ID_HERE";
 
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      chat_id: chat_id,
-      text: message
-    })
-  });
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chat_id,
+        text: message
+      })
+    });
 
-  alert("Order sent successfully!");
+    alert("Order sent successfully!");
+  } catch (error) {
+    alert("Error sending order. Check console.");
+  }
 }
 
 </script>
