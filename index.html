@@ -24,6 +24,7 @@ button{
   margin-top:10px;
   background:#12c9c0;
   border:none;
+  cursor:pointer;
 }
 input, select, textarea{
   width:100%;
@@ -32,6 +33,7 @@ input, select, textarea{
 }
 </style>
 </head>
+
 <body>
 
 <h1>GOTCHA</h1>
@@ -48,31 +50,46 @@ input, select, textarea{
 <input type="text" id="phone" placeholder="Phone Number">
 <textarea id="address" placeholder="Delivery Address"></textarea>
 
-<h3>Scan KBZPay QR</h3>
-  <h3>Select Payment Method</h3>
+<h3>Select Payment Method</h3>
 
 <select id="payment">
   <option value="">Choose Payment</option>
   <option value="kbz">KBZ Pay (Prepay)</option>
   <option value="cod">Cash On Delivery</option>
 </select>
+
+<h3>Scan KBZPay QR</h3>
 <img src="IMG_5466.jpeg" width="250">
 
+<input type="number" id="quantity" placeholder="Quantity" min="1" value="1">
+<p>Total: <span id="totalPrice">48000</span> MMK</p>
 
 <button onclick="sendOrder()">Confirm Order</button>
 
 <script>
-function sendOrder() {
+
+const pricePerItem = 48000;
+
+// Auto total update
+document.getElementById("quantity").addEventListener("input", function(){
+  const qty = this.value;
+  document.getElementById("totalPrice").innerText = qty * pricePerItem;
+});
+
+async function sendOrder() {
 
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
   const address = document.getElementById("address").value;
   const payment = document.getElementById("payment").value;
+  const quantity = document.getElementById("quantity").value;
 
-  if(!name || !phone || !address || !payment){
+  if(!name || !phone || !address || !payment || !quantity){
     alert("Please fill all fields");
     return;
   }
+
+  const total = pricePerItem * quantity;
 
   let paymentText = payment === "kbz"
     ? "KBZ Pay (Prepay)"
@@ -80,17 +97,31 @@ function sendOrder() {
 
   const message =
     "🛒 NEW ORDER\n\n" +
+    "Product: CULTURAL TREASURE (WHITE)\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
     "Address: " + address + "\n" +
+    "Quantity: " + quantity + "\n" +
+    "Total: " + total + " MMK\n" +
     "Payment: " + paymentText;
 
-  const telegramUsername = "Gotchaoffical"; // change this
+  const token = "PUT_YOUR_REAL_BOT_TOKEN_HERE";
+  const chat_id = "PUT_YOUR_REAL_CHAT_ID_HERE";
 
-  const url = "https://t.me/" + telegramUsername + "?text=" + encodeURIComponent(message);
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: chat_id,
+      text: message
+    })
+  });
 
-  window.open(url, "_blank");
+  alert("Order sent successfully!");
 }
+
 </script>
 
 </body>
