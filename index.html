@@ -77,6 +77,13 @@ input, select, textarea{
 
 <button onclick="sendOrder()">Confirm Order</button>
 </div>
+  <div id="successSection" style="display:none; margin-top:30px;">
+  <h2 style="color:#12c9c0;">Order Confirmed ✅</h2>
+  <p>Thank you for shopping with GOTCHA.</p>
+  <p>Your Order ID:</p>
+  <h3 id="displayOrderId" style="letter-spacing:2px;"></h3>
+  <p>We will contact you shortly.</p>
+</div>
 <script>
 
 const pricePerItem = 48000;
