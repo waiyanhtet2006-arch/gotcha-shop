@@ -1,39 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GOTCHA</title>
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
 <style>
 body{
-  background:#0b0b0b;
-  color:#f5f5f0;
+  margin:0;
   font-family:Arial;
+  background:#0f0f0f;
+  color:white;
   text-align:center;
 }
+
+.products{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  margin-top:20px;
+}
+
 .card{
   background:#111;
-  padding:20px;
-  margin:20px auto;
-  width:300px;
+  padding:15px;
+  width:90%;
+  max-width:350px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,0,0,0.6);
+  text-align:left;
 }
-img{width:100%;}
-button{
-  padding:12px;
+
+.card img{
   width:100%;
-  margin-top:10px;
+  border-radius:10px;
+}
+
+select, input, textarea{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  width:100%;
+  padding:12px;
   background:#12c9c0;
   border:none;
-  cursor:pointer;
+  border-radius:6px;
   font-weight:bold;
-}
-input, select, textarea{
-  width:100%;
-  padding:8px;
-  margin:5px 0;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -42,122 +61,173 @@ input, select, textarea{
 
 <h1>GOTCHA</h1>
 
+<div class="products">
+
+<!-- WHITE PRODUCT -->
 <div class="card">
-  <img src="https://i.ibb.co/7tc0CRN8/IMG-4922.jpg">
+  <img src="WHITE_IMAGE_LINK">
   <h3>CULTURAL TREASURE (WHITE)</h3>
   <p>48,000 MMK</p>
+
+  <select id="size_white">
+    <option value="">Select Size</option>
+    <option value="S">S</option>
+    <option value="M">M</option>
+    <option value="L">L</option>
+    <option value="XL">XL</option>
+  </select>
+
+  <input type="number" id="qty_white" value="1" min="1" onchange="calculateTotal()">
+
+  <button onclick="selectProduct('WHITE')">Select This</button>
 </div>
-<div id="orderSection">
+
+<!-- BLACK PRODUCT -->
+<div class="card">
+  <img src="BLACK_IMAGE_LINK">
+  <h3>CULTURAL TREASURE (BLACK)</h3>
+  <p>48,000 MMK</p>
+
+  <select id="size_black">
+    <option value="">Select Size</option>
+    <option value="S">S</option>
+    <option value="M">M</option>
+    <option value="L">L</option>
+    <option value="XL">XL</option>
+  </select>
+
+  <input type="number" id="qty_black" value="1" min="1" onchange="calculateTotal()">
+
+  <button onclick="selectProduct('BLACK')">Select This</button>
+</div>
+
+</div>
+
+<!-- CHECKOUT -->
+<div class="card" id="orderSection">
+
 <h2>Checkout</h2>
 
 <input type="text" id="name" placeholder="Full Name">
 <input type="text" id="phone" placeholder="Phone Number">
 <textarea id="address" placeholder="Delivery Address"></textarea>
 
-<h3>Select Payment Method</h3>
-<select id="payment">
-  <option value="">Choose Payment</option>
-  <option value="kbz">KBZ Pay (Prepay)</option>
-  <option value="cod">Cash On Delivery</option>
+<h3>Select Township</h3>
+<select id="township" onchange="calculateTotal()">
+  <option value="">Choose Township</option>
+  <option value="2000">Hlaing (2,000)</option>
+  <option value="3000">Sanchaung (3,000)</option>
+  <option value="4000">North Dagon (4,000)</option>
+  <option value="5000">South Dagon (5,000)</option>
 </select>
 
-<h3>Scan KBZPay QR</h3>
-<img src="IMG_5466.jpeg" width="250">
-
-<h3>Select Size</h3>
-<select id="size">
-  <option value="">Choose Size</option>
-  <option value="S">Small (S)</option>
-  <option value="M">Medium (M)</option>
-  <option value="L">Large (L)</option>
-  <option value="XL">Extra Large (XL)</option>
-</select>
-
-<input type="number" id="quantity" placeholder="Quantity" min="1" value="1">
-
-<p>Shipping: 3,000 MMK</p>
-<p>Total: <span id="totalPrice">51000</span> MMK</p>
+<p>Shipping: <span id="shippingFee">0</span> MMK</p>
+<p>Total: <span id="totalPrice">0</span> MMK</p>
 
 <button onclick="sendOrder()">Confirm Order</button>
+
 </div>
-  <div id="successSection" style="display:none; margin-top:30px;">
-  <h2 style="color:#12c9c0;">Order Confirmed ✅</h2>
-  <p>Thank you for shopping with GOTCHA.</p>
-  <p>Your Order ID:</p>
-  <h3 id="displayOrderId" style="letter-spacing:2px;"></h3>
-  <p>We will contact you shortly.</p>
+
+<div class="card" id="successSection" style="display:none;">
+<h2 style="color:#12c9c0;">Order Confirmed 🎉</h2>
+<p>Your Order ID:</p>
+<h3 id="displayOrderId"></h3>
 </div>
+
 <script>
 
-const pricePerItem = 48000;
-const shippingFee = 3000;
+let selectedProduct = "";
+const price = 48000;
 
-// Auto update total when quantity changes
-document.getElementById("quantity").addEventListener("input", function(){
-  const qty = parseInt(this.value) || 1;
-  const subtotal = pricePerItem * qty;
-  const total = subtotal + shippingFee;
+function selectProduct(product){
+  selectedProduct = product;
+  calculateTotal();
+  alert(product + " selected");
+}
+
+function calculateTotal(){
+  let quantity = 0;
+
+  if(selectedProduct === "WHITE"){
+    quantity = parseInt(document.getElementById("qty_white").value) || 0;
+  }
+
+  if(selectedProduct === "BLACK"){
+    quantity = parseInt(document.getElementById("qty_black").value) || 0;
+  }
+
+  const shipping = parseInt(document.getElementById("township").value) || 0;
+  const subtotal = price * quantity;
+  const total = subtotal + shipping;
+
+  document.getElementById("shippingFee").innerText = shipping;
   document.getElementById("totalPrice").innerText = total;
-});
 
-async function sendOrder() {
+  return { quantity, subtotal, shipping, total };
+}
 
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const payment = document.getElementById("payment").value;
-  const quantity = parseInt(document.getElementById("quantity").value);
-  const size = document.getElementById("size").value;
+async function sendOrder(){
 
-  if(!name || !phone || !address || !payment || !quantity || !size){
-    alert("Please fill all fields");
+  if(!selectedProduct){
+    alert("Please select a product first.");
     return;
   }
 
-  const orderId = "GOTCHA-" + Math.floor(Math.random() * 100000);
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
 
-  const subtotal = pricePerItem * quantity;
-  const total = subtotal + shippingFee;
+  let size = "";
+  let quantity = 0;
 
-  let paymentText = payment === "kbz"
-    ? "KBZ Pay (Prepay)"
-    : "Cash On Delivery";
+  if(selectedProduct === "WHITE"){
+    size = document.getElementById("size_white").value;
+    quantity = document.getElementById("qty_white").value;
+  }
+
+  if(selectedProduct === "BLACK"){
+    size = document.getElementById("size_black").value;
+    quantity = document.getElementById("qty_black").value;
+  }
+
+  if(!name || !phone || !address || !size){
+    alert("Fill all fields.");
+    return;
+  }
+
+  const { shipping, total } = calculateTotal();
+  const orderId = "ORD" + Date.now();
 
   const message =
-    "🛒 NEW ORDER\n\n" +
-    "Order ID: " + orderId + "\n\n" +
-    "Product: CULTURAL TREASURE (WHITE)\n" +
-    "Size: " + size + "\n" +
-    "Name: " + name + "\n" +
-    "Phone: " + phone + "\n" +
-    "Address: " + address + "\n" +
-    "Quantity: " + quantity + "\n" +
-    "Subtotal: " + subtotal + " MMK\n" +
-    "Shipping: " + shippingFee + " MMK\n" +
-    "Total: " + total + " MMK\n" +
-    "Payment: " + paymentText;
+  "🛒 NEW ORDER\n\n" +
+  "Order ID: " + orderId + "\n" +
+  "Product: CULTURAL TREASURE (" + selectedProduct + ")\n" +
+  "Size: " + size + "\n" +
+  "Quantity: " + quantity + "\n" +
+  "Name: " + name + "\n" +
+  "Phone: " + phone + "\n" +
+  "Address: " + address + "\n" +
+  "Shipping: " + shipping + "\n" +
+  "Total: " + total + " MMK";
 
-  const token = "8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU";
-  const chat_id = "7194426571";
+  const token = "YOUR_NEW_BOT_TOKEN";
+  const chat_id = "YOUR_CHAT_ID";
 
-  try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        chat_id: chat_id,
-        text: message
-      })
+  try{
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ chat_id:chat_id, text:message })
     });
 
-    document.getElementById("orderSection").style.display = "none";
-document.getElementById("successSection").style.display = "block";
-document.getElementById("displayOrderId").innerText = orderId;
-  } catch (error) {
-    alert("Error sending order. Check console.");
+    document.getElementById("orderSection").style.display="none";
+    document.getElementById("successSection").style.display="block";
+    document.getElementById("displayOrderId").innerText=orderId;
+
+  }catch(error){
+    alert("Error sending order.");
   }
+
 }
 
 </script>
