@@ -251,22 +251,47 @@ async function sendOrder(){
   const token="YOUR_NEW_BOT_TOKEN";
   const chat_id="YOUR_CHAT_ID";
 
-  try{
+try{
+
+  if(payment === "KBZ Pay"){
+
+    const screenshotInput = document.getElementById("paymentScreenshot");
+
+    if(!screenshotInput.files[0]){
+      alert("Please upload payment screenshot.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("chat_id", chat_id);
+    formData.append("photo", screenshotInput.files[0]);
+    formData.append("caption", message);
+
+    await fetch(`https://api.telegram.org/bot${token}/sendPhoto`,{
+      method:"POST",
+      body:formData
+    });
+
+  } else {
+
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({chat_id:chat_id,text:message})
+      body:JSON.stringify({
+        chat_id:chat_id,
+        text:message
+      })
     });
 
-    document.getElementById("orderSection").style.display="none";
-    document.getElementById("successSection").style.display="block";
-    document.getElementById("displayOrderId").innerText=orderId;
-
-  }catch(error){
-    alert("Error sending order.");
   }
-}
 
+  document.getElementById("orderSection").style.display="none";
+  document.getElementById("successSection").style.display="block";
+  document.getElementById("displayOrderId").innerText=orderId;
+
+}catch(error){
+  alert("Error sending order.");
+}
 </script>
 
 </body>
