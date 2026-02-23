@@ -193,7 +193,15 @@ function calculateTotal(){
 
   return{quantity,shipping,total};
 }
+document.getElementById("payment").addEventListener("change", function(){
+  const kbzSection = document.getElementById("kbzSection");
 
+  if(this.value === "KBZ Pay"){
+    kbzSection.style.display = "block";
+  } else {
+    kbzSection.style.display = "none";
+  }
+});
 async function sendOrder(){
 
   if(!selectedProduct){
