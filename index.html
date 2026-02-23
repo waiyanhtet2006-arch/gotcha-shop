@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>GOTCHA</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -8,289 +9,289 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#0c0c0c;
+  background:#0f0f0f;
   color:white;
+}
+
+.container{
+  width:95%;
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
 }
 
 h1{
   text-align:center;
-  padding:20px 0;
+  margin-bottom:30px;
+  letter-spacing:2px;
 }
 
 .products{
-  display:flex;
-  flex-direction:column;
-  gap:30px;
-  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:25px;
 }
 
-.product-card{
-  background:#151515;
-  border-radius:16px;
+.card{
+  background:#1a1a1a;
   padding:20px;
-  box-shadow:0 0 25px rgba(0,0,0,0.6);
-}
-
-.product-card img{
-  width:100%;
   border-radius:12px;
+  box-shadow:0 0 15px rgba(0,0,0,0.5);
 }
 
-.product-title{
-  font-size:18px;
-  margin-top:15px;
-}
-
-.price{
-  margin:5px 0 15px;
-  color:#12c9c0;
-}
-
-select, input, textarea{
+.card img{
   width:100%;
-  padding:12px;
-  margin:8px 0;
   border-radius:8px;
+  margin-bottom:15px;
+}
+
+.card select,.card input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
   border:none;
-  font-size:14px;
 }
 
 button{
   width:100%;
-  padding:14px;
-  background:#12c9c0;
+  padding:12px;
+  margin-top:15px;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
+  background:#00bfa6;
+  color:white;
   font-weight:bold;
-  font-size:15px;
-  margin-top:10px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#00a08d;
 }
 
 .checkout{
-  background:#151515;
-  margin:20px;
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 0 25px rgba(0,0,0,0.6);
+  margin-top:40px;
+  background:#1a1a1a;
+  padding:25px;
+  border-radius:12px;
+}
+
+.checkout input, .checkout select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
+  border:none;
+}
+
+.qr-box{
+  text-align:center;
+  margin-top:15px;
+  display:none;
+}
+
+.qr-box img{
+  width:200px;
+  margin-top:10px;
+}
+
+.total-box{
+  margin-top:15px;
+  font-size:18px;
+}
+
+.success{
+  display:none;
+  text-align:center;
+  padding:40px;
 }
 </style>
 </head>
-
 <body>
+
+<div class="container">
 
 <h1>GOTCHA</h1>
 
 <div class="products">
 
-<!-- WHITE -->
-<div class="product-card">
-  <img src="WHITE_IMAGE_LINK">
-  <div class="product-title">CULTURAL TREASURE (WHITE)</div>
-  <div class="price">48,000 MMK</div>
-
-  <select id="size_white">
-    <option value="">Select Size</option>
-    <option>S</option><option>M</option><option>L</option><option>XL</option>
-  </select>
-
-  <input type="number" id="qty_white" value="1" min="1">
-
-  <button onclick="selectProduct('WHITE')">Select This</button>
+<div class="card">
+<img src="https://via.placeholder.com/500x500" />
+<h3>CULTURAL TREASURE (WHITE)</h3>
+<p>48,000 MMK</p>
+<select id="size1">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+</select>
+<input type="number" id="qty1" value="1" min="1">
+<button onclick="selectProduct('White',48000,'size1','qty1')">Select This</button>
 </div>
 
-<!-- BLACK -->
-<div class="product-card">
-  <img src="BLACK_IMAGE_LINK">
-  <div class="product-title">CULTURAL TREASURE (BLACK)</div>
-  <div class="price">48,000 MMK</div>
-
-  <select id="size_black">
-    <option value="">Select Size</option>
-    <option>S</option><option>M</option><option>L</option><option>XL</option>
-  </select>
-
-  <input type="number" id="qty_black" value="1" min="1">
-
-  <button onclick="selectProduct('BLACK')">Select This</button>
+<div class="card">
+<img src="https://via.placeholder.com/500x500" />
+<h3>CULTURAL TREASURE (BLACK)</h3>
+<p>48,000 MMK</p>
+<select id="size2">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+</select>
+<input type="number" id="qty2" value="1" min="1">
+<button onclick="selectProduct('Black',48000,'size2','qty2')">Select This</button>
 </div>
 
 </div>
 
-<!-- CHECKOUT -->
 <div class="checkout" id="orderSection">
-
 <h2>Checkout</h2>
 
 <input type="text" id="name" placeholder="Full Name">
 <input type="text" id="phone" placeholder="Phone Number">
-<textarea id="address" placeholder="Delivery Address"></textarea>
+<input type="text" id="address" placeholder="Delivery Address">
 
-<h3>Payment Method</h3>
-<select id="payment">
-  <option value="">Choose Payment</option>
-  <option value="KBZ Pay">KBZ Pay (Prepay)</option>
-  <option value="Cash On Delivery">Cash On Delivery</option>
+<select id="township" onchange="calculateShipping()">
+<option value="">Choose Township</option>
+<option value="2000">Yangon - 2000 MMK</option>
+<option value="3000">Mandalay - 3000 MMK</option>
+<option value="4000">Other - 4000 MMK</option>
 </select>
-  <div id="kbzSection" style="display:none; margin-top:15px;">
 
-  <h4>Scan KBZPay QR</h4>
-  <img src="KBZ_QR_IMAGE_LINK" width="100%" style="border-radius:10px;">
+<select id="payment" onchange="paymentChange()">
+<option value="">Select Payment Type</option>
+<option value="COD">Cash on Delivery</option>
+<option value="KBZ Pay">KBZ Pay</option>
+</select>
 
-  <p>Upload Payment Screenshot</p>
-  <input type="file" id="paymentScreenshot" accept="image/*">
-
+<div class="qr-box" id="qrBox">
+<p>Scan KBZ Pay QR</p>
+<img src="YOUR_QR_RAW_LINK">
+<input type="file" id="paymentScreenshot" accept="image/*">
 </div>
 
-<h3>Select Township</h3>
-<select id="township" onchange="calculateTotal()">
-  <option value="">Choose Township</option>
-  <option value="2000">Hlaing (2,000)</option>
-  <option value="3000">Sanchaung (3,000)</option>
-  <option value="4000">North Dagon (4,000)</option>
-  <option value="5000">South Dagon (5,000)</option>
-</select>
-
-<p>Shipping: <span id="shippingFee">0</span> MMK</p>
-<p>Total: <span id="totalPrice">0</span> MMK</p>
+<div class="total-box">
+<p>Shipping: <span id="shipping">0</span> MMK</p>
+<p>Total: <span id="total">0</span> MMK</p>
+</div>
 
 <button onclick="sendOrder()">Confirm Order</button>
 
 </div>
 
-<div class="checkout" id="successSection" style="display:none;">
-<h2 style="color:#12c9c0;">Order Confirmed 🎉</h2>
+<div class="success" id="successSection">
+<h2>Order Successful!</h2>
 <p>Your Order ID:</p>
 <h3 id="displayOrderId"></h3>
 </div>
 
+</div>
+
 <script>
+let selectedProduct=null;
+let productPrice=0;
 
-let selectedProduct="";
-const price=48000;
+const token="YOUR_BOT_TOKEN";
+const chat_id="YOUR_CHAT_ID";
 
-function selectProduct(product){
-  selectedProduct=product;
-  calculateTotal();
-  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+function selectProduct(name,price,sizeId,qtyId){
+  const size=document.getElementById(sizeId).value;
+  const qty=parseInt(document.getElementById(qtyId).value);
+
+  if(!size){
+    alert("Please select size.");
+    return;
+  }
+
+  selectedProduct=name+" - Size: "+size+" x"+qty;
+  productPrice=price*qty;
+  calculateShipping();
 }
 
-function calculateTotal(){
-  let quantity=0;
-
-  if(selectedProduct==="WHITE"){
-    quantity=parseInt(document.getElementById("qty_white").value)||0;
-  }
-
-  if(selectedProduct==="BLACK"){
-    quantity=parseInt(document.getElementById("qty_black").value)||0;
-  }
-
-  const shipping=parseInt(document.getElementById("township").value)||0;
-  const total=(price*quantity)+shipping;
-
-  document.getElementById("shippingFee").innerText=shipping;
-  document.getElementById("totalPrice").innerText=total;
-
-  return{quantity,shipping,total};
+function calculateShipping(){
+  const ship=parseInt(document.getElementById("township").value)||0;
+  document.getElementById("shipping").innerText=ship;
+  document.getElementById("total").innerText=productPrice+ship;
 }
-document.getElementById("payment").addEventListener("change", function(){
-  const kbzSection = document.getElementById("kbzSection");
 
-  if(this.value === "KBZ Pay"){
-    kbzSection.style.display = "block";
-  } else {
-    kbzSection.style.display = "none";
-  }
-});
+function paymentChange(){
+  const pay=document.getElementById("payment").value;
+  document.getElementById("qrBox").style.display=
+    pay==="KBZ Pay"?"block":"none";
+}
+
 async function sendOrder(){
 
-  if(!selectedProduct){
-    alert("Please select a product first.");
-    return;
-  }
+if(!selectedProduct){
+  alert("Please select product.");
+  return;
+}
 
-  const name=document.getElementById("name").value;
-  const phone=document.getElementById("phone").value;
-  const address=document.getElementById("address").value;
-  const payment=document.getElementById("payment").value;
+const name=document.getElementById("name").value;
+const phone=document.getElementById("phone").value;
+const address=document.getElementById("address").value;
+const township=document.getElementById("township").value;
+const payment=document.getElementById("payment").value;
+const shipping=document.getElementById("shipping").innerText;
+const total=document.getElementById("total").innerText;
 
-  let size="";
-  let quantity=0;
+if(!name||!phone||!address||!township||!payment){
+  alert("Please fill all fields.");
+  return;
+}
 
-  if(selectedProduct==="WHITE"){
-    size=document.getElementById("size_white").value;
-    quantity=document.getElementById("qty_white").value;
-  }
+const orderId="ORD"+Date.now();
 
-  if(selectedProduct==="BLACK"){
-    size=document.getElementById("size_black").value;
-    quantity=document.getElementById("qty_black").value;
-  }
-
-  if(!name||!phone||!address||!size||!payment){
-    alert("Fill all fields.");
-    return;
-  }
-
-  const {shipping,total}=calculateTotal();
-  const orderId="ORD"+Date.now();
-
-  const message=
-  "🛒 NEW ORDER\n\n"+
-  "Order ID: "+orderId+"\n"+
-  "Product: CULTURAL TREASURE ("+selectedProduct+")\n"+
-  "Size: "+size+"\n"+
-  "Quantity: "+quantity+"\n"+
-  "Name: "+name+"\n"+
-  "Phone: "+phone+"\n"+
-  "Address: "+address+"\n"+
-  "Payment: "+payment+"\n"+
-  "Shipping: "+shipping+"\n"+
-  "Total: "+total+" MMK";
-
-  const token="YOUR_NEW_BOT_TOKEN";
-  const chat_id="YOUR_CHAT_ID";
+const message=
+"New Order\n\n"+
+"Order ID: "+orderId+"\n"+
+"Product: "+selectedProduct+"\n"+
+"Name: "+name+"\n"+
+"Phone: "+phone+"\n"+
+"Address: "+address+"\n"+
+"Shipping: "+shipping+"\n"+
+"Total: "+total+"\n"+
+"Payment: "+payment;
 
 try{
 
-  if(payment === "KBZ Pay"){
+if(payment==="KBZ Pay"){
 
-    const screenshotInput = document.getElementById("paymentScreenshot");
+const fileInput=document.getElementById("paymentScreenshot");
+if(!fileInput.files[0]){
+  alert("Upload payment screenshot.");
+  return;
+}
 
-    if(!screenshotInput.files[0]){
-      alert("Please upload payment screenshot.");
-      return;
-    }
+const formData=new FormData();
+formData.append("chat_id",chat_id);
+formData.append("photo",fileInput.files[0]);
+formData.append("caption",message);
 
-    const formData = new FormData();
-    formData.append("chat_id", chat_id);
-    formData.append("photo", screenshotInput.files[0]);
-    formData.append("caption", message);
+await fetch(`https://api.telegram.org/bot${token}/sendPhoto`,{
+method:"POST",
+body:formData
+});
 
-    await fetch(`https://api.telegram.org/bot${token}/sendPhoto`,{
-      method:"POST",
-      body:formData
-    });
+}else{
 
-  } else {
+await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({chat_id:chat_id,text:message})
+});
 
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        chat_id:chat_id,
-        text:message
-      })
-    });
+}
 
-  }
-
-  document.getElementById("orderSection").style.display="none";
-  document.getElementById("successSection").style.display="block";
-  document.getElementById("displayOrderId").innerText=orderId;
+document.getElementById("orderSection").style.display="none";
+document.getElementById("successSection").style.display="block";
+document.getElementById("displayOrderId").innerText=orderId;
 
 }catch(error){
-  alert("Error sending order.");
+alert("Error sending order.");
+}
+
 }
 </script>
 
