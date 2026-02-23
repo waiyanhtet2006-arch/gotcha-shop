@@ -131,6 +131,15 @@ button{
   <option value="KBZ Pay">KBZ Pay (Prepay)</option>
   <option value="Cash On Delivery">Cash On Delivery</option>
 </select>
+  <div id="kbzSection" style="display:none; margin-top:15px;">
+
+  <h4>Scan KBZPay QR</h4>
+  <img src="KBZ_QR_IMAGE_LINK" width="100%" style="border-radius:10px;">
+
+  <p>Upload Payment Screenshot</p>
+  <input type="file" id="paymentScreenshot" accept="image/*">
+
+</div>
 
 <h3>Select Township</h3>
 <select id="township" onchange="calculateTotal()">
