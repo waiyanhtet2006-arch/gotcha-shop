@@ -195,6 +195,11 @@ const storage = firebase.storage();
 
 let cart=[];
 
+/* TELEGRAM SETTINGS */
+const token="YOUR_BOT_TOKEN";
+const chat_id="YOUR_CHAT_ID";
+
+/* ADD TO CART */
 function addToCart(name,price,sizeId,qtyId){
   const size=document.getElementById(sizeId).value;
   const qty=parseInt(document.getElementById(qtyId).value);
@@ -214,33 +219,21 @@ function updateCart(){
     div.innerHTML+=`
     <div class="cart-item">
       ${item.name} - ${item.size}<br>
-      <button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
-      ${item.qty}
-      <button class="qty-btn" onclick="changeQty(${index},1)">+</button>
-      <br>${item.price*item.qty} MMK<br>
-      <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+      ${item.qty} x ${item.price} MMK<br>
+      ${item.price*item.qty} MMK
     </div>`;
   });
   document.getElementById("cartSubtotal").innerText=subtotal;
   document.getElementById("finalTotal").innerText=subtotal;
 }
 
-function changeQty(i,c){
-  cart[i].qty+=c;
-  if(cart[i].qty<=0){cart.splice(i,1);}
-  updateCart();
-}
-
-function removeItem(i){
-  cart.splice(i,1);
-  updateCart();
-}
-
+/* PAYMENT TOGGLE */
 document.getElementById("payment").addEventListener("change",function(){
   document.getElementById("kbzSection").style.display =
   this.value==="KBZ Pay"?"block":"none";
 });
 
+/* SEND ORDER */
 async function sendOrder(){
 if(cart.length===0){alert("Cart empty");return;}
 
@@ -270,16 +263,12 @@ status:"Pending",
 createdAt:Date.now()
 });
 
-/* TELEGRAM NOTIFICATION */
-const token="8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU";
-const chat_id="7194426571";
-
+/* TELEGRAM NEW ORDER */
 let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n`;
 cart.forEach(item=>{
 message+=`${item.name} - ${item.size} x${item.qty}\n`;
 });
 message+=`\nTotal: ${total} MMK\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}\n`;
-if(payment==="KBZ Pay"){message+=`\nScreenshot:\n${screenshotURL}`;}
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
@@ -292,13 +281,60 @@ cart=[];
 updateCart();
 }
 
+/* CANCEL ORDER SYSTEM */
 function checkStatus(){
 const id=document.getElementById("checkOrderId").value;
+
 database.ref("orders/"+id).once("value").then(s=>{
-if(!s.exists()){document.getElementById("statusResult").innerHTML="Order not found";return;}
+if(!s.exists()){
+document.getElementById("statusResult").innerHTML="Order not found";
+return;
+}
+
 const d=s.val();
+
+if(d.status==="Pending"){
+document.getElementById("statusResult").innerHTML=`
+Status: Pending<br><br>
+<textarea id="cancelReason" placeholder="Reason for cancellation"></textarea>
+<button onclick="cancelOrder('${id}')">Cancel Order</button>
+`;
+}
+else if(d.status==="Accepted"){
+document.getElementById("statusResult").innerHTML=`
+Status: Accepted<br><br>
+To cancel this order please contact us on Telegram.<br><br>
+<a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank">
+<button>Contact on Telegram</button>
+</a>
+`;
+}
+else{
 document.getElementById("statusResult").innerHTML="Status: "+d.status;
+}
 });
+}
+
+function cancelOrder(id){
+const reason=document.getElementById("cancelReason").value;
+if(!reason){alert("You must enter a reason");return;}
+
+database.ref("orders/"+id).update({
+status:"Cancelled by Customer",
+cancelReason:reason
+});
+
+/* TELEGRAM CANCEL NOTICE */
+let message=`❌ ORDER CANCELLED\n\nOrder ID: ${id}\nReason:\n${reason}`;
+
+fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({chat_id:chat_id,text:message})
+});
+
+alert("Order cancelled successfully");
+checkStatus();
 }
 </script>
 
