@@ -72,18 +72,15 @@ button{
   border-bottom:1px solid #333;
   padding:12px 0;
 }
-textarea{
+textarea,input,select{
   width:100%;
   padding:10px;
   border-radius:6px;
   border:none;
   margin-top:10px;
 }
-input,select{
-  margin-top:10px;
-}
 
-/* KBZ Section */
+/* KBZ */
 #kbzSection{
   display:none;
   text-align:center;
@@ -156,10 +153,9 @@ input,select{
 <option value="KBZ Pay">KBZ Pay</option>
 </select>
 
-<!-- KBZ QR SECTION -->
 <div id="kbzSection">
   <p>Scan this KBZPay QR to complete payment</p>
-  <img src="380E3397-A4B5-405B-BF07-28550EFBE470.jpeg" alt="KBZPay QR">
+  <img src="380E3397-A4B5-405B-BF07-28550EFBE470.jpeg">
   <input type="file" id="paymentScreenshot" accept="image/*">
   <p style="font-size:13px;color:#aaa;">Upload screenshot after payment</p>
 </div>
@@ -240,13 +236,9 @@ function removeItem(i){
   updateCart();
 }
 
-/* Show KBZ QR */
-document.getElementById("payment").addEventListener("change", function(){
-  if(this.value==="KBZ Pay"){
-    document.getElementById("kbzSection").style.display="block";
-  }else{
-    document.getElementById("kbzSection").style.display="none";
-  }
+document.getElementById("payment").addEventListener("change",function(){
+  document.getElementById("kbzSection").style.display =
+  this.value==="KBZ Pay"?"block":"none";
 });
 
 async function sendOrder(){
@@ -276,6 +268,23 @@ orderId,cart,name,phone,address,total,payment,
 screenshot:screenshotURL,
 status:"Pending",
 createdAt:Date.now()
+});
+
+/* TELEGRAM NOTIFICATION */
+const token="YOUR_BOT_TOKEN";
+const chat_id="YOUR_CHAT_ID";
+
+let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n`;
+cart.forEach(item=>{
+message+=`${item.name} - ${item.size} x${item.qty}\n`;
+});
+message+=`\nTotal: ${total} MMK\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}\n`;
+if(payment==="KBZ Pay"){message+=`\nScreenshot:\n${screenshotURL}`;}
+
+fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({chat_id:chat_id,text:message})
 });
 
 alert("Order placed! Your Order ID: "+orderId);
