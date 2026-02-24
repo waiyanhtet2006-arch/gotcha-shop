@@ -82,6 +82,18 @@ textarea{
 input,select{
   margin-top:10px;
 }
+
+/* KBZ Section */
+#kbzSection{
+  display:none;
+  text-align:center;
+  margin-top:15px;
+}
+#kbzSection img{
+  width:220px;
+  border-radius:10px;
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
@@ -144,6 +156,14 @@ input,select{
 <option value="KBZ Pay">KBZ Pay</option>
 </select>
 
+<!-- KBZ QR SECTION -->
+<div id="kbzSection">
+  <p>Scan this KBZPay QR to complete payment</p>
+  <img src="380E3397-A4B5-405B-BF07-28550EFBE470.jpeg" alt="KBZPay QR">
+  <input type="file" id="paymentScreenshot" accept="image/*">
+  <p style="font-size:13px;color:#aaa;">Upload screenshot after payment</p>
+</div>
+
 <button class="add-btn" onclick="sendOrder()">Confirm Order</button>
 </div>
 
@@ -157,9 +177,10 @@ input,select{
 
 </div>
 
-<!-- Firebase CDN -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -174,6 +195,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+const storage = firebase.storage();
 
 let cart=[];
 
@@ -218,6 +240,15 @@ function removeItem(i){
   updateCart();
 }
 
+/* Show KBZ QR */
+document.getElementById("payment").addEventListener("change", function(){
+  if(this.value==="KBZ Pay"){
+    document.getElementById("kbzSection").style.display="block";
+  }else{
+    document.getElementById("kbzSection").style.display="none";
+  }
+});
+
 async function sendOrder(){
 if(cart.length===0){alert("Cart empty");return;}
 
@@ -230,9 +261,19 @@ const total=document.getElementById("finalTotal").innerText;
 if(!name||!phone||!address||!payment){alert("Fill all fields");return;}
 
 const orderId="ORD"+Date.now();
+let screenshotURL="";
+
+if(payment==="KBZ Pay"){
+  const file=document.getElementById("paymentScreenshot").files[0];
+  if(!file){alert("Upload payment screenshot");return;}
+  const ref=storage.ref("payments/"+orderId);
+  await ref.put(file);
+  screenshotURL=await ref.getDownloadURL();
+}
 
 await database.ref("orders/"+orderId).set({
 orderId,cart,name,phone,address,total,payment,
+screenshot:screenshotURL,
 status:"Pending",
 createdAt:Date.now()
 });
@@ -247,34 +288,8 @@ const id=document.getElementById("checkOrderId").value;
 database.ref("orders/"+id).once("value").then(s=>{
 if(!s.exists()){document.getElementById("statusResult").innerHTML="Order not found";return;}
 const d=s.val();
-if(d.status==="Pending"){
-document.getElementById("statusResult").innerHTML=`
-Status: Pending<br>
-<textarea id="reason" placeholder="Reason for cancellation"></textarea>
-<button class="remove-btn" onclick="cancelOrder('${id}')">Cancel Order</button>`;
-}
-else if(d.status==="Accepted"){
-document.getElementById("statusResult").innerHTML=`
-Status: Accepted<br>
-To cancel, contact us directly.<br>
-<a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank">
-<button class="add-btn">Contact Telegram</button></a>`;
-}
-else{
-document.getElementById("statusResult").innerHTML="Status: Cancelled";
-}
+document.getElementById("statusResult").innerHTML="Status: "+d.status;
 });
-}
-
-function cancelOrder(id){
-const reason=document.getElementById("reason").value;
-if(!reason){alert("Enter reason");return;}
-database.ref("orders/"+id).update({
-status:"Cancelled",
-cancelReason:reason
-});
-alert("Order cancelled");
-checkStatus();
 }
 </script>
 
