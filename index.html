@@ -8,115 +8,92 @@
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:#0f0f0f;
   color:white;
 }
-
 .container{
   width:95%;
   max-width:1200px;
   margin:auto;
   padding:20px;
 }
-
-h1{
-  text-align:center;
-  margin-bottom:30px;
-  letter-spacing:2px;
-}
-
+h1{text-align:center;margin-bottom:30px;}
 .products{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
   gap:25px;
 }
-
 .card{
   background:#1a1a1a;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 0 15px rgba(0,0,0,0.5);
 }
-
 .card img{
   width:100%;
   border-radius:8px;
-  margin-bottom:15px;
 }
-
 .card select,.card input{
   width:100%;
   padding:10px;
   margin-top:10px;
+  border:none;
   border-radius:6px;
-  border:none;
 }
-
 button{
-  width:100%;
-  padding:12px;
-  margin-top:15px;
+  padding:10px;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.add-btn{
+  width:100%;
+  margin-top:15px;
   background:#00bfa6;
   color:white;
-  font-weight:bold;
-  cursor:pointer;
 }
-
-button:hover{
-  background:#00a08d;
+.remove-btn{
+  background:#ff4d4d;
+  color:white;
 }
-
-.checkout{
+.qty-btn{
+  background:#00bfa6;
+  color:white;
+  margin:0 5px;
+}
+.section{
   margin-top:40px;
   background:#1a1a1a;
   padding:25px;
   border-radius:12px;
 }
-
-.checkout input, .checkout select{
+.cart-item{
+  border-bottom:1px solid #333;
+  padding:12px 0;
+}
+textarea{
   width:100%;
   padding:10px;
-  margin-top:10px;
   border-radius:6px;
   border:none;
-}
-
-.qr-box{
-  text-align:center;
-  margin-top:15px;
-  display:none;
-}
-
-.qr-box img{
-  width:200px;
   margin-top:10px;
 }
-
-.total-box{
-  margin-top:15px;
-  font-size:18px;
-}
-
-.success{
-  display:none;
-  text-align:center;
-  padding:40px;
+input,select{
+  margin-top:10px;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-
 <h1>GOTCHA</h1>
 
+<!-- PRODUCTS -->
 <div class="products">
 
 <div class="card">
-<img src="https://via.placeholder.com/500x500" />
+<img src="YOUR_WHITE_IMAGE">
 <h3>CULTURAL TREASURE (WHITE)</h3>
 <p>48,000 MMK</p>
 <select id="size1">
@@ -126,11 +103,11 @@ button:hover{
 <option>L</option>
 </select>
 <input type="number" id="qty1" value="1" min="1">
-<button onclick="selectProduct('White',48000,'size1','qty1')">Select This</button>
+<button class="add-btn" onclick="addToCart('White',48000,'size1','qty1')">Add To Cart</button>
 </div>
 
 <div class="card">
-<img src="https://via.placeholder.com/500x500" />
+<img src="YOUR_BLACK_IMAGE">
 <h3>CULTURAL TREASURE (BLACK)</h3>
 <p>48,000 MMK</p>
 <select id="size2">
@@ -140,158 +117,164 @@ button:hover{
 <option>L</option>
 </select>
 <input type="number" id="qty2" value="1" min="1">
-<button onclick="selectProduct('Black',48000,'size2','qty2')">Select This</button>
+<button class="add-btn" onclick="addToCart('Black',48000,'size2','qty2')">Add To Cart</button>
 </div>
 
 </div>
 
-<div class="checkout" id="orderSection">
+<!-- CART -->
+<div class="section">
+<h2>Your Cart</h2>
+<div id="cartItems"></div>
+<h3>Subtotal: <span id="cartSubtotal">0</span> MMK</h3>
+<h3>Total: <span id="finalTotal">0</span> MMK</h3>
+</div>
+
+<!-- CHECKOUT -->
+<div class="section">
 <h2>Checkout</h2>
 
 <input type="text" id="name" placeholder="Full Name">
 <input type="text" id="phone" placeholder="Phone Number">
 <input type="text" id="address" placeholder="Delivery Address">
 
-<select id="township" onchange="calculateShipping()">
-<option value="">Choose Township</option>
-<option value="2000">Yangon - 2000 MMK</option>
-<option value="3000">Mandalay - 3000 MMK</option>
-<option value="4000">Other - 4000 MMK</option>
-</select>
-
-<select id="payment" onchange="paymentChange()">
-<option value="">Select Payment Type</option>
+<select id="payment">
+<option value="">Select Payment</option>
 <option value="COD">Cash on Delivery</option>
 <option value="KBZ Pay">KBZ Pay</option>
 </select>
 
-<div class="qr-box" id="qrBox">
-<p>Scan KBZ Pay QR</p>
-<img src="YOUR_QR_RAW_LINK">
-<input type="file" id="paymentScreenshot" accept="image/*">
+<button class="add-btn" onclick="sendOrder()">Confirm Order</button>
 </div>
 
-<div class="total-box">
-<p>Shipping: <span id="shipping">0</span> MMK</p>
-<p>Total: <span id="total">0</span> MMK</p>
-</div>
-
-<button onclick="sendOrder()">Confirm Order</button>
-
-</div>
-
-<div class="success" id="successSection">
-<h2>Order Successful!</h2>
-<p>Your Order ID:</p>
-<h3 id="displayOrderId"></h3>
+<!-- ORDER STATUS -->
+<div class="section">
+<h2>Check Order Status</h2>
+<input type="text" id="checkOrderId" placeholder="Enter Order ID">
+<button class="add-btn" onclick="checkStatus()">Check Status</button>
+<div id="statusResult"></div>
 </div>
 
 </div>
+
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <script>
-let selectedProduct=null;
-let productPrice=0;
+const firebaseConfig = {
+  apiKey: "AIzaSyAWmdp63HgkXrJDHaENR9nNBN1LKJ2yxA4",
+  authDomain: "gotcha-store.firebaseapp.com",
+  databaseURL: "https://gotcha-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "gotcha-store",
+  storageBucket: "gotcha-store.firebasestorage.app",
+  messagingSenderId: "814881957336",
+  appId: "1:814881957336:web:7889469a665d0854f07ead"
+};
 
-const token="YOUR_BOT_TOKEN";
-const chat_id="YOUR_CHAT_ID";
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-function selectProduct(name,price,sizeId,qtyId){
+let cart=[];
+
+function addToCart(name,price,sizeId,qtyId){
   const size=document.getElementById(sizeId).value;
   const qty=parseInt(document.getElementById(qtyId).value);
-
-  if(!size){
-    alert("Please select size.");
-    return;
-  }
-
-  selectedProduct=name+" - Size: "+size+" x"+qty;
-  productPrice=price*qty;
-  calculateShipping();
+  if(!size){alert("Select size");return;}
+  const existing=cart.find(i=>i.name===name&&i.size===size);
+  if(existing){existing.qty+=qty;}
+  else{cart.push({name,size,qty,price});}
+  updateCart();
 }
 
-function calculateShipping(){
-  const ship=parseInt(document.getElementById("township").value)||0;
-  document.getElementById("shipping").innerText=ship;
-  document.getElementById("total").innerText=productPrice+ship;
+function updateCart(){
+  const div=document.getElementById("cartItems");
+  div.innerHTML="";
+  let subtotal=0;
+  cart.forEach((item,index)=>{
+    subtotal+=item.price*item.qty;
+    div.innerHTML+=`
+    <div class="cart-item">
+      ${item.name} - ${item.size}<br>
+      <button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
+      ${item.qty}
+      <button class="qty-btn" onclick="changeQty(${index},1)">+</button>
+      <br>${item.price*item.qty} MMK<br>
+      <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+    </div>`;
+  });
+  document.getElementById("cartSubtotal").innerText=subtotal;
+  document.getElementById("finalTotal").innerText=subtotal;
 }
 
-function paymentChange(){
-  const pay=document.getElementById("payment").value;
-  document.getElementById("qrBox").style.display=
-    pay==="KBZ Pay"?"block":"none";
+function changeQty(i,c){
+  cart[i].qty+=c;
+  if(cart[i].qty<=0){cart.splice(i,1);}
+  updateCart();
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  updateCart();
 }
 
 async function sendOrder(){
-
-if(!selectedProduct){
-  alert("Please select product.");
-  return;
-}
+if(cart.length===0){alert("Cart empty");return;}
 
 const name=document.getElementById("name").value;
 const phone=document.getElementById("phone").value;
 const address=document.getElementById("address").value;
-const township=document.getElementById("township").value;
 const payment=document.getElementById("payment").value;
-const shipping=document.getElementById("shipping").innerText;
-const total=document.getElementById("total").innerText;
+const total=document.getElementById("finalTotal").innerText;
 
-if(!name||!phone||!address||!township||!payment){
-  alert("Please fill all fields.");
-  return;
-}
+if(!name||!phone||!address||!payment){alert("Fill all fields");return;}
 
 const orderId="ORD"+Date.now();
 
-const message=
-"New Order\n\n"+
-"Order ID: "+orderId+"\n"+
-"Product: "+selectedProduct+"\n"+
-"Name: "+name+"\n"+
-"Phone: "+phone+"\n"+
-"Address: "+address+"\n"+
-"Shipping: "+shipping+"\n"+
-"Total: "+total+"\n"+
-"Payment: "+payment;
-
-try{
-
-if(payment==="KBZ Pay"){
-
-const fileInput=document.getElementById("paymentScreenshot");
-if(!fileInput.files[0]){
-  alert("Upload payment screenshot.");
-  return;
-}
-
-const formData=new FormData();
-formData.append("chat_id",chat_id);
-formData.append("photo",fileInput.files[0]);
-formData.append("caption",message);
-
-await fetch(`https://api.telegram.org/bot${token}/sendPhoto`,{
-method:"POST",
-body:formData
+await database.ref("orders/"+orderId).set({
+orderId,cart,name,phone,address,total,payment,
+status:"Pending",
+createdAt:Date.now()
 });
 
-}else{
+alert("Order placed! Your Order ID: "+orderId);
+cart=[];
+updateCart();
+}
 
-await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({chat_id:chat_id,text:message})
+function checkStatus(){
+const id=document.getElementById("checkOrderId").value;
+database.ref("orders/"+id).once("value").then(s=>{
+if(!s.exists()){document.getElementById("statusResult").innerHTML="Order not found";return;}
+const d=s.val();
+if(d.status==="Pending"){
+document.getElementById("statusResult").innerHTML=`
+Status: Pending<br>
+<textarea id="reason" placeholder="Reason for cancellation"></textarea>
+<button class="remove-btn" onclick="cancelOrder('${id}')">Cancel Order</button>`;
+}
+else if(d.status==="Accepted"){
+document.getElementById("statusResult").innerHTML=`
+Status: Accepted<br>
+To cancel, contact us directly.<br>
+<a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank">
+<button class="add-btn">Contact Telegram</button></a>`;
+}
+else{
+document.getElementById("statusResult").innerHTML="Status: Cancelled";
+}
 });
-
 }
 
-document.getElementById("orderSection").style.display="none";
-document.getElementById("successSection").style.display="block";
-document.getElementById("displayOrderId").innerText=orderId;
-
-}catch(error){
-alert("Error sending order.");
-}
-
+function cancelOrder(id){
+const reason=document.getElementById("reason").value;
+if(!reason){alert("Enter reason");return;}
+database.ref("orders/"+id).update({
+status:"Cancelled",
+cancelReason:reason
+});
+alert("Order cancelled");
+checkStatus();
 }
 </script>
 
