@@ -79,8 +79,6 @@ textarea,input,select{
   border:none;
   margin-top:10px;
 }
-
-/* KBZ */
 #kbzSection{
   display:none;
   text-align:center;
@@ -98,7 +96,6 @@ textarea,input,select{
 <div class="container">
 <h1>GOTCHA</h1>
 
-<!-- PRODUCTS -->
 <div class="products">
 
 <div class="card">
@@ -131,7 +128,6 @@ textarea,input,select{
 
 </div>
 
-<!-- CART -->
 <div class="section">
 <h2>Your Cart</h2>
 <div id="cartItems"></div>
@@ -139,7 +135,6 @@ textarea,input,select{
 <h3>Total: <span id="finalTotal">0</span> MMK</h3>
 </div>
 
-<!-- CHECKOUT -->
 <div class="section">
 <h2>Checkout</h2>
 
@@ -154,26 +149,24 @@ textarea,input,select{
 </select>
 
 <div id="kbzSection">
-  <p>Scan this KBZPay QR to complete payment</p>
-  <img src="380E3397-A4B5-405B-BF07-28550EFBE470.jpeg">
-  <input type="file" id="paymentScreenshot" accept="image/*">
-  <p style="font-size:13px;color:#aaa;">Upload screenshot after payment</p>
+<p>Scan this KBZPay QR to complete payment</p>
+<img src="380E3397-A4B5-405B-BF07-28550EFBE470.jpeg">
+<input type="file" id="paymentScreenshot" accept="image/*">
+<p style="font-size:13px;color:#aaa;">Upload screenshot after payment</p>
 </div>
 
 <button class="add-btn" onclick="sendOrder()">Confirm Order</button>
 </div>
 
-<!-- ORDER STATUS -->
 <div class="section">
-<h2>Check Order Status</h2>
+<h2>Cancel Order</h2>
 <input type="text" id="checkOrderId" placeholder="Enter Order ID">
-<button class="add-btn" onclick="checkStatus()">Check Status</button>
+<button class="add-btn" onclick="checkStatus()">Check Order</button>
 <div id="statusResult"></div>
 </div>
 
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
@@ -193,47 +186,43 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const storage = firebase.storage();
 
-let cart=[];
-
-/* TELEGRAM SETTINGS */
 const token="YOUR_BOT_TOKEN";
 const chat_id="YOUR_CHAT_ID";
 
-/* ADD TO CART */
+let cart=[];
+
 function addToCart(name,price,sizeId,qtyId){
-  const size=document.getElementById(sizeId).value;
-  const qty=parseInt(document.getElementById(qtyId).value);
-  if(!size){alert("Select size");return;}
-  const existing=cart.find(i=>i.name===name&&i.size===size);
-  if(existing){existing.qty+=qty;}
-  else{cart.push({name,size,qty,price});}
-  updateCart();
+const size=document.getElementById(sizeId).value;
+const qty=parseInt(document.getElementById(qtyId).value);
+if(!size){alert("Select size");return;}
+const existing=cart.find(i=>i.name===name&&i.size===size);
+if(existing){existing.qty+=qty;}
+else{cart.push({name,size,qty,price});}
+updateCart();
 }
 
 function updateCart(){
-  const div=document.getElementById("cartItems");
-  div.innerHTML="";
-  let subtotal=0;
-  cart.forEach((item,index)=>{
-    subtotal+=item.price*item.qty;
-    div.innerHTML+=`
-    <div class="cart-item">
-      ${item.name} - ${item.size}<br>
-      ${item.qty} x ${item.price} MMK<br>
-      ${item.price*item.qty} MMK
-    </div>`;
-  });
-  document.getElementById("cartSubtotal").innerText=subtotal;
-  document.getElementById("finalTotal").innerText=subtotal;
+const div=document.getElementById("cartItems");
+div.innerHTML="";
+let subtotal=0;
+cart.forEach(item=>{
+subtotal+=item.price*item.qty;
+div.innerHTML+=`
+<div class="cart-item">
+${item.name} - ${item.size}<br>
+${item.qty} x ${item.price} MMK<br>
+${item.price*item.qty} MMK
+</div>`;
+});
+document.getElementById("cartSubtotal").innerText=subtotal;
+document.getElementById("finalTotal").innerText=subtotal;
 }
 
-/* PAYMENT TOGGLE */
 document.getElementById("payment").addEventListener("change",function(){
-  document.getElementById("kbzSection").style.display =
-  this.value==="KBZ Pay"?"block":"none";
+document.getElementById("kbzSection").style.display=
+this.value==="KBZ Pay"?"block":"none";
 });
 
-/* SEND ORDER */
 async function sendOrder(){
 if(cart.length===0){alert("Cart empty");return;}
 
@@ -249,11 +238,11 @@ const orderId="ORD"+Date.now();
 let screenshotURL="";
 
 if(payment==="KBZ Pay"){
-  const file=document.getElementById("paymentScreenshot").files[0];
-  if(!file){alert("Upload payment screenshot");return;}
-  const ref=storage.ref("payments/"+orderId);
-  await ref.put(file);
-  screenshotURL=await ref.getDownloadURL();
+const file=document.getElementById("paymentScreenshot").files[0];
+if(!file){alert("Upload payment screenshot");return;}
+const ref=storage.ref("payments/"+orderId);
+await ref.put(file);
+screenshotURL=await ref.getDownloadURL();
 }
 
 await database.ref("orders/"+orderId).set({
@@ -263,12 +252,7 @@ status:"Pending",
 createdAt:Date.now()
 });
 
-/* TELEGRAM NEW ORDER */
-let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n`;
-cart.forEach(item=>{
-message+=`${item.name} - ${item.size} x${item.qty}\n`;
-});
-message+=`\nTotal: ${total} MMK\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}\n`;
+let message=`🛒 NEW ORDER\nOrder ID: ${orderId}\nTotal: ${total} MMK\nName: ${name}\nPhone: ${phone}\nPayment: ${payment}`;
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
@@ -281,33 +265,29 @@ cart=[];
 updateCart();
 }
 
-/* CANCEL ORDER SYSTEM */
 function checkStatus(){
 const id=document.getElementById("checkOrderId").value;
-
 database.ref("orders/"+id).once("value").then(s=>{
 if(!s.exists()){
 document.getElementById("statusResult").innerHTML="Order not found";
 return;
 }
-
 const d=s.val();
 
 if(d.status==="Pending"){
 document.getElementById("statusResult").innerHTML=`
 Status: Pending<br><br>
 <textarea id="cancelReason" placeholder="Reason for cancellation"></textarea>
-<button onclick="cancelOrder('${id}')">Cancel Order</button>
+<button class="remove-btn" onclick="cancelOrder('${id}')">Cancel Order</button>
 `;
 }
 else if(d.status==="Accepted"){
 document.getElementById("statusResult").innerHTML=`
 Status: Accepted<br><br>
-To cancel this order please contact us on Telegram.<br><br>
+Contact us on Telegram to cancel.<br><br>
 <a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank">
-<button>Contact on Telegram</button>
-</a>
-`;
+<button class="add-btn">Contact Telegram</button>
+</a>`;
 }
 else{
 document.getElementById("statusResult").innerHTML="Status: "+d.status;
@@ -324,8 +304,7 @@ status:"Cancelled by Customer",
 cancelReason:reason
 });
 
-/* TELEGRAM CANCEL NOTICE */
-let message=`❌ ORDER CANCELLED\n\nOrder ID: ${id}\nReason:\n${reason}`;
+let message=`❌ ORDER CANCELLED\nOrder ID: ${id}\nReason: ${reason}`;
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
