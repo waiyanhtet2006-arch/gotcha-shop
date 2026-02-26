@@ -1,77 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Gotcha Shop</title>
+<meta charset="UTF-8">
+<title>GOTCHA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
-font-family:Arial;
-background:#111;
-color:white;
-margin:0;
-padding:20px;
+  margin:0;
+  font-family:Arial;
+  background:#0f0f0f;
+  color:white;
 }
-
-.section{
-background:#1c1c1c;
-padding:15px;
-margin-bottom:20px;
-border-radius:10px;
+.container{
+  width:95%;
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
 }
-
+h1{text-align:center;margin-bottom:30px;}
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:25px;
+}
+.card{
+  background:#1a1a1a;
+  padding:20px;
+  border-radius:12px;
+}
+.card img{
+  width:100%;
+  border-radius:8px;
+}
+select,input,textarea{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+}
 button{
-background:#ff9800;
-border:none;
-padding:8px 12px;
-margin-top:5px;
-border-radius:5px;
-cursor:pointer;
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
 }
-
-input,select,textarea{
-width:100%;
-padding:8px;
-margin-top:5px;
-margin-bottom:10px;
-border-radius:5px;
-border:none;
+.add-btn{background:#00bfa6;color:white;margin-top:10px;}
+.qty-btn{background:#444;color:white;}
+.remove-btn{background:#ff4d4d;color:white;}
+.section{
+  margin-top:40px;
+  background:#1a1a1a;
+  padding:25px;
+  border-radius:12px;
 }
-
 .cart-item{
-border-bottom:1px solid #333;
-padding:8px 0;
+  border-bottom:1px solid #333;
+  padding:12px 0;
 }
-
-.remove-btn{
-background:red;
-color:white;
-padding:3px 6px;
-font-size:12px;
+/* KBZ Pay Modal */
+#kbzModal{
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
 }
-
-#kbzQRBox{
-display:none;
-text-align:center;
-margin-top:10px;
+#kbzModalContent{
+  background:#1a1a1a;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
 }
-
-#kbzQRBox img{
-width:200px;
-border-radius:10px;
+#kbzModalContent img{
+  max-width:250px;
+  margin-bottom:10px;
 }
 </style>
 </head>
 <body>
 
-<h1>🛍 Gotcha Shop</h1>
+<div class="container">
+<h1>GOTCHA</h1>
 
 <!-- PRODUCTS -->
-<div class="section">
-<h2>Products</h2>
+<div class="products">
+<div class="card">
+<img src="YOUR_WHITE_IMAGE">
+<h3>CULTURAL TREASURE (WHITE)</h3>
+<p>48,000 MMK</p>
+<select id="size1">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+</select>
+<button class="add-btn" onclick="addToCart('White',48000,'size1')">Add To Cart</button>
+</div>
 
-<button onclick="addToCart('Shirt','M',15000)">Add Shirt (M) - 15000</button><br>
-<button onclick="addToCart('Shirt','L',15000)">Add Shirt (L) - 15000</button><br>
-<button onclick="addToCart('Pants','M',20000)">Add Pants (M) - 20000</button>
-
+<div class="card">
+<img src="YOUR_BLACK_IMAGE">
+<h3>CULTURAL TREASURE (BLACK)</h3>
+<p>48,000 MMK</p>
+<select id="size2">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+</select>
+<button class="add-btn" onclick="addToCart('Black',48000,'size2')">Add To Cart</button>
+</div>
 </div>
 
 <!-- CART -->
@@ -84,243 +126,129 @@ border-radius:10px;
 <!-- CHECKOUT -->
 <div class="section">
 <h2>Checkout</h2>
+<input type="text" id="name" placeholder="Full Name">
+<input type="text" id="phone" placeholder="Phone Number">
+<input type="text" id="address" placeholder="Delivery Address">
 
-<input id="name" placeholder="Your Name">
-<input id="phone" placeholder="Phone">
-<input id="address" placeholder="Address">
-
-<label>Payment Method</label>
-<select id="paymentMethod" onchange="handlePaymentChange()">
+<select id="payment" onchange="showPayment()">
 <option value="">Select Payment</option>
-<option value="kbz">KBZPay</option>
-<option value="cod">Cash On Delivery</option>
+<option value="COD">Cash on Delivery</option>
+<option value="KBZ">KBZ Pay</option>
 </select>
 
-<!-- KBZ QR POPUP -->
-<div id="kbzQRBox">
-<p>Scan this QR and pay:</p>
-<img src="your-kbz-qr.jpg">
-<input type="file" id="paymentScreenshot">
+<div id="kbzUpload" style="display:none; margin-top:10px;">
+<p>Scan KBZ QR and upload screenshot of payment:</p>
+<img src="YOUR_KBZ_QR_IMAGE" alt="KBZ QR Code" style="max-width:200px;">
+<input type="file" id="kbzScreenshot">
 </div>
 
-<button onclick="sendOrder()">Place Order</button>
-
+<button class="add-btn" onclick="sendOrder()">Confirm Order</button>
 </div>
 
 <!-- CANCEL -->
 <div class="section">
 <h2>Cancel Order</h2>
-
-<input id="cancelOrderId" placeholder="Enter Order ID">
-<textarea id="cancelReason" placeholder="Reason for cancellation (required)"></textarea>
-
-<button onclick="cancelOrder()">Cancel Order</button>
+<input type="text" id="cancelOrderId" placeholder="Enter Order ID">
+<textarea id="cancelReason" placeholder="Reason for cancellation"></textarea>
+<button class="remove-btn" onclick="cancelOrder()">Submit Cancel Request</button>
 </div>
 
-<!-- LAST ORDER -->
-<div class="section">
-<div id="lastOrderBox"></div>
 </div>
 
 <script>
-
 const token="YOUR_BOT_TOKEN";
 const chat_id="YOUR_CHAT_ID";
 
 let cart=[];
 
 /* ADD TO CART */
-function addToCart(name,size,price){
-
-let existing=cart.find(item=>item.name===name && item.size===size);
-
-if(existing){
-existing.qty++;
-}else{
-cart.push({name,size,price,qty:1});
-}
-
+function addToCart(name,price,sizeId){
+const size=document.getElementById(sizeId).value;
+if(!size){alert("Select size");return;}
+const existing=cart.find(item=>item.name===name && item.size===size);
+if(existing){existing.qty++;}else{cart.push({name,size,price,qty:1});}
 updateCart();
 }
 
 /* UPDATE CART */
 function updateCart(){
-
-let cartDiv=document.getElementById("cartItems");
-cartDiv.innerHTML="";
+const div=document.getElementById("cartItems");
+div.innerHTML="";
 let total=0;
-
 cart.forEach((item,index)=>{
-
-let subtotal=item.price*item.qty;
-total+=subtotal;
-
-cartDiv.innerHTML+=`
+total+=item.price*item.qty;
+div.innerHTML+=`
 <div class="cart-item">
-${item.name} (${item.size})  
-<br>
-Qty: 
-<button onclick="changeQty(${index},-1)">-</button>
+<b>${item.name}</b> (${item.size})<br>
+${item.price} MMK<br><br>
+<button class="qty-btn" onclick="decreaseQty(${index})">-</button>
 ${item.qty}
-<button onclick="changeQty(${index},1)">+</button>
-<br>
-Subtotal: ${subtotal} MMK
-<br>
+<button class="qty-btn" onclick="increaseQty(${index})">+</button>
+<br><br>
 <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
-</div>
-`;
+<br><br>
+Subtotal: ${item.price*item.qty} MMK
+</div>`;
 });
-
 document.getElementById("cartTotal").innerText=total;
 }
 
-/* CHANGE QTY */
-function changeQty(index,amount){
-cart[index].qty+=amount;
-if(cart[index].qty<=0){
-cart.splice(index,1);
-}
-updateCart();
-}
+/* QUANTITY CONTROLS */
+function increaseQty(index){cart[index].qty++; updateCart();}
+function decreaseQty(index){if(cart[index].qty>1){cart[index].qty--;}else{cart.splice(index,1);} updateCart();}
+function removeItem(index){cart.splice(index,1); updateCart();}
 
-/* REMOVE ITEM */
-function removeItem(index){
-cart.splice(index,1);
-updateCart();
-}
-
-/* PAYMENT METHOD CHANGE */
-function handlePaymentChange(){
-let method=document.getElementById("paymentMethod").value;
-let qrBox=document.getElementById("kbzQRBox");
-
-if(method==="kbz"){
-qrBox.style.display="block";
-}else{
-qrBox.style.display="none";
-}
+/* SHOW PAYMENT */
+function showPayment(){
+const payment=document.getElementById("payment").value;
+document.getElementById("kbzUpload").style.display=(payment==="KBZ") ? "block":"none";
 }
 
 /* SEND ORDER */
 function sendOrder(){
-
-if(cart.length===0){
-alert("Cart is empty");
-return;
-}
-
+if(cart.length===0){alert("Cart is empty"); return;}
 const name=document.getElementById("name").value;
 const phone=document.getElementById("phone").value;
 const address=document.getElementById("address").value;
-const payment=document.getElementById("paymentMethod").value;
-
-if(!name||!phone||!address||!payment){
-alert("Fill all fields");
-return;
-}
-
-if(payment==="kbz"){
-let screenshot=document.getElementById("paymentScreenshot").files[0];
-if(!screenshot){
-alert("Upload payment screenshot");
-return;
-}
-}
+const payment=document.getElementById("payment").value;
+if(!name||!phone||!address||!payment){alert("Fill all fields"); return;}
 
 const orderId="ORD"+Date.now();
-
 let itemsText="";
-cart.forEach(item=>{
-itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MMK\n`;
-});
+cart.forEach(item=>{itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MMK\n`;});
 
-let total=document.getElementById("cartTotal").innerText;
+let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${document.getElementById("cartTotal").innerText} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}`;
 
-let message=`🛒 NEW ORDER
-
-Order ID: ${orderId}
-
-${itemsText}
-Total: ${total} MMK
-
-Payment: ${payment}
-
-Name: ${name}
-Phone: ${phone}
-Address: ${address}`;
+if(payment==="KBZ"){
+const fileInput=document.getElementById("kbzScreenshot");
+if(fileInput.files.length===0){alert("Upload KBZ payment screenshot"); return;}
+message+="\nPayment screenshot uploaded.";
+}
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-chat_id:chat_id,
-text:message
-})
+body:JSON.stringify({chat_id:chat_id,text:message})
 });
 
-localStorage.setItem("lastOrder",JSON.stringify({
-orderId:orderId,
-items:itemsText,
-total:total
-}));
-
-alert("Order placed! Your Order ID: "+orderId);
-
+alert("Order placed! Save your Order ID: "+orderId);
 cart=[];
 updateCart();
-displayLastOrder();
 }
 
 /* CANCEL ORDER */
 function cancelOrder(){
-
-let orderId=document.getElementById("cancelOrderId").value;
-let reason=document.getElementById("cancelReason").value;
-
-if(!orderId||!reason){
-alert("Order ID and reason required");
-return;
-}
-
-let message=`❌ ORDER CANCEL REQUEST
-
-Order ID: ${orderId}
-
-Reason:
-${reason}`;
-
+const orderId=document.getElementById("cancelOrderId").value;
+const reason=document.getElementById("cancelReason").value;
+if(!orderId||!reason){alert("Enter Order ID and reason"); return;}
+let message=`❌ ORDER CANCELLATION REQUEST\n\nOrder ID: ${orderId}\nReason: ${reason}`;
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-chat_id:chat_id,
-text:message
-})
+body:JSON.stringify({chat_id:chat_id,text:message})
 });
-
-alert("Cancel request sent.");
+alert("Cancellation request sent to seller.");
 }
-
-/* DISPLAY LAST ORDER */
-function displayLastOrder(){
-
-const data=localStorage.getItem("lastOrder");
-if(!data) return;
-
-const order=JSON.parse(data);
-
-document.getElementById("lastOrderBox").innerHTML=`
-<h3>📦 Your Last Order</h3>
-<b>Order ID:</b> ${order.orderId}<br><br>
-<pre>${order.items}</pre>
-<b>Total:</b> ${order.total} MMK
-`;
-}
-
-window.onload=function(){
-displayLastOrder();
-};
-
 </script>
 
 </body>
