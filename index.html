@@ -288,7 +288,8 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({chat_id:chat_id,text:message})
 });
 alert("Cancellation request sent to seller.");
-}
+}localStorage.removeItem("activeOrder");
+document.getElementById("activeOrderSection").style.display="none";
 </script>
 
 </body>
