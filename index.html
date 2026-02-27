@@ -60,26 +60,6 @@ button{
   border-bottom:1px solid #333;
   padding:12px 0;
 }
-/* KBZ Pay Modal */
-#kbzModal{
-  display:none;
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.8);
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
-}
-#kbzModalContent{
-  background:#1a1a1a;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
-}
-#kbzModalContent img{
-  max-width:250px;
-  margin-bottom:10px;
-}
 </style>
 </head>
 <body>
@@ -89,6 +69,7 @@ button{
 
 <!-- PRODUCTS -->
 <div class="products">
+
 <div class="card">
 <img src="YOUR_WHITE_IMAGE">
 <h3>CULTURAL TREASURE (WHITE)</h3>
@@ -114,6 +95,7 @@ button{
 </select>
 <button class="add-btn" onclick="addToCart('Black',48000,'size2')">Add To Cart</button>
 </div>
+
 </div>
 
 <!-- CART -->
@@ -129,24 +111,13 @@ button{
 <input type="text" id="name" placeholder="Full Name">
 <input type="text" id="phone" placeholder="Phone Number">
 <input type="text" id="address" placeholder="Delivery Address">
-
-<select id="payment" onchange="showPayment()">
-<option value="">Select Payment</option>
-<option value="COD">Cash on Delivery</option>
-<option value="KBZ">KBZ Pay</option>
-</select>
-
-<div id="kbzUpload" style="display:none; margin-top:10px;">
-<p>Scan KBZ QR and upload screenshot of payment:</p>
-<img src="YOUR_KBZ_QR_IMAGE" alt="KBZ QR Code" style="max-width:200px;">
-<input type="file" id="kbzScreenshot">
-</div>
-  <div class="section" id="activeOrderSection" style="display:none;">
-<h2>Your Active Order</h2>
-<div id="activeOrderInfo"></div>
-</div>
-
 <button class="add-btn" onclick="sendOrder()">Confirm Order</button>
+</div>
+
+<!-- ACTIVE ORDER (NEW) -->
+<div id="activeOrderSection" class="section" style="display:none;">
+<h2>Active Order</h2>
+<div id="activeOrderInfo"></div>
 </div>
 
 <!-- CANCEL -->
@@ -160,9 +131,9 @@ button{
 </div>
 
 <script>
-const token="8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU
-";
-const chat_id="7194426571";
+
+const token="YOUR_BOT_TOKEN";
+const chat_id="YOUR_CHAT_ID";
 
 let cart=[];
 
@@ -170,8 +141,14 @@ let cart=[];
 function addToCart(name,price,sizeId){
 const size=document.getElementById(sizeId).value;
 if(!size){alert("Select size");return;}
+
 const existing=cart.find(item=>item.name===name && item.size===size);
-if(existing){existing.qty++;}else{cart.push({name,size,price,qty:1});}
+
+if(existing){
+existing.qty++;
+}else{
+cart.push({name,size,price,qty:1});
+}
 updateCart();
 }
 
@@ -180,8 +157,10 @@ function updateCart(){
 const div=document.getElementById("cartItems");
 div.innerHTML="";
 let total=0;
+
 cart.forEach((item,index)=>{
 total+=item.price*item.qty;
+
 div.innerHTML+=`
 <div class="cart-item">
 <b>${item.name}</b> (${item.size})<br>
@@ -195,18 +174,28 @@ ${item.qty}
 Subtotal: ${item.price*item.qty} MMK
 </div>`;
 });
+
 document.getElementById("cartTotal").innerText=total;
 }
 
-/* QUANTITY CONTROLS */
-function increaseQty(index){cart[index].qty++; updateCart();}
-function decreaseQty(index){if(cart[index].qty>1){cart[index].qty--;}else{cart.splice(index,1);} updateCart();}
-function removeItem(index){cart.splice(index,1); updateCart();}
+/* QUANTITY SYSTEM */
+function increaseQty(index){
+cart[index].qty++;
+updateCart();
+}
 
-/* SHOW PAYMENT */
-function showPayment(){
-const payment=document.getElementById("payment").value;
-document.getElementById("kbzUpload").style.display=(payment==="KBZ") ? "block":"none";
+function decreaseQty(index){
+if(cart[index].qty>1){
+cart[index].qty--;
+}else{
+cart.splice(index,1);
+}
+updateCart();
+}
+
+function removeItem(index){
+cart.splice(index,1);
+updateCart();
 }
 
 /* SEND ORDER */
@@ -217,27 +206,13 @@ alert("Cart is empty");
 return;
 }
 
-if(localStorage.getItem("activeOrder")){
-alert("You already have an active order.");
-return;
-}
-
 const name=document.getElementById("name").value;
 const phone=document.getElementById("phone").value;
 const address=document.getElementById("address").value;
-const payment=document.getElementById("payment").value;
 
-if(!name||!phone||!address||!payment){
+if(!name||!phone||!address){
 alert("Fill all fields");
 return;
-}
-
-if(payment==="KBZ"){
-const fileInput=document.getElementById("kbzScreenshot");
-if(fileInput.files.length===0){
-alert("Upload KBZ payment screenshot");
-return;
-}
 }
 
 const orderId="ORD"+Date.now();
@@ -247,53 +222,86 @@ cart.forEach(item=>{
 itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MMK\n`;
 });
 
-const total=document.getElementById("cartTotal").innerText;
+let total=document.getElementById("cartTotal").innerText;
 
-let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${total} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}`;
+let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${total} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}`;
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({chat_id:chat_id,text:message})
+body:JSON.stringify({
+chat_id:chat_id,
+text:message
+})
 });
 
 /* SAVE ACTIVE ORDER */
-localStorage.setItem("activeOrder", JSON.stringify({
-orderId,
-itemsText,
-total,
-name,
-phone,
-address,
-payment,
-status:"Processing"
+localStorage.setItem("activeOrder",JSON.stringify({
+orderId:orderId,
+itemsText:itemsText,
+total:total,
+status:"Pending"
 }));
+
+displayActiveOrder();
+
+alert("Order placed! Save your Order ID: "+orderId);
 
 cart=[];
 updateCart();
-displayActiveOrder();
+}
 
-alert("Order placed! You can see it below.");
+/* DISPLAY ACTIVE ORDER */
+function displayActiveOrder(){
+
+const data=localStorage.getItem("activeOrder");
+if(!data) return;
+
+const order=JSON.parse(data);
+
+document.getElementById("activeOrderSection").style.display="block";
+
+document.getElementById("activeOrderInfo").innerHTML=`
+<b>Order ID:</b> ${order.orderId}<br><br>
+<pre>${order.itemsText}</pre>
+<b>Total:</b> ${order.total} MMK<br>
+<b>Status:</b> ${order.status}
+`;
 }
 
 /* CANCEL ORDER */
 function cancelOrder(){
+
 const orderId=document.getElementById("cancelOrderId").value;
 const reason=document.getElementById("cancelReason").value;
-if(!orderId||!reason){alert("Enter Order ID and reason"); return;}
+
+if(!orderId||!reason){
+alert("You must enter Order ID and reason");
+return;
+}
+
 let message=`❌ ORDER CANCELLATION REQUEST\n\nOrder ID: ${orderId}\nReason: ${reason}`;
+
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({chat_id:chat_id,text:message})
+body:JSON.stringify({
+chat_id:chat_id,
+text:message
+})
 });
-alert("Cancellation request sent to seller.");
-}localStorage.removeItem("activeOrder");
+
+localStorage.removeItem("activeOrder");
 document.getElementById("activeOrderSection").style.display="none";
+
+alert("Cancellation request sent.");
+}
+
 window.onload=function(){
 displayActiveOrder();
 };
+
 </script>
-  
+
 </body>
 </html>
