@@ -211,24 +211,45 @@ document.getElementById("kbzUpload").style.display=(payment==="KBZ") ? "block":"
 
 /* SEND ORDER */
 function sendOrder(){
-if(cart.length===0){alert("Cart is empty"); return;}
+
+if(cart.length===0){
+alert("Cart is empty");
+return;
+}
+
+if(localStorage.getItem("activeOrder")){
+alert("You already have an active order.");
+return;
+}
+
 const name=document.getElementById("name").value;
 const phone=document.getElementById("phone").value;
 const address=document.getElementById("address").value;
 const payment=document.getElementById("payment").value;
-if(!name||!phone||!address||!payment){alert("Fill all fields"); return;}
 
-const orderId="ORD"+Date.now();
-let itemsText="";
-cart.forEach(item=>{itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MMK\n`;});
-
-let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${document.getElementById("cartTotal").innerText} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}`;
+if(!name||!phone||!address||!payment){
+alert("Fill all fields");
+return;
+}
 
 if(payment==="KBZ"){
 const fileInput=document.getElementById("kbzScreenshot");
-if(fileInput.files.length===0){alert("Upload KBZ payment screenshot"); return;}
-message+="\nPayment screenshot uploaded.";
+if(fileInput.files.length===0){
+alert("Upload KBZ payment screenshot");
+return;
 }
+}
+
+const orderId="ORD"+Date.now();
+
+let itemsText="";
+cart.forEach(item=>{
+itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MMK\n`;
+});
+
+const total=document.getElementById("cartTotal").innerText;
+
+let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${total} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nPayment: ${payment}`;
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
@@ -236,9 +257,23 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({chat_id:chat_id,text:message})
 });
 
-alert("Order placed! Save your Order ID: "+orderId);
+/* SAVE ACTIVE ORDER */
+localStorage.setItem("activeOrder", JSON.stringify({
+orderId,
+itemsText,
+total,
+name,
+phone,
+address,
+payment,
+status:"Processing"
+}));
+
 cart=[];
 updateCart();
+displayActiveOrder();
+
+alert("Order placed! You can see it below.");
 }
 
 /* CANCEL ORDER */
