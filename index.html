@@ -67,7 +67,6 @@ button{
 <div class="container">
 <h1>GOTCHA</h1>
 
-<!-- PRODUCTS -->
 <div class="products">
 
 <div class="card">
@@ -98,14 +97,12 @@ button{
 
 </div>
 
-<!-- CART -->
 <div class="section">
 <h2>Your Cart</h2>
 <div id="cartItems"></div>
 <h3>Total: <span id="cartTotal">0</span> MMK</h3>
 </div>
 
-<!-- CHECKOUT -->
 <div class="section">
 <h2>Checkout</h2>
 <input type="text" id="name" placeholder="Full Name">
@@ -114,13 +111,13 @@ button{
 <button class="add-btn" onclick="sendOrder()">Confirm Order</button>
 </div>
 
-<!-- ACTIVE ORDER (NEW) -->
 <div id="activeOrderSection" class="section" style="display:none;">
 <h2>Active Order</h2>
 <div id="activeOrderInfo"></div>
+<br>
+<button class="add-btn" onclick="checkStatus()">Check Latest Status</button>
 </div>
 
-<!-- CANCEL -->
 <div class="section">
 <h2>Cancel Order</h2>
 <input type="text" id="cancelOrderId" placeholder="Enter Order ID">
@@ -132,35 +129,30 @@ button{
 
 <script>
 
-const token="8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU";
-const chat_id="7194426571";
+const token="YOUR_TELEGRAM_BOT_TOKEN";
+const chat_id="YOUR_CHAT_ID";
+
+/* 🔥 ADD YOUR AIRTABLE INFO HERE */
+const AIRTABLE_BASE_ID="YOUR_BASE_ID";
+const AIRTABLE_TOKEN="YOUR_API_TOKEN";
+const AIRTABLE_TABLE="Table 1";
 
 let cart=[];
 
-/* ADD TO CART */
 function addToCart(name,price,sizeId){
 const size=document.getElementById(sizeId).value;
 if(!size){alert("Select size");return;}
-
 const existing=cart.find(item=>item.name===name && item.size===size);
-
-if(existing){
-existing.qty++;
-}else{
-cart.push({name,size,price,qty:1});
-}
+if(existing){existing.qty++;}else{cart.push({name,size,price,qty:1});}
 updateCart();
 }
 
-/* UPDATE CART */
 function updateCart(){
 const div=document.getElementById("cartItems");
 div.innerHTML="";
 let total=0;
-
 cart.forEach((item,index)=>{
 total+=item.price*item.qty;
-
 div.innerHTML+=`
 <div class="cart-item">
 <b>${item.name}</b> (${item.size})<br>
@@ -174,46 +166,22 @@ ${item.qty}
 Subtotal: ${item.price*item.qty} MMK
 </div>`;
 });
-
 document.getElementById("cartTotal").innerText=total;
 }
 
-/* QUANTITY SYSTEM */
-function increaseQty(index){
-cart[index].qty++;
-updateCart();
-}
+function increaseQty(index){cart[index].qty++;updateCart();}
+function decreaseQty(index){if(cart[index].qty>1){cart[index].qty--;}else{cart.splice(index,1);}updateCart();}
+function removeItem(index){cart.splice(index,1);updateCart();}
 
-function decreaseQty(index){
-if(cart[index].qty>1){
-cart[index].qty--;
-}else{
-cart.splice(index,1);
-}
-updateCart();
-}
-
-function removeItem(index){
-cart.splice(index,1);
-updateCart();
-}
-
-/* SEND ORDER */
 function sendOrder(){
 
-if(cart.length===0){
-alert("Cart is empty");
-return;
-}
+if(cart.length===0){alert("Cart is empty");return;}
 
 const name=document.getElementById("name").value;
 const phone=document.getElementById("phone").value;
 const address=document.getElementById("address").value;
 
-if(!name||!phone||!address){
-alert("Fill all fields");
-return;
-}
+if(!name||!phone||!address){alert("Fill all fields");return;}
 
 const orderId="ORD"+Date.now();
 
@@ -224,43 +192,57 @@ itemsText+=`${item.name} (${item.size}) x${item.qty} = ${item.price*item.qty} MM
 
 let total=document.getElementById("cartTotal").innerText;
 
+/* TELEGRAM SEND */
 let message=`🛒 NEW ORDER\n\nOrder ID: ${orderId}\n\n${itemsText}\nTotal: ${total} MMK\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}`;
 
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
+body:JSON.stringify({chat_id:chat_id,text:message})
+});
+
+/* 🔥 AIRTABLE SAVE */
+fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`,{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+AIRTABLE_TOKEN,
+"Content-Type":"application/json"
+},
 body:JSON.stringify({
-chat_id:chat_id,
-text:message
+records:[{
+fields:{
+OrderID:orderId,
+CustomerName:name,
+Phone:phone,
+Address:address,
+Items:itemsText,
+Total:Number(total),
+Status:"Pending"
+}
+}]
 })
 });
 
-/* SAVE ACTIVE ORDER */
+/* SAVE LOCAL */
 localStorage.setItem("activeOrder",JSON.stringify({
 orderId:orderId,
 itemsText:itemsText,
 total:total,
-status:"will be delivered to you within 2 or 3 days"
+status:"Pending"
 }));
 
 displayActiveOrder();
-
 alert("Order placed! Save your Order ID: "+orderId);
 
 cart=[];
 updateCart();
 }
 
-/* DISPLAY ACTIVE ORDER */
 function displayActiveOrder(){
-
 const data=localStorage.getItem("activeOrder");
 if(!data) return;
-
 const order=JSON.parse(data);
-
 document.getElementById("activeOrderSection").style.display="block";
-
 document.getElementById("activeOrderInfo").innerHTML=`
 <b>Order ID:</b> ${order.orderId}<br><br>
 <pre>${order.itemsText}</pre>
@@ -269,31 +251,38 @@ document.getElementById("activeOrderInfo").innerHTML=`
 `;
 }
 
-/* CANCEL ORDER */
-function cancelOrder(){
+/* 🔥 CHECK STATUS FROM AIRTABLE */
+function checkStatus(){
+const data=localStorage.getItem("activeOrder");
+if(!data) return;
+const order=JSON.parse(data);
 
-const orderId=document.getElementById("cancelOrderId").value;
-const reason=document.getElementById("cancelReason").value;
-
-if(!orderId||!reason){
-alert("You must enter Order ID and reason");
-return;
+fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula=OrderID='${order.orderId}'`,{
+headers:{"Authorization":"Bearer "+AIRTABLE_TOKEN}
+})
+.then(res=>res.json())
+.then(result=>{
+if(result.records.length>0){
+const status=result.records[0].fields.Status;
+order.status=status;
+localStorage.setItem("activeOrder",JSON.stringify(order));
+displayActiveOrder();
+}
+});
 }
 
+function cancelOrder(){
+const orderId=document.getElementById("cancelOrderId").value;
+const reason=document.getElementById("cancelReason").value;
+if(!orderId||!reason){alert("You must enter Order ID and reason");return;}
 let message=`❌ ORDER CANCELLATION REQUEST\n\nOrder ID: ${orderId}\nReason: ${reason}`;
-
 fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-chat_id:chat_id,
-text:message
-})
+body:JSON.stringify({chat_id:chat_id,text:message})
 });
-
 localStorage.removeItem("activeOrder");
 document.getElementById("activeOrderSection").style.display="none";
-
 alert("Cancellation request sent.");
 }
 
