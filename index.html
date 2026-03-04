@@ -30,7 +30,6 @@
 
         h1 { text-align: center; font-size: 2.5rem; letter-spacing: 4px; color: var(--primary); }
 
-        /* Grid Layout */
         .products {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -53,10 +52,9 @@
             aspect-ratio: 1/1;
             object-fit: cover;
             border-radius: 10px;
-            background: #222; /* Placeholder color */
+            background: #222;
         }
 
-        /* Form Elements */
         select, input, textarea {
             width: 100%;
             padding: 12px;
@@ -98,7 +96,6 @@
             padding: 15px 0;
         }
 
-        /* Notification Toast */
         #toast {
             position: fixed;
             bottom: 20px;
@@ -122,36 +119,35 @@
 <div class="container">
     <h1>GOTCHA</h1>
 
-<div class="products">
-    <div class="card">
-        <img src="https://via.placeholder.com/400?text=White+Treasure" alt="Cultural Treasure White">
-        <h3>CULTURAL TREASURE (WHITE)</h3>
-        <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
-        <select id="size1">
-            <option value="">Select Size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-        </select>
-        <button class="add-btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
-    </div>
+    <div class="products">
+        <div class="card">
+            <img src="https://via.placeholder.com/400?text=White+Treasure" alt="Cultural Treasure White">
+            <h3>CULTURAL TREASURE (WHITE)</h3>
+            <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
+            <select id="size1">
+                <option value="">Select Size</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+            </select>
+            <button class="add-btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
+        </div>
 
-    <div class="card">
-        <img src="https://via.placeholder.com/400?text=Black+Treasure" alt="Cultural Treasure Black">
-        <h3>CULTURAL TREASURE (BLACK)</h3>
-        <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
-        <select id="size2">
-            <option value="">Select Size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-        </select>
-        <button class="add-btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
+        <div class="card">
+            <img src="https://via.placeholder.com/400?text=Black+Treasure" alt="Cultural Treasure Black">
+            <h3>CULTURAL TREASURE (BLACK)</h3>
+            <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
+            <select id="size2">
+                <option value="">Select Size</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+            </select>
+            <button class="add-btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
+        </div>
     </div>
-</div>
-
 
     <div class="section">
         <h2>🛍️ Your Cart</h2>
@@ -164,19 +160,19 @@
         <input type="text" id="name" placeholder="Full Name">
         <input type="text" id="phone" placeholder="Phone Number (e.g. 09...)">
         <textarea id="address" placeholder="Delivery Address"></textarea>
-        <button class="add-btn" id="confirmBtn" onclick="sendOrder()">Confirm Order via Telegram & Airtable</button>
+        <button class="add-btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
     </div>
 </div>
 
 <script>
     // --- CONFIGURATION ---
     const CONFIG = {
-        token: "8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU",
-        chatId: "7194426571",
-        airtableBase: "appBtqvfe6uo88wx6",
-        airtableToken: "patPumM4HoWpQPnFl.e7030357b752118dfa86b81d8743602cb7b99d21703099f854e7587c8103ca5d
+        token: "8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU
 ",
-        airtableTable: "Orders"
+        chatId: "7194426571",
+        airtableBase: "appBtqvfe6uo88wx6", 
+        airtableToken: "YOUR_FULL_PAT_TOKEN",
+        airtableTable: "Orders" 
     };
 
     let cart = JSON.parse(localStorage.getItem('gotchaCart')) || [];
@@ -199,11 +195,11 @@
             cart.push({ name, size, price, qty: 1 });
         }
         
-        saveAndRefersh();
+        saveAndRefresh();
         showToast(`Added ${name} (${size}) to cart!`);
     }
 
-    function saveAndRefersh() {
+    function saveAndRefresh() {
         localStorage.setItem('gotchaCart', JSON.stringify(cart));
         updateCartUI();
     }
@@ -235,12 +231,12 @@
     function changeQty(index, delta) {
         cart[index].qty += delta;
         if (cart[index].qty <= 0) cart.splice(index, 1);
-        saveAndRefersh();
+        saveAndRefresh();
     }
 
     function removeItem(index) {
         cart.splice(index, 1);
-        saveAndRefersh();
+        saveAndRefresh();
     }
 
     async function sendOrder() {
@@ -258,9 +254,10 @@
 
         const orderId = "GOTCHA-" + Math.random().toString(36).substr(2, 6).toUpperCase();
         let itemsSummary = cart.map(i => `${i.name} (${i.size}) x${i.qty}`).join("\n");
-        let total = document.getElementById("cartTotal").innerText;
+        let totalRaw = document.getElementById("cartTotal").innerText;
+        let totalNumber = parseInt(totalRaw.replace(/,/g, ''));
 
-        const telegramMsg = `🛒 *NEW ORDER: ${orderId}*\n\n👤 Customer: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n\n📦 Items:\n${itemsSummary}\n\n💰 *Total: ${total} MMK*`;
+        const telegramMsg = `🛒 *NEW ORDER: ${orderId}*\n\n👤 Customer: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n\n📦 Items:\n${itemsSummary}\n\n💰 *Total: ${totalRaw} MMK*`;
 
         try {
             // 1. Send Telegram
@@ -282,7 +279,7 @@
                             Phone: phone,
                             Address: address,
                             Items: itemsSummary,
-                            Total: parseInt(total.replace(/,/g, '')),
+                            Total: totalNumber,
                             Status: "Pending"
                         }
                     }]
@@ -291,11 +288,12 @@
 
             alert("Order Success! Order ID: " + orderId);
             cart = [];
-            saveAndRefersh();
+            saveAndRefresh();
             document.querySelectorAll('input, textarea').forEach(i => i.value = "");
 
         } catch (e) {
-            alert("Connection error. Please try again.");
+            console.error(e);
+            alert("Error sending order. Please check your internet or configuration.");
         } finally {
             btn.disabled = false;
             btn.innerText = "Confirm Order";
