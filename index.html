@@ -183,19 +183,29 @@
     }
 
     function addToCart(name, price, sizeId) {
-        const size = document.getElementById(sizeId).value;
-        if (!size) { alert("Please select a size first!"); return; }
-        
-        const existing = cart.find(item => item.name === name && item.size === size);
-        if (existing) {
-            existing.qty++;
-        } else {
-            cart.push({ name, size, price, qty: 1 });
-        }
-        
-        saveAndRefersh();
-        showToast(`Added ${name} (${size}) to cart!`);
+    const sizeElement = document.getElementById(sizeId);
+    if (!sizeElement) {
+        console.error("Could not find element with ID:", sizeId);
+        return;
     }
+    const size = sizeElement.value;
+    if (!size) { 
+        alert("Please select a size first!"); 
+        return; 
+    }
+    
+    const existing = cart.find(item => item.name === name && item.size === size);
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({ name, size, price, qty: 1 });
+    }
+    
+    saveAndRefresh();
+    showToast(`Added ${name} (${size}) to cart!`);
+}
+
+    
 
     function saveAndRefersh() {
         localStorage.setItem('gotchaCart', JSON.stringify(cart));
