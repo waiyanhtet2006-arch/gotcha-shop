@@ -1,312 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>GOTCHA | Cultural Treasure</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --primary: #00bfa6;
-            --bg: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text: #ffffff;
-            --danger: #ff4d4d;
-        }
+<meta charset="UTF-8">
+<title>GOTCHA | Cultural Treasure</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            margin: auto;
-            padding: 40px 20px;
-        }
-
-        h1 { text-align: center; font-size: 2.5rem; letter-spacing: 4px; color: var(--primary); }
-
-        /* Grid Layout */
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 16px;
-            transition: transform 0.3s ease;
-            border: 1px solid #333;
-        }
-
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
-
-        .card img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-            border-radius: 10px;
-            background: #222; /* Placeholder color */
-        }
-
-        /* Form Elements */
-        select, input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-top: 12px;
-            background: #222;
-            border: 1px solid #444;
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-
-        button:active { transform: scale(0.98); }
-
-        .add-btn { background: var(--primary); color: white; width: 100%; margin-top: 15px; }
-        .qty-btn { background: #333; color: white; padding: 5px 15px; }
-        .remove-btn { background: var(--danger); color: white; }
-
-        .section {
-            margin-top: 50px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            padding: 15px 0;
-        }
-
-        /* Notification Toast */
-        #toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: black;
-            padding: 15px 25px;
-            border-radius: 8px;
-            display: none;
-            animation: slideIn 0.3s ease;
-            z-index: 1000;
-        }
-
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    </style>
-</head>
-<body>
-
-<div id="toast">Item added to capsule! 📦</div>
-
-<div class="container">
-    <h1>GOTCHA</h1>
-
-    <div class="products">
-        <div class="card">
-            <img src="https://via.placeholder.com/400?text=White+Treasure" alt="Cultural Treasure White">
-            <h3>CULTURAL TREASURE (WHITE)</h3>
-            <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
-            <select id="size1">
-                <option value="">Select Size</option>
-                <option>S</option><option>M</option><option>L</option><option>XL</option>
-            </select>
-            <button class="add-btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/400?text=Black+Treasure" alt="Cultural Treasure Black">
-            <h3>CULTURAL TREASURE (BLACK)</h3>
-            <p style="color:var(--primary); font-size: 1.2rem;">48,000 MMK</p>
-            <select id="size2">
-                <option value="">Select Size</option>
-                <option>S</option><option>M</option><option>L</option><option>XL</option>
-            </select>
-            <button class="add-btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>🛍️ Your Cart</h2>
-        <div id="cartItems"></div>
-        <h3 style="text-align: right;">Total: <span id="cartTotal" style="color:var(--primary)">0</span> MMK</h3>
-    </div>
-
-    <div class="section">
-        <h2>🚚 Checkout</h2>
-        <input type="text" id="name" placeholder="Full Name">
-        <input type="text" id="phone" placeholder="Phone Number (e.g. 09...)">
-        <textarea id="address" placeholder="Delivery Address"></textarea>
-        <button class="add-btn" id="confirmBtn" onclick="sendOrder()">Confirm Order via Telegram & Airtable</button>
-    </div>
-</div>
-
-<script>
-    // --- CONFIGURATION ---
-    const CONFIG = {
-        token: "
-8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU",
-        chatId: "7194426571",
-        airtableBase: "appBtqvfe6uo88wx6",
-        airtableToken: "pataq6PEUQeCOjDRW.f47f951b300930ccd7de1fe8516f7cad0457a584575c569f5678475164503ccd
-",
-        airtableTable: "Orders"
-    };
-
-    let cart = JSON.parse(localStorage.getItem('gotchaCart')) || [];
-
-    function showToast(msg) {
-        const t = document.getElementById("toast");
-        t.innerText = msg;
-        t.style.display = "block";
-        setTimeout(() => { t.style.display = "none"; }, 3000);
-    }
-
-    function addToCart(name, price, sizeId) {
-    const sizeElement = document.getElementById(sizeId);
-    if (!sizeElement) {
-        console.error("Could not find element with ID:", sizeId);
-        return;
-    }
-    const size = sizeElement.value;
-    if (!size) { 
-        alert("Please select a size first!"); 
-        return; 
-    }
-    
-    const existing = cart.find(item => item.name === name && item.size === size);
-    if (existing) {
-        existing.qty++;
-    } else {
-        cart.push({ name, size, price, qty: 1 });
-    }
-    
-    saveAndRefresh();
-    showToast(`Added ${name} (${size}) to cart!`);
+<style>
+:root{
+--primary:#00bfa6;
+--bg:#0f0f0f;
+--card-bg:#1a1a1a;
+--text:#ffffff;
+--danger:#ff4d4d;
 }
 
-    
+body{
+margin:0;
+font-family:'Segoe UI',Roboto,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+line-height:1.6;
+}
 
-    function saveAndRefersh() {
-        localStorage.setItem('gotchaCart', JSON.stringify(cart));
-        updateCartUI();
-    }
+.container{
+width:90%;
+max-width:1100px;
+margin:auto;
+padding:40px 20px;
+}
 
-    function updateCartUI() {
-        const div = document.getElementById("cartItems");
-        div.innerHTML = cart.length === 0 ? "<p>Your cart is empty.</p>" : "";
-        let total = 0;
+h1{
+text-align:center;
+font-size:2.5rem;
+letter-spacing:4px;
+color:var(--primary);
+}
 
-        cart.forEach((item, index) => {
-            total += item.price * item.qty;
-            div.innerHTML += `
-                <div class="cart-item">
-                    <div>
-                        <b>${item.name}</b> [${item.size}]<br>
-                        <small>${item.price.toLocaleString()} MMK</small>
-                    </div>
-                    <div>
-                        <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
-                        <span>${item.qty}</span>
-                        <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
-                        <button class="remove-btn" style="margin-left:10px" onclick="removeItem(${index})">×</button>
-                    </div>
-                </div>`;
-        });
-        document.getElementById("cartTotal").innerText = total.toLocaleString();
-    }
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:30px;
+margin-top:40px;
+}
 
-    function changeQty(index, delta) {
-        cart[index].qty += delta;
-        if (cart[index].qty <= 0) cart.splice(index, 1);
-        saveAndRefersh();
-    }
+.card{
+background:var(--card-bg);
+padding:20px;
+border-radius:16px;
+transition:transform .3s ease;
+border:1px solid #333;
+}
 
-    function removeItem(index) {
-        cart.splice(index, 1);
-        saveAndRefersh();
-    }
+.card:hover{
+transform:translateY(-5px);
+border-color:var(--primary);
+}
 
-    async function sendOrder() {
-        if (cart.length === 0) return alert("Cart is empty");
-        
-        const name = document.getElementById("name").value;
-        const phone = document.getElementById("phone").value;
-        const address = document.getElementById("address").value;
+.card img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:10px;
+background:#222;
+}
 
-        if (!name || !phone || !address) return alert("Please fill in all delivery details");
+select,input,textarea{
+width:100%;
+padding:12px;
+margin-top:12px;
+background:#222;
+border:1px solid #444;
+border-radius:8px;
+color:white;
+box-sizing:border-box;
+}
 
-        const btn = document.getElementById("confirmBtn");
-        btn.disabled = true;
-        btn.innerText = "Processing...";
+button{
+padding:12px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
 
-        const orderId = "GOTCHA-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-        let itemsSummary = cart.map(i => `${i.name} (${i.size}) x${i.qty}`).join("\n");
-        let total = document.getElementById("cartTotal").innerText;
+button:active{
+transform:scale(.98);
+}
 
-        const telegramMsg = `🛒 *NEW ORDER: ${orderId}*\n\n👤 Customer: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n\n📦 Items:\n${itemsSummary}\n\n💰 *Total: ${total} MMK*`;
+.add-btn{
+background:var(--primary);
+color:white;
+width:100%;
+margin-top:15px;
+}
 
-        try {
-            // 1. Send Telegram
-            await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chat_id: CONFIG.chatId, text: telegramMsg, parse_mode: "Markdown" })
-            });
+.qty-btn{
+background:#333;
+color:white;
+padding:5px 15px;
+}
 
-            // 2. Send Airtable
-            await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${encodeURIComponent(CONFIG.airtableTable)}`, {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${CONFIG.airtableToken}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    records: [{
-                        fields: {
-                            OrderID: orderId,
-                            CustomerName: name,
-                            Phone: phone,
-                            Address: address,
-                            Items: itemsSummary,
-                            Total: parseInt(total.replace(/,/g, '')),
-                            Status: "Pending"
-                        }
-                    }]
-                })
-            });
+.remove-btn{
+background:var(--danger);
+color:white;
+}
 
-            alert("Order Success! Order ID: " + orderId);
-            cart = [];
-            saveAndRefersh();
-            document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+.section{
+margin-top:50px;
+background:var(--card-bg);
+padding:30px;
+border-radius:16px;
+}
 
-        } catch (e) {
-            alert("Connection error. Please try again.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Confirm Order";
-        }
-    }
+.cart-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #333;
+padding:15px 0;
+}
 
-    window.addEventListener("load", updateCartUI);
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:var(--primary);
+color:black;
+padding:15px 25px;
+border-radius:8px;
+display:none;
+z-index:1000;
+}
+</style>
+</head>
+
+<body>
+
+<div id="toast">Item added to cart 📦</div>
+
+<div class="container">
+
+<h1>GOTCHA</h1>
+
+<div class="products">
+
+<div class="card">
+<img src="https://via.placeholder.com/400?text=White+Treasure">
+<h3>CULTURAL TREASURE (WHITE)</h3>
+<p style="color:var(--primary);font-size:1.2rem;">48,000 MMK</p>
+
+<select id="size1">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+<option>XL</option>
+</select>
+
+<button class="add-btn" onclick="addToCart('White Tee',48000,'size1')">
+Add To Cart
+</button>
+
+</div>
+
+<div class="card">
+
+<img src="https://via.placeholder.com/400?text=Black+Treasure">
+
+<h3>CULTURAL TREASURE (BLACK)</h3>
+<p style="color:var(--primary);font-size:1.2rem;">48,000 MMK</p>
+
+<select id="size2">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+<option>XL</option>
+</select>
+
+<button class="add-btn" onclick="addToCart('Black Tee',48000,'size2')">
+Add To Cart
+</button>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<h2>🛍️ Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<h3 style="text-align:right">
+Total: <span id="cartTotal" style="color:var(--primary)">0</span> MMK
+</h3>
+
+</div>
+
+
+<div class="section">
+
+<h2>🚚 Checkout</h2>
+
+<input id="name" placeholder="Full Name">
+<input id="phone" placeholder="Phone Number (09...)">
+<textarea id="address" placeholder="Delivery Address"></textarea>
+
+<button class="add-btn" id="confirmBtn" onclick="sendOrder()">
+Confirm Order via Telegram & Airtable
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+const CONFIG={
+token:"YOUR_TELEGRAM_BOT_TOKEN",
+chatId:"YOUR_CHAT_ID",
+airtableBase:"YOUR_BASE_ID",
+airtableToken:"YOUR_TOKEN",
+airtableTable:"table1"
+};
+
+
+let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
+
+
+function showToast(msg){
+
+const t=document.getElementById("toast");
+
+t.innerText=msg;
+
+t.style.display="block";
+
+setTimeout(()=>{
+
+t.style.display="none";
+
+},2500);
+
+}
+
+
+
+function addToCart(name,price,sizeId){
+
+const size=document.getElementById(sizeId).value;
+
+if(!size){
+
+alert("Please select a size first!");
+
+return;
+
+}
+
+const existing=cart.find(i=>i.name===name && i.size===size);
+
+if(existing){
+
+existing.qty++;
+
+}else{
+
+cart.push({
+
+name:name,
+size:size,
+price:price,
+qty:1
+
+});
+
+}
+
+saveAndRefresh();
+
+showToast("Added to cart");
+
+}
+
+
+
+function saveAndRefresh(){
+
+localStorage.setItem("gotchaCart",JSON.stringify(cart));
+
+updateCartUI();
+
+}
+
+
+
+function updateCartUI(){
+
+const div=document.getElementById("cartItems");
+
+div.innerHTML="";
+
+if(cart.length===0){
+
+div.innerHTML="<p>Your cart is empty</p>";
+
+document.getElementById("cartTotal").innerText="0";
+
+return;
+
+}
+
+let total=0;
+
+cart.forEach((item,index)=>{
+
+total+=item.price*item.qty;
+
+div.innerHTML+=`
+
+<div class="cart-item">
+
+<div>
+
+<b>${item.name}</b> [${item.size}]<br>
+
+<small>${item.price.toLocaleString()} MMK</small>
+
+</div>
+
+<div>
+
+<button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
+
+<span>${item.qty}</span>
+
+<button class="qty-btn" onclick="changeQty(${index},1)">+</button>
+
+<button class="remove-btn" style="margin-left:10px" onclick="removeItem(${index})">×</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("cartTotal").innerText=total.toLocaleString();
+
+}
+
+
+
+function changeQty(index,delta){
+
+cart[index].qty+=delta;
+
+if(cart[index].qty<=0){
+
+cart.splice(index,1);
+
+}
+
+saveAndRefresh();
+
+}
+
+
+
+function removeItem(index){
+
+cart.splice(index,1);
+
+saveAndRefresh();
+
+}
+
+
+
+async function sendOrder(){
+
+if(cart.length===0){
+
+alert("Cart is empty");
+
+return;
+
+}
+
+const name=document.getElementById("name").value;
+
+const phone=document.getElementById("phone").value;
+
+const address=document.getElementById("address").value;
+
+if(!name || !phone || !address){
+
+alert("Please fill all details");
+
+return;
+
+}
+
+const btn=document.getElementById("confirmBtn");
+
+btn.disabled=true;
+
+btn.innerText="Processing...";
+
+const orderId="GOTCHA-"+Math.random().toString(36).substr(2,6).toUpperCase();
+
+let itemsSummary=cart.map(i=>`${i.name} (${i.size}) x${i.qty}`).join("\n");
+
+let total=document.getElementById("cartTotal").innerText;
+
+const telegramMsg=`🛒 NEW ORDER ${orderId}
+
+Customer: ${name}
+
+Phone: ${phone}
+
+Address: ${address}
+
+Items:
+${itemsSummary}
+
+Total: ${total} MMK`;
+
+try{
+
+await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+chat_id:CONFIG.chatId,
+
+text:telegramMsg
+
+})
+
+});
+
+
+await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+
+method:"POST",
+
+headers:{
+
+Authorization:`Bearer ${CONFIG.airtableToken}`,
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+records:[{
+
+fields:{
+
+Items:itemsSummary,
+
+Total:parseInt(total.replace(/,/g,'')),
+
+Name:name,
+
+Phone:phone,
+
+Address:address,
+
+Status:"Pending"
+
+}
+
+}]
+
+})
+
+});
+
+
+alert("Order placed! ID: "+orderId);
+
+cart=[];
+
+saveAndRefresh();
+
+document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+
+}catch(e){
+
+alert("Connection error");
+
+}
+
+btn.disabled=false;
+
+btn.innerText="Confirm Order";
+
+}
+
+
+window.addEventListener("load",updateCartUI);
+
 </script>
 
 </body>
