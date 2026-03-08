@@ -1,152 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gotcha Shop - Order System</title>
-    <style>
-        /* Modern styling for your shop */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
-        button:hover { background-color: #0056b3; }
-        #status-display { margin-top: 20px; padding: 15px; border-radius: 6px; display: none; text-align: center; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<title>GOTCHA | Cultural Treasure</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+--primary:#00bfa6;
+--bg:#0f0f0f;
+--card-bg:#1a1a1a;
+--text:#ffffff;
+--danger:#ff4d4d;
+}
+
+body{
+margin:0;
+font-family:'Segoe UI',Roboto,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+line-height:1.6;
+}
+
+.container{
+width:90%;
+max-width:1100px;
+margin:auto;
+padding:40px 20px;
+}
+
+h1{
+text-align:center;
+font-size:2.5rem;
+letter-spacing:4px;
+color:var(--primary);
+}
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:30px;
+margin-top:40px;
+}
+
+.card{
+background:var(--card-bg);
+padding:20px;
+border-radius:16px;
+transition:transform .3s ease;
+border:1px solid #333;
+}
+
+.card:hover{
+transform:translateY(-5px);
+border-color:var(--primary);
+}
+
+.card img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:10px;
+background:#222;
+}
+
+select,input,textarea{
+width:100%;
+padding:12px;
+margin-top:12px;
+background:#222;
+border:1px solid #444;
+border-radius:8px;
+color:white;
+box-sizing:border-box;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+.add-btn{
+background:var(--primary);
+color:white;
+width:100%;
+margin-top:15px;
+}
+
+.qty-btn{
+background:#333;
+color:white;
+padding:5px 15px;
+}
+
+.remove-btn{
+background:var(--danger);
+color:white;
+}
+
+.section{
+margin-top:50px;
+background:var(--card-bg);
+padding:30px;
+border-radius:16px;
+}
+
+.cart-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #333;
+padding:15px 0;
+}
+
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:var(--primary);
+color:black;
+padding:15px 25px;
+border-radius:8px;
+display:none;
+z-index:1000;
+}
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>🛍️ Gotcha Shop</h2>
-    
-    <div id="order-form">
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="custName" placeholder="Enter your full name">
-        </div>
-        <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" id="custPhone" placeholder="000-000-0000">
-        </div>
-        <div class="form-group">
-            <label>Address</label>
-            <textarea id="custAddress" rows="3" placeholder="Enter your delivery address"></textarea>
-        </div>
-        <div class="form-group">
-            <label>Items & Sizes</label>
-            <textarea id="custItems" rows="3" placeholder="e.g. 2x Black Tee (M), 1x Hoodie (L)"></textarea>
-        </div>
-        <div class="form-group">
-            <label>Total Price ($)</label>
-            <input type="number" id="custTotal" value="0">
-        </div>
-        <button onclick="submitOrder()">Place Order</button>
-    </div>
+<div id="toast">Item added to cart 📦</div>
 
-    <div id="status-display"></div>
-    <div style="margin-top:20px;">
-        <hr>
-        <h3>Track Your Order</h3>
-        <input type="text" id="trackID" placeholder="Enter your Order ID">
-        <button style="margin-top:10px; background-color: #28a745;" onclick="trackOrder()">Check Status</button>
-    </div>
+<div class="container">
+
+<h1>GOTCHA</h1>
+
+<div class="products">
+
+<div class="card">
+<img src="https://via.placeholder.com/400?text=White+Treasure">
+<h3>CULTURAL TREASURE (WHITE)</h3>
+<p style="color:var(--primary);font-size:1.2rem;">48,000 MMK</p>
+
+<select id="size1">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+<option>XL</option>
+</select>
+
+<button class="add-btn" onclick="addToCart('White Tee',48000,'size1')">
+Add To Cart
+</button>
+
 </div>
 
+<div class="card">
+
+<img src="https://via.placeholder.com/400?text=Black+Treasure">
+
+<h3>CULTURAL TREASURE (BLACK)</h3>
+<p style="color:var(--primary);font-size:1.2rem;">48,000 MMK</p>
+
+<select id="size2">
+<option value="">Select Size</option>
+<option>S</option>
+<option>M</option>
+<option>L</option>
+<option>XL</option>
+</select>
+
+<button class="add-btn" onclick="addToCart('Black Tee',48000,'size2')">
+Add To Cart
+</button>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<h2>🛍️ Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<h3 style="text-align:right">
+Total: <span id="cartTotal" style="color:var(--primary)">0</span> MMK
+</h3>
+
+</div>
+
+
+<div class="section">
+
+<h2>🚚 Checkout</h2>
+
+<input id="name" placeholder="Full Name">
+<input id="phone" placeholder="Phone Number (09...)">
+<textarea id="address" placeholder="Delivery Address"></textarea>
+
+<button class="add-btn" id="confirmBtn" onclick="sendOrder()">
+Confirm Order via Telegram & Airtable
+</button>
+
+</div>
+
+</div>
+
+
 <script>
-    // --- UPDATED CONFIGURATION ---
-    const CONFIG = {
-        // Replace with your real Telegram Bot Token
-        telegramToken: "8514369006:AAFBOUYdlHoYc1Dm8YaJxS3KQWKh6D-N5qU",
-        // Replace with your real Telegram Chat ID
-        chatId: "7194426571",
-        // Replace with the ID from your GOTCHA PRIME base (starts with 'app')
-        airtableBase: "appG57X3qkk4A5IHP", 
-        // Replace with your Personal Access Token (starts with 'pat')
-        airtableToken: "pathumdtVHFPwkWob.c2735c2693f85512b52ac846aedc99ee09581424b1dcf8c8c56191c1341197e0",
-        // Matches the table tab name in your screenshot
-        airtableTable: "Orders" 
-    };
 
-    // Function to generate a random Order ID
-    function generateOrderID() {
-        return 'GOTCHA-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
+const CONFIG={
+token:"YOUR_TELEGRAM_BOT_TOKEN",
+chatId:"YOUR_CHAT_ID",
+airtableBase:"YOUR_BASE_ID",
+airtableToken:"YOUR_TOKEN",
+airtableTable:"table1"
+};
 
-    async function submitOrder() {
-        const orderData = {
-            OrderID: generateOrderID(),
-            CustomerName: document.getElementById('custName').value,
-            Phone: document.getElementById('custPhone').value,
-            Address: document.getElementById('custAddress').value,
-            Items: document.getElementById('custItems').value,
-            Total: parseInt(document.getElementById('custTotal').value),
-            Status: "Pending" // Sets default status
-        };
 
-        if (!orderData.CustomerName || !orderData.Phone) {
-            alert("Please fill in your name and phone number!");
-            return;
-        }
+let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
-        try {
-            // 1. Send to Airtable
-            const airtableResponse = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${CONFIG.airtableToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fields: orderData })
-            });
 
-            // 2. Send to Telegram
-            const msg = `🚀 *New Order: ${orderData.OrderID}*\n👤 Name: ${orderData.CustomerName}\n📞 Phone: ${orderData.Phone}\n📦 Items: ${orderData.Items}\n💰 Total: $${orderData.Total}`;
-            await fetch(`https://api.telegram.org/bot${CONFIG.telegramToken}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CONFIG.chatId, text: msg, parse_mode: 'Markdown' })
-            });
+function showToast(msg){
 
-            if (airtableResponse.ok) {
-                alert(`Success! Your Order ID is: ${orderData.OrderID}`);
-                document.getElementById('status-display').style.display = 'block';
-                document.getElementById('status-display').style.backgroundColor = '#d4edda';
-                document.getElementById('status-display').innerHTML = `Order Placed! ID: ${orderData.OrderID}<br>Status: Pending`;
-            }
+const t=document.getElementById("toast");
 
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Something went wrong. Please try again.");
-        }
-    }
+t.innerText=msg;
 
-    async function trackOrder() {
-        const id = document.getElementById('trackID').value.trim();
-        const display = document.getElementById('status-display');
-        
-        if (!id) return alert("Enter an Order ID");
+t.style.display="block";
 
-        try {
-            const response = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={OrderID}='${id}'`, {
-                headers: { 'Authorization': `Bearer ${CONFIG.airtableToken}` }
-            });
-            const data = await response.json();
+setTimeout(()=>{
 
-            if (data.records.length > 0) {
-                const status = data.records[0].fields.Status;
-                display.style.display = 'block';
-                display.style.backgroundColor = '#e2e3e5';
-                display.innerText = `Order ${id} Status: ${status}`;
-            } else {
-                alert("Order ID not found.");
-            }
-        } catch (error) {
-            alert("Error tracking order.");
-        }
-    }
+t.style.display="none";
+
+},2500);
+
+}
+
+
+
+function addToCart(name,price,sizeId){
+
+const size=document.getElementById(sizeId).value;
+
+if(!size){
+
+alert("Please select a size first!");
+
+return;
+
+}
+
+const existing=cart.find(i=>i.name===name && i.size===size);
+
+if(existing){
+
+existing.qty++;
+
+}else{
+
+cart.push({
+
+name:name,
+size:size,
+price:price,
+qty:1
+
+});
+
+}
+
+saveAndRefresh();
+
+showToast("Added to cart");
+
+}
+
+
+
+function saveAndRefresh(){
+
+localStorage.setItem("gotchaCart",JSON.stringify(cart));
+
+updateCartUI();
+
+}
+
+
+
+function updateCartUI(){
+
+const div=document.getElementById("cartItems");
+
+div.innerHTML="";
+
+if(cart.length===0){
+
+div.innerHTML="<p>Your cart is empty</p>";
+
+document.getElementById("cartTotal").innerText="0";
+
+return;
+
+}
+
+let total=0;
+
+cart.forEach((item,index)=>{
+
+total+=item.price*item.qty;
+
+div.innerHTML+=`
+
+<div class="cart-item">
+
+<div>
+
+<b>${item.name}</b> [${item.size}]<br>
+
+<small>${item.price.toLocaleString()} MMK</small>
+
+</div>
+
+<div>
+
+<button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
+
+<span>${item.qty}</span>
+
+<button class="qty-btn" onclick="changeQty(${index},1)">+</button>
+
+<button class="remove-btn" style="margin-left:10px" onclick="removeItem(${index})">×</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("cartTotal").innerText=total.toLocaleString();
+
+}
+
+
+
+function changeQty(index,delta){
+
+cart[index].qty+=delta;
+
+if(cart[index].qty<=0){
+
+cart.splice(index,1);
+
+}
+
+saveAndRefresh();
+
+}
+
+
+
+function removeItem(index){
+
+cart.splice(index,1);
+
+saveAndRefresh();
+
+}
+
+
+
+async function sendOrder(){
+
+if(cart.length===0){
+
+alert("Cart is empty");
+
+return;
+
+}
+
+const name=document.getElementById("name").value;
+
+const phone=document.getElementById("phone").value;
+
+const address=document.getElementById("address").value;
+
+if(!name || !phone || !address){
+
+alert("Please fill all details");
+
+return;
+
+}
+
+const btn=document.getElementById("confirmBtn");
+
+btn.disabled=true;
+
+btn.innerText="Processing...";
+
+const orderId="GOTCHA-"+Math.random().toString(36).substr(2,6).toUpperCase();
+
+let itemsSummary=cart.map(i=>`${i.name} (${i.size}) x${i.qty}`).join("\n");
+
+let total=document.getElementById("cartTotal").innerText;
+
+const telegramMsg=`🛒 NEW ORDER ${orderId}
+
+Customer: ${name}
+
+Phone: ${phone}
+
+Address: ${address}
+
+Items:
+${itemsSummary}
+
+Total: ${total} MMK`;
+
+try{
+
+await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+chat_id:CONFIG.chatId,
+
+text:telegramMsg
+
+})
+
+});
+
+
+await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+
+method:"POST",
+
+headers:{
+
+Authorization:`Bearer ${CONFIG.airtableToken}`,
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+records:[{
+
+fields:{
+
+Items:itemsSummary,
+
+Total:parseInt(total.replace(/,/g,'')),
+
+Name:name,
+
+Phone:phone,
+
+Address:address,
+
+Status:"Pending"
+
+}
+
+}]
+
+})
+
+});
+
+
+alert("Order placed! ID: "+orderId);
+
+cart=[];
+
+saveAndRefresh();
+
+document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+
+}catch(e){
+
+alert("Connection error");
+
+}
+
+btn.disabled=false;
+
+btn.innerText="Confirm Order";
+
+}
+
+
+window.addEventListener("load",updateCartUI);
+
 </script>
 
 </body>
