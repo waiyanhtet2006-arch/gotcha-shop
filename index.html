@@ -160,13 +160,10 @@ z-index:1000;
 <button class="add-btn" onclick="addToCart('White Tee',48000,'size1')">
 Add To Cart
 </button>
-
 </div>
 
 <div class="card">
-
 <img src="https://via.placeholder.com/400?text=Black+Treasure">
-
 <h3>CULTURAL TREASURE (BLACK)</h3>
 <p style="color:var(--primary);font-size:1.2rem;">48,000 MMK</p>
 
@@ -181,29 +178,20 @@ Add To Cart
 <button class="add-btn" onclick="addToCart('Black Tee',48000,'size2')">
 Add To Cart
 </button>
-
 </div>
 
 </div>
-
 
 <div class="section">
-
 <h2>🛍️ Your Cart</h2>
-
 <div id="cartItems"></div>
-
 <h3 style="text-align:right">
 Total: <span id="cartTotal" style="color:var(--primary)">0</span> MMK
 </h3>
-
 </div>
 
-
 <div class="section">
-
 <h2>🚚 Checkout</h2>
-
 <input id="name" placeholder="Full Name">
 <input id="phone" placeholder="Phone Number (09...)">
 <textarea id="address" placeholder="Delivery Address"></textarea>
@@ -211,107 +199,64 @@ Total: <span id="cartTotal" style="color:var(--primary)">0</span> MMK
 <button class="add-btn" id="confirmBtn" onclick="sendOrder()">
 Confirm Order via Telegram & Airtable
 </button>
-
 </div>
 
 </div>
-
 
 <script>
 
 const CONFIG={
 token:"YOUR_TELEGRAM_BOT_TOKEN",
 chatId:"YOUR_CHAT_ID",
-airtableBase:"YOUR_BASE_ID",
-airtableToken:"YOUR_TOKEN",
-airtableTable:"table1"
+airtableBase:"appG57X3qkk4A5IHP",
+airtableToken:"pathumdtVHFPwkWob.c2735c2693f85512b52ac846aedc99ee09581424b1dcf8c8c56191c1341197e0",
+airtableTable:"Orders"
 };
-
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
-
 function showToast(msg){
-
 const t=document.getElementById("toast");
-
 t.innerText=msg;
-
 t.style.display="block";
-
-setTimeout(()=>{
-
-t.style.display="none";
-
-},2500);
-
+setTimeout(()=>{t.style.display="none";},2500);
 }
-
-
 
 function addToCart(name,price,sizeId){
 
 const size=document.getElementById(sizeId).value;
 
 if(!size){
-
 alert("Please select a size first!");
-
 return;
-
 }
 
 const existing=cart.find(i=>i.name===name && i.size===size);
 
 if(existing){
-
 existing.qty++;
-
 }else{
-
-cart.push({
-
-name:name,
-size:size,
-price:price,
-qty:1
-
-});
-
+cart.push({name:name,size:size,price:price,qty:1});
 }
 
 saveAndRefresh();
-
 showToast("Added to cart");
-
 }
-
-
 
 function saveAndRefresh(){
-
 localStorage.setItem("gotchaCart",JSON.stringify(cart));
-
 updateCartUI();
-
 }
-
-
 
 function updateCartUI(){
 
 const div=document.getElementById("cartItems");
-
 div.innerHTML="";
 
 if(cart.length===0){
-
 div.innerHTML="<p>Your cart is empty</p>";
-
 document.getElementById("cartTotal").innerText="0";
-
 return;
-
 }
 
 let total=0;
@@ -321,95 +266,54 @@ cart.forEach((item,index)=>{
 total+=item.price*item.qty;
 
 div.innerHTML+=`
-
 <div class="cart-item">
-
 <div>
-
 <b>${item.name}</b> [${item.size}]<br>
-
 <small>${item.price.toLocaleString()} MMK</small>
-
 </div>
-
 <div>
-
 <button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
-
 <span>${item.qty}</span>
-
 <button class="qty-btn" onclick="changeQty(${index},1)">+</button>
-
 <button class="remove-btn" style="margin-left:10px" onclick="removeItem(${index})">×</button>
-
 </div>
-
 </div>
-
 `;
 
 });
 
 document.getElementById("cartTotal").innerText=total.toLocaleString();
-
 }
-
-
 
 function changeQty(index,delta){
-
 cart[index].qty+=delta;
-
-if(cart[index].qty<=0){
-
-cart.splice(index,1);
-
-}
-
+if(cart[index].qty<=0){cart.splice(index,1);}
 saveAndRefresh();
-
 }
-
-
 
 function removeItem(index){
-
 cart.splice(index,1);
-
 saveAndRefresh();
-
 }
-
-
 
 async function sendOrder(){
 
 if(cart.length===0){
-
 alert("Cart is empty");
-
 return;
-
 }
 
 const name=document.getElementById("name").value;
-
 const phone=document.getElementById("phone").value;
-
 const address=document.getElementById("address").value;
 
-if(!name || !phone || !address){
-
+if(!name||!phone||!address){
 alert("Please fill all details");
-
 return;
-
 }
 
 const btn=document.getElementById("confirmBtn");
-
 btn.disabled=true;
-
 btn.innerText="Processing...";
 
 const orderId="GOTCHA-"+Math.random().toString(36).substr(2,6).toUpperCase();
@@ -434,81 +338,48 @@ Total: ${total} MMK`;
 try{
 
 await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-
 method:"POST",
-
 headers:{"Content-Type":"application/json"},
-
 body:JSON.stringify({
-
 chat_id:CONFIG.chatId,
-
 text:telegramMsg
-
 })
-
 });
-
 
 await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
-
 method:"POST",
-
 headers:{
-
 Authorization:`Bearer ${CONFIG.airtableToken}`,
-
 "Content-Type":"application/json"
-
 },
-
 body:JSON.stringify({
-
 records:[{
-
 fields:{
-
-Items:itemsSummary,
-
-Total:parseInt(total.replace(/,/g,'')),
-
-Name:name,
-
+OrderID:orderId,
+CustomerName:name,
 Phone:phone,
-
 Address:address,
-
+Items:itemsSummary,
+Total:parseInt(total.replace(/,/g,'')),
 Status:"Pending"
-
 }
-
 }]
-
 })
-
 });
-
 
 alert("Order placed! ID: "+orderId);
 
 cart=[];
-
 saveAndRefresh();
-
 document.querySelectorAll("input,textarea").forEach(i=>i.value="");
 
 }catch(e){
-
 alert("Connection error");
-
 }
 
 btn.disabled=false;
-
 btn.innerText="Confirm Order";
-
 }
-
 
 window.addEventListener("load",updateCartUI);
 
