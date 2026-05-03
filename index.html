@@ -1,148 +1,181 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gotcha Prime Store</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .product, .cart-section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #d32f2f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #b71c1c; }
+        #toast { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; z-index: 1000; }
+    </style>
+</head>
+<body>
 
-const CONFIG={
-token:"YOUR_TELEGRAM_BOT_TOKEN",
-chatId:"YOUR_CHAT_ID",
-googleScript:"YOUR_GOOGLE_SCRIPT_URL"
-};
+    <h2>Gotcha Prime Store</h2>
 
-let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
+    <!-- Example Product -->
+    <div class="product">
+        <h3>Sample T-Shirt</h3>
+        <p>Price: 15,000 MMK</p>
+        <select id="sizeSelect1">
+            <option value="">Select Size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+        </select>
+        <button onclick="addToCart('Sample T-Shirt', 15000, 'sizeSelect1')">Add to Cart</button>
+    </div>
 
-function showToast(msg){
-const t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-setTimeout(()=>{t.style.display="none";},2500);
-}
+    <!-- Cart Section -->
+    <div class="cart-section">
+        <h3>Your Cart</h3>
+        <div id="cartItems"></div>
+        <p>Total: <span id="cartTotal">0</span> MMK</p>
+    </div>
 
-function addToCart(name,price,sizeId){
-const size=document.getElementById(sizeId).value;
-if(!size){alert("Please select size");return;}
+    <!-- Checkout Details -->
+    <div class="cart-section">
+        <h3>Delivery Details</h3>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="text" id="phone" placeholder="Phone Number">
+        <textarea id="address" placeholder="Delivery Address"></textarea>
+        <button style="width: 100%; font-size: 1.2em;" onclick="sendOrder()">Place Order</button>
+    </div>
 
-const existing=cart.find(i=>i.name===name && i.size===size);
-if(existing){existing.qty++;}
-else{cart.push({name,size,price,qty:1});}
+    <div id="toast"></div>
 
-saveAndRefresh();
-showToast("Added to cart");
-}
+    <script>
+        // --- CONFIGURATION: REPLACE THESE VALUES ---
+        const CONFIG = {
+            telegramToken: "YOUR_TELEGRAM_BOT_TOKEN",
+            telegramChatId: "YOUR_CHAT_ID",
+            airtableToken: "YOUR_AIRTABLE_PAT_TOKEN",
+            airtableBaseId: "YOUR_BASE_ID",
+            airtableTableName: "Orders" // Matches table name in image.png
+        };
 
-function saveAndRefresh(){
-localStorage.setItem("gotchaCart",JSON.stringify(cart));
-updateCartUI();
-}
+        let cart = JSON.parse(localStorage.getItem("gotchaCart")) || [];
 
-function updateCartUI(){
-const div=document.getElementById("cartItems");
-div.innerHTML="";
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.innerText = msg;
+            t.style.display = "block";
+            setTimeout(() => { t.style.display = "none"; }, 2500);
+        }
 
-if(cart.length===0){
-div.innerHTML="<p>Your cart is empty</p>";
-document.getElementById("cartTotal").innerText="0";
-return;
-}
+        function addToCart(name, price, sizeId) {
+            const size = document.getElementById(sizeId).value;
+            if (!size) { alert("Please select size"); return; }
 
-let total=0;
+            const existing = cart.find(i => i.name === name && i.size === size);
+            if (existing) { existing.qty++; }
+            else { cart.push({ name, size, price, qty: 1 }); }
 
-cart.forEach((item,index)=>{
-total+=item.price*item.qty;
+            saveAndRefresh();
+            showToast("Added to cart");
+        }
 
-div.innerHTML+=`
-<div class="cart-item">
-<div>
-<b>${item.name}</b> [${item.size}]<br>
-<small>${item.price.toLocaleString()} MMK</small>
-</div>
-<div>
-<button onclick="changeQty(${index},-1)">-</button>
-<span>${item.qty}</span>
-<button onclick="changeQty(${index},1)">+</button>
-<button onclick="removeItem(${index})">×</button>
-</div>
-</div>`;
-});
+        function saveAndRefresh() {
+            localStorage.setItem("gotchaCart", JSON.stringify(cart));
+            updateCartUI();
+        }
 
-document.getElementById("cartTotal").innerText=total.toLocaleString();
-}
+        function updateCartUI() {
+            const div = document.getElementById("cartItems");
+            div.innerHTML = "";
+            if (cart.length === 0) {
+                div.innerHTML = "<p>Your cart is empty</p>";
+                document.getElementById("cartTotal").innerText = "0";
+                return;
+            }
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                div.innerHTML += `
+                <div class="cart-item">
+                    <div><b>${item.name}</b> [${item.size}]<br><small>${item.price.toLocaleString()} MMK</small></div>
+                    <div>
+                        <button onclick="changeQty(${index},-1)">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="changeQty(${index},1)">+</button>
+                        <button onclick="removeItem(${index})">×</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById("cartTotal").innerText = total.toLocaleString();
+        }
 
-function changeQty(i,d){
-cart[i].qty+=d;
-if(cart[i].qty<=0)cart.splice(i,1);
-saveAndRefresh();
-}
+        function changeQty(i, d) {
+            cart[i].qty += d;
+            if (cart[i].qty <= 0) cart.splice(i, 1);
+            saveAndRefresh();
+        }
 
-function removeItem(i){
-cart.splice(i,1);
-saveAndRefresh();
-}
+        function removeItem(i) {
+            cart.splice(i, 1);
+            saveAndRefresh();
+        }
 
-async function sendOrder(){
+        async function sendOrder() {
+            if (cart.length === 0) { alert("Cart empty"); return; }
+            const name = document.getElementById("name").value;
+            const phone = document.getElementById("phone").value;
+            const address = document.getElementById("address").value;
 
-if(cart.length===0){alert("Cart empty");return;}
+            if (!name || !phone || !address) { alert("Fill all details"); return; }
 
-const name=document.getElementById("name").value;
-const phone=document.getElementById("phone").value;
-const address=document.getElementById("address").value;
+            const orderId = "GOTCHA-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+            let itemsSummary = cart.map(i => `${i.name} (${i.size}) x${i.qty}`).join("\n");
+            let totalClean = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g, ''));
 
-if(!name||!phone||!address){
-alert("Fill all details");return;
-}
+            // Telegram Template
+            const telegramMsg = `NEW ORDER ${orderId}\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nItems:\n${itemsSummary}\n\nTotal: ${totalClean.toLocaleString()} MMK`;
 
-const orderId="GOTCHA-"+Math.random().toString(36).substr(2,6).toUpperCase();
+            try {
+                // 1. Send to Telegram
+                await fetch(`https://api.telegram.org/bot${CONFIG.telegramToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: CONFIG.telegramChatId, text: telegramMsg })
+                });
 
-let itemsSummary=cart.map(i=>`${i.name} (${i.size}) x${i.qty}`).join("\n");
+                // 2. Send to Airtable - Matching column names in image.png, image_2.png, and image_3.png
+                await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${CONFIG.airtableToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            "OrderID": orderId,        // Matches image.png
+                            "CustomerName": name,      // Matches image.png
+                            "Phone": phone,             // Matches image.png
+                            "Address": address,         // Matches image_2.png
+                            "Items": itemsSummary,      // Matches image_2.png/image_3.png
+                            "Total": totalClean,        // Matches image_3.png
+                            "Status": "Pending"         // Matches image_3.png
+                        }
+                    })
+                });
 
-let total=document.getElementById("cartTotal").innerText;
+                alert("Order placed! Check Telegram and Airtable.");
+                cart = [];
+                saveAndRefresh();
+                document.querySelectorAll("input,textarea").forEach(i => i.value = "");
 
-const telegramMsg=`NEW ORDER ${orderId}
+            } catch (e) {
+                console.error(e);
+                alert("Error sending order");
+            }
+        }
 
-${name}
-${phone}
-${address}
-
-${itemsSummary}
-
-Total: ${total} MMK`;
-
-try{
-
-// TELEGRAM
-await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-chat_id:CONFIG.chatId,
-text:telegramMsg
-})
-});
-
-// GOOGLE SHEETS
-await fetch(CONFIG.googleScript,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-orderId:orderId,
-items:itemsSummary,
-total:parseInt(total.replace(/,/g,'')),
-name:name,
-phone:phone,
-address:address,
-status:"Pending"
-})
-});
-
-alert("Order placed!");
-
-cart=[];
-saveAndRefresh();
-document.querySelectorAll("input,textarea").forEach(i=>i.value="");
-
-}catch(e){
-alert("Error sending order");
-}
-
-}
-
-window.onload=updateCartUI;
-
-</script>
+        window.onload = updateCartUI;
+    </script>
+</body>
+</html>
