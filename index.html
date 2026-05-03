@@ -3,179 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gotcha Prime Store</title>
+    <title>GOTCHA PRIME - Live Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .product, .cart-section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background: #d32f2f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #b71c1c; }
-        #toast { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; z-index: 1000; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-sans">
 
-    <h2>Gotcha Prime Store</h2>
-
-    <!-- Example Product -->
-    <div class="product">
-        <h3>Sample T-Shirt</h3>
-        <p>Price: 15,000 MMK</p>
-        <select id="sizeSelect1">
-            <option value="">Select Size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-        </select>
-        <button onclick="addToCart('Sample T-Shirt', 15000, 'sizeSelect1')">Add to Cart</button>
-    </div>
-
-    <!-- Cart Section -->
-    <div class="cart-section">
-        <h3>Your Cart</h3>
-        <div id="cartItems"></div>
-        <p>Total: <span id="cartTotal">0</span> MMK</p>
-    </div>
-
-    <!-- Checkout Details -->
-    <div class="cart-section">
-        <h3>Delivery Details</h3>
-        <input type="text" id="name" placeholder="Full Name">
-        <input type="text" id="phone" placeholder="Phone Number">
-        <textarea id="address" placeholder="Delivery Address"></textarea>
-        <button style="width: 100%; font-size: 1.2em;" onclick="sendOrder()">Place Order</button>
-    </div>
-
-    <div id="toast"></div>
-
+    <!-- CONFIGURATION -->
     <script>
-        // --- CONFIGURATION: REPLACE THESE VALUES ---
         const CONFIG = {
-            telegramToken: "YOUR_TELEGRAM_BOT_TOKEN",
-            telegramChatId: "YOUR_CHAT_ID",
-            airtableToken: "YOUR_AIRTABLE_PAT_TOKEN",
-            airtableBaseId: "YOUR_BASE_ID",
-            airtableTableName: "Orders" // Matches table name in image.png
+            telegramToken: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
+            telegramChatId: "7194426571",
+            airtableToken: "patlzaecYidcBNbHQ.9c2083297d8354dca66c6d805c6f8e97c461ac95536be750665e3c921f78dace",
+            airtableBaseId: "appG57X3qkk4A5IHP",
+            airtableTableName: "Orders"
         };
+    </script>
 
-        let cart = JSON.parse(localStorage.getItem("gotchaCart")) || [];
+    <!-- NAVIGATION -->
+    <nav class="bg-black text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold tracking-widest">GOTCHA PRIME</h1>
+        <div class="relative cursor-pointer bg-gray-800 p-2 rounded-full" onclick="toggleCart()">
+            🛒 <span id="cart-count" class="cart-count">0</span>
+        </div>
+    </nav>
 
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.innerText = msg;
-            t.style.display = "block";
-            setTimeout(() => { t.style.display = "none"; }, 2500);
-        }
+    <!-- PRODUCT DISPLAY -->
+    <main class="p-6 max-w-4xl mx-auto">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+            <div class="w-full h-64 bg-gray-200 rounded-xl mb-4 flex items-center justify-center text-gray-400 italic">
+                Product Preview
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Prime Test Jersey</h2>
+            <p class="text-blue-600 font-semibold text-lg mt-1">$25.00</p>
+            <button onclick="addToCart('Prime Test Jersey', 25)" class="mt-6 w-full max-w-xs bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 transition shadow-md">
+                ADD TO CART
+            </button>
+        </div>
+    </main>
 
-        function addToCart(name, price, sizeId) {
-            const size = document.getElementById(sizeId).value;
-            if (!size) { alert("Please select size"); return; }
+    <!-- CART & CHECKOUT MODAL -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black">YOUR CART</h2>
+                <button onclick="toggleCart()" class="text-gray-400 hover:text-black text-xl">✕</button>
+            </div>
+            
+            <div id="cart-items" class="space-y-3 mb-6"></div>
+            
+            <form id="order-form" onsubmit="handleOrder(event)" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase">Delivery Details</label>
+                    <input type="text" id="name" placeholder="Full Name" required class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-black outline-none transition">
+                    <input type="text" id="phone" placeholder="Phone Number" required class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-black outline-none transition">
+                    <textarea id="address" placeholder="Full Shipping Address" required class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-black outline-none transition h-24"></textarea>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-lg">
+                    PLACE ORDER NOW
+                </button>
+            </form>
+        </div>
+    </div>
 
-            const existing = cart.find(i => i.name === name && i.size === size);
-            if (existing) { existing.qty++; }
-            else { cart.push({ name, size, price, qty: 1 }); }
+    <!-- LOGIC -->
+    <script>
+        let cart = [];
 
-            saveAndRefresh();
-            showToast("Added to cart");
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem("gotchaCart", JSON.stringify(cart));
+        function addToCart(name, price) {
+            cart.push({ name, price });
             updateCartUI();
+            alert("✅ Added to your cart!");
         }
 
         function updateCartUI() {
-            const div = document.getElementById("cartItems");
-            div.innerHTML = "";
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
             if (cart.length === 0) {
-                div.innerHTML = "<p>Your cart is empty</p>";
-                document.getElementById("cartTotal").innerText = "0";
-                return;
-            }
-            let total = 0;
-            cart.forEach((item, index) => {
-                total += item.price * item.qty;
-                div.innerHTML += `
-                <div class="cart-item">
-                    <div><b>${item.name}</b> [${item.size}]<br><small>${item.price.toLocaleString()} MMK</small></div>
-                    <div>
-                        <button onclick="changeQty(${index},-1)">-</button>
-                        <span>${item.qty}</span>
-                        <button onclick="changeQty(${index},1)">+</button>
-                        <button onclick="removeItem(${index})">×</button>
+                container.innerHTML = '<p class="text-gray-400 py-4 text-center">Your cart is empty.</p>';
+            } else {
+                let total = cart.reduce((sum, i) => sum + i.price, 0);
+                container.innerHTML = cart.map(i => `
+                    <div class="flex justify-between font-medium border-b pb-2 border-gray-50">
+                        <span>${i.name}</span>
+                        <span>$${i.price}</span>
                     </div>
-                </div>`;
-            });
-            document.getElementById("cartTotal").innerText = total.toLocaleString();
+                `).join('') + `<div class="flex justify-between pt-2 font-bold text-xl"><span>Total</span><span>$${total}</span></div>`;
+            }
         }
 
-        function changeQty(i, d) {
-            cart[i].qty += d;
-            if (cart[i].qty <= 0) cart.splice(i, 1);
-            saveAndRefresh();
+        function toggleCart() {
+            document.getElementById('cart-modal').classList.toggle('hidden');
         }
 
-        function removeItem(i) {
-            cart.splice(i, 1);
-            saveAndRefresh();
-        }
+        async function handleOrder(event) {
+            event.preventDefault();
+            if (cart.length === 0) return alert("Please add an item first!");
 
-        async function sendOrder() {
-            if (cart.length === 0) { alert("Cart empty"); return; }
-            const name = document.getElementById("name").value;
-            const phone = document.getElementById("phone").value;
-            const address = document.getElementById("address").value;
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "🚀 SENDING ORDER...";
 
-            if (!name || !phone || !address) { alert("Fill all details"); return; }
-
-            const orderId = "GOTCHA-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-            let itemsSummary = cart.map(i => `${i.name} (${i.size}) x${i.qty}`).join("\n");
-            let totalClean = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g, ''));
-
-            // Telegram Template
-            const telegramMsg = `NEW ORDER ${orderId}\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nItems:\n${itemsSummary}\n\nTotal: ${totalClean.toLocaleString()} MMK`;
+            const orderData = {
+                OrderID: "GOTCHA-" + Math.floor(Math.random() * 10000),
+                CustomerName: document.getElementById('name').value,
+                Phone: document.getElementById('phone').value,
+                Address: document.getElementById('address').value,
+                Items: cart.map(i => i.name).join(", "),
+                Total: cart.reduce((sum, i) => sum + i.price, 0),
+                Status: "Pending"
+            };
 
             try {
-                // 1. Send to Telegram
-                await fetch(`https://api.telegram.org/bot${CONFIG.telegramToken}/sendMessage`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: CONFIG.telegramChatId, text: telegramMsg })
-                });
-
-                // 2. Send to Airtable - Matching column names in image.png, image_2.png, and image_3.png
-                await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}`, {
-                    method: "POST",
+                // 1. SAVE TO AIRTABLE
+                const airtableResp = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}`, {
+                    method: 'POST',
                     headers: {
-                        "Authorization": `Bearer ${CONFIG.airtableToken}`,
-                        "Content-Type": "application/json"
+                        'Authorization': `Bearer ${CONFIG.airtableToken}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        fields: {
-                            "OrderID": orderId,        // Matches image.png
-                            "CustomerName": name,      // Matches image.png
-                            "Phone": phone,             // Matches image.png
-                            "Address": address,         // Matches image_2.png
-                            "Items": itemsSummary,      // Matches image_2.png/image_3.png
-                            "Total": totalClean,        // Matches image_3.png
-                            "Status": "Pending"         // Matches image_3.png
-                        }
-                    })
+                    body: JSON.stringify({ fields: orderData })
                 });
 
-                alert("Order placed! Check Telegram and Airtable.");
-                cart = [];
-                saveAndRefresh();
-                document.querySelectorAll("input,textarea").forEach(i => i.value = "");
+                // 2. SEND TO TELEGRAM
+                const msg = `🔔 *NEW ORDER RECEIVED!*\n\n*Order ID:* ${orderData.OrderID}\n*Customer:* ${orderData.CustomerName}\n*Phone:* ${orderData.Phone}\n*Items:* ${orderData.Items}\n*Total:* $${orderData.Total}\n\n📍 *Address:* ${orderData.Address}`;
+                
+                await fetch(`https://api.telegram.org/bot${CONFIG.telegramToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: CONFIG.telegramChatId, text: msg, parse_mode: 'Markdown' })
+                });
 
-            } catch (e) {
-                console.error(e);
-                alert("Error sending order");
+                if (airtableResp.ok) {
+                    alert("🎉 ORDER PLACED! Check your Telegram and Airtable now.");
+                    cart = [];
+                    updateCartUI();
+                    toggleCart();
+                    document.getElementById('order-form').reset();
+                } else {
+                    const err = await airtableResp.json();
+                    alert("Airtable Connection Error: " + err.error.message);
+                }
+            } catch (error) {
+                alert("Something went wrong. Check your internet or tokens.");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "PLACE ORDER NOW";
             }
         }
-
-        window.onload = updateCartUI;
     </script>
 </body>
 </html>
