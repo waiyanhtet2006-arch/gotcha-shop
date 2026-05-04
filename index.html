@@ -3,156 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOTCHA PRIME | LUXURY APPAREL</title>
+    <title>GOTCHA | STREETWEAR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Premium Serif Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: white; }
-        .serif { font-family: 'Playfair Display', serif; }
-        .gold-gradient { background: linear-gradient(45deg, #d4af37, #f9e29c, #b8860b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .premium-input { background: transparent; border-bottom: 1px solid #333; transition: border-color 0.3s; }
-        .premium-input:focus { border-color: #d4af37; outline: none; }
-        .cart-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: #d4af37; border-radius: 50%; }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        .brand-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; letter-spacing: 0.3em; }
+        
+        /* Hero Background with your provided image */
+        .hero-bg {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), 
+                        url('https://api.screenshotmachine.com/?key=YOUR_KEY&url=YOUR_IMAGE_LINK&dimension=1024x1024'); /* Replace with your direct image link */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+        }
+
+        .premium-btn {
+            background: #fff;
+            color: #000;
+            padding: 1.2rem 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid #fff;
+        }
+
+        .premium-btn:hover {
+            background: transparent;
+            color: #fff;
+            transform: translateY(-5px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
 
     <!-- NAVIGATION -->
-    <nav class="p-8 flex justify-between items-center max-w-7xl mx-auto">
-        <div class="text-2xl serif font-bold tracking-widest uppercase italic gold-gradient">Gotcha Prime</div>
-        <div class="relative cursor-pointer group" onclick="toggleCart()">
-            <span class="text-sm tracking-widest uppercase font-semibold group-hover:text-yellow-500 transition">Bag</span>
-            <div id="cart-indicator" class="hidden cart-dot"></div>
+    <nav class="fixed top-0 w-full p-8 z-50 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        <div class="brand-font text-2xl tracking-[0.5em]">GOTCHA</div>
+        <div class="flex gap-8 text-xs font-bold uppercase tracking-widest">
+            <button onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})" class="hover:text-gray-400">Track Order</button>
+            <button onclick="toggleCart()" class="hover:text-gray-400">Bag (<span id="cart-count">0</span>)</button>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
-    <main class="min-h-screen flex flex-col items-center justify-center px-6 -mt-20">
-        <div class="max-w-2xl text-center space-y-6">
-            <h2 class="text-6xl serif italic">The Prime Jersey</h2>
-            <p class="text-gray-400 tracking-[0.2em] uppercase text-xs">Limited Edition • Handcrafted Excellence</p>
-            
-            <div class="pt-10">
-                <img src="YOUR_JERSEY_IMAGE_URL" alt="Jersey" class="w-full max-w-md mx-auto drop-shadow-2xl transition hover:scale-105 duration-700">
-            </div>
+    <section class="hero-bg flex items-center justify-center text-center px-6">
+        <div class="max-w-4xl">
+            <h1 class="brand-font text-5xl md:text-8xl mb-6">Cultural Treasure</h1>
+            <p class="text-sm md:text-base text-gray-300 tracking-[0.4em] uppercase mb-12">Limited Release 01 / Streetwear Collective</p>
+            <button onclick="addToCart('GOTCHA T-Shirt', 45)" class="premium-btn text-sm">Add to Collection — $45</button>
+        </div>
+    </section>
 
-            <div class="flex flex-col items-center pt-8">
-                <span class="text-2xl font-light mb-6">$250.00</span> <!-- Higher price = Premium feel -->
-                <button onclick="addToCart('The Prime Jersey', 250)" 
-                        class="px-12 py-4 border border-white text-xs tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500">
-                    Add to Collection
-                </button>
+    <!-- ORDER TRACKER SECTION -->
+    <section id="tracker" class="py-32 px-6 bg-black">
+        <div class="max-w-xl mx-auto glass-card p-10 rounded-sm text-center">
+            <h2 class="brand-font text-xl mb-8">Order Status</h2>
+            <div class="flex gap-2">
+                <input type="text" id="track-id" placeholder="GOTCHA-XXXX" class="bg-white/10 border-b border-white/20 p-4 flex-grow focus:outline-none focus:border-white">
+                <button onclick="trackOrder()" class="bg-white text-black px-6 font-bold uppercase text-xs hover:bg-gray-200">Search</button>
+            </div>
+            <div id="status-result" class="mt-8 hidden">
+                <p class="text-gray-400 text-xs uppercase tracking-widest mb-2">Current Status</p>
+                <div id="status-badge" class="text-2xl font-black italic">PENDING</div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- SLIDE-OVER CART (GLASSMORPHISM) -->
-    <div id="cart-modal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-black/80" onclick="toggleCart()"></div>
-        <div class="absolute right-0 top-0 h-full w-full max-w-md glass p-10 flex flex-col">
+    <!-- CART MODAL -->
+    <div id="cart-modal" class="fixed inset-0 z-[100] hidden bg-black/95 flex items-center justify-center p-6">
+        <div class="max-w-md w-full">
             <div class="flex justify-between items-center mb-12">
-                <h2 class="serif text-3xl italic">Your Selection</h2>
-                <button onclick="toggleCart()" class="text-gray-500 hover:text-white">Close</button>
+                <h2 class="brand-font text-2xl">Your Bag</h2>
+                <button onclick="toggleCart()" class="text-4xl">&times;</button>
             </div>
-
-            <div id="cart-items" class="flex-grow space-y-8 overflow-y-auto"></div>
-
-            <div id="checkout-area" class="pt-8 border-t border-white/10 hidden">
-                <form id="order-form" onsubmit="handleOrder(event)" class="space-y-8">
-                    <input type="text" id="name" placeholder="FULL NAME" required class="w-full premium-input py-2 text-sm tracking-widest">
-                    <input type="text" id="phone" placeholder="CONTACT NUMBER" required class="w-full premium-input py-2 text-sm tracking-widest">
-                    <textarea id="address" placeholder="SHIPPING ADDRESS" required class="w-full premium-input py-2 text-sm tracking-widest h-20"></textarea>
-                    
-                    <button type="submit" id="submit-btn" class="w-full bg-white text-black py-5 text-xs tracking-[0.4em] uppercase font-bold hover:bg-yellow-500 transition duration-500">
-                        Complete Order
-                    </button>
-                </form>
-            </div>
+            <div id="cart-items" class="mb-12 space-y-6"></div>
+            <form id="order-form" onsubmit="handleOrder(event)" class="space-y-6">
+                <input type="text" id="name" placeholder="NAME" required class="w-full bg-transparent border-b border-white/20 py-4 focus:outline-none">
+                <input type="text" id="phone" placeholder="PHONE" required class="w-full bg-transparent border-b border-white/20 py-4 focus:outline-none">
+                <textarea id="address" placeholder="SHIPPING ADDRESS" required class="w-full bg-transparent border-b border-white/20 py-4 focus:outline-none h-24"></textarea>
+                <button type="submit" id="submit-btn" class="premium-btn w-full mt-8">Confirm Order</button>
+            </form>
         </div>
     </div>
 
     <script>
         const CONFIG = {
-            telegramToken: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
-            telegramChatId: "7194426571",
             airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
             airtableBaseId: "appG57X3qkk4A5IHP",
-            airtableTableName: "Orders"
+            airtableTableName: "Orders",
+            telegramToken: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
+            telegramChatId: "7194426571"
         };
 
         let cart = [];
 
         function addToCart(name, price) {
-            cart.push({ name, price });
-            updateCartUI();
-            document.getElementById('cart-indicator').classList.remove('hidden');
-            toggleCart();
-        }
-
-        function updateCartUI() {
-            const container = document.getElementById('cart-items');
-            const checkout = document.getElementById('checkout-area');
-            
-            if (cart.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 tracking-widest uppercase text-xs">Selection is empty</p>';
-                checkout.classList.add('hidden');
-            } else {
-                container.innerHTML = cart.map(i => `
-                    <div class="flex justify-between items-end border-b border-white/5 pb-4">
-                        <div>
-                            <p class="serif italic text-lg">${i.name}</p>
-                            <p class="text-xs text-gray-500 tracking-widest uppercase">Qty: 1</p>
-                        </div>
-                        <span class="text-sm font-light">$${i.price}.00</span>
-                    </div>
-                `).join('');
-                checkout.classList.remove('hidden');
-            }
+            cart.push({name, price});
+            document.getElementById('cart-count').innerText = cart.length;
+            alert("ADDED TO COLLECTION");
         }
 
         function toggleCart() {
-            document.getElementById('cart-modal').classList.toggle('hidden');
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+            const container = document.getElementById('cart-items');
+            container.innerHTML = cart.map(i => `<div class="flex justify-between border-b border-white/10 pb-2"><span>${i.name}</span><span>$${i.price}</span></div>`).join('');
         }
 
         async function handleOrder(event) {
             event.preventDefault();
             const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.innerText = "AUTHENTICATING...";
+            const orderId = "GOTCHA-" + Math.floor(1000 + Math.random() * 9000);
+            btn.disabled = true; btn.innerText = "PROCESSING...";
 
-            const orderData = {
-                OrderID: "GP-" + Math.floor(1000 + Math.random() * 9000),
+            const fields = {
+                OrderID: orderId,
                 CustomerName: document.getElementById('name').value,
                 Phone: document.getElementById('phone').value,
                 Address: document.getElementById('address').value,
                 Items: cart.map(i => i.name).join(", "),
-                Total: cart.reduce((sum, i) => sum + i.price, 0),
+                Total: cart.reduce((s, i) => s + i.price, 0),
                 Status: "Pending"
             };
 
             try {
-                const response = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}`, {
+                await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${CONFIG.airtableToken}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fields: orderData })
+                    body: JSON.stringify({ fields })
                 });
+                
+                alert(`SUCCESS! SAVE YOUR ORDER ID: ${orderId}`);
+                location.reload();
+            } catch (e) { alert("Error connecting to server."); }
+        }
 
-                if (response.ok) {
-                    alert("Order Placed Successfully. We will contact you shortly.");
-                    cart = [];
-                    location.reload();
+        // NEW TRACKING FUNCTION
+        async function trackOrder() {
+            const id = document.getElementById('track-id').value.toUpperCase();
+            const resultDiv = document.getElementById('status-result');
+            const badge = document.getElementById('status-badge');
+
+            if (!id) return;
+
+            try {
+                // We ask Airtable to find the row where OrderID matches the user input
+                const response = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBaseId}/${CONFIG.airtableTableName}?filterByFormula={OrderID}='${id}'`, {
+                    headers: { 'Authorization': `Bearer ${CONFIG.airtableToken}` }
+                });
+                const data = await response.json();
+
+                if (data.records.length > 0) {
+                    const status = data.records[0].fields.Status || "Pending";
+                    resultDiv.classList.remove('hidden');
+                    badge.innerText = status.toUpperCase();
+                    badge.className = status === "Delivered" ? "text-green-500 font-black italic" : "text-white font-black italic";
                 } else {
-                    const err = await response.json();
-                    alert("System error: " + err.error.message);
+                    alert("Order ID not found.");
                 }
-            } catch (error) {
-                alert("Connection failed.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Complete Order";
-            }
+            } catch (e) { alert("Tracker unavailable."); }
         }
     </script>
 </body>
