@@ -32,7 +32,7 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 .card{background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;}
 .card img{width:100%; border-radius:10px;}
 
-/* Cart */
+/* Cart Controls */
 .qty-controls { display: flex; align-items: center; gap: 10px; }
 .qty-btn { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 .qty-btn:hover { background: var(--primary); color: black; }
@@ -40,6 +40,8 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 .order-record { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
 .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 .status-pending { background: #444; color: white; }
+.status-accepted { background: #b8860b; color: white; }
+.status-delivered { background: var(--success); color: black; }
 
 select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
 .btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
@@ -61,6 +63,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         </div>
     </header>
 
+    <!-- SHOP PAGE -->
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
@@ -85,9 +88,8 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
             <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 15px;">Total: <span id="cartTotal">0</span> MMK</h3>
             
             <div style="margin-top:30px;">
-                <h3>Checkout Details</h3>
+                <h3>Checkout</h3>
                 <input id="name" placeholder="Full Name">
-                <input id="email" type="email" placeholder="Email Address (for order receipt)">
                 <input id="phone" placeholder="Phone Number">
                 <textarea id="address" placeholder="Shipping Address"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
@@ -95,11 +97,12 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         </div>
     </div>
 
+    <!-- ORDERS PAGE -->
     <div id="page-orders" class="page">
         <div class="section">
             <h2>My Dashboard</h2>
             <div id="resultsList">
-                <p style="opacity:0.5">No orders found.</p>
+                <p style="opacity:0.5">No orders found. History will appear here once you place an order.</p>
             </div>
         </div>
     </div>
@@ -121,6 +124,8 @@ function switchPage(page) {
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active');
+    
+    // Refresh orders whenever the user clicks the tab
     if(page === 'orders') {
         const savedPhone = localStorage.getItem("gotchaUserPhone");
         if(savedPhone) trackOrders(savedPhone);
@@ -172,13 +177,16 @@ function updateCartUI(){
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 
+// FIXED: This now runs automatically on page load and tab switch
 async function trackOrders(phone) {
     const list = document.getElementById("resultsList");
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
+        
         if(!data.records || data.records.length === 0) return;
+
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
             const status = f.Status || 'Pending';
@@ -187,19 +195,14 @@ async function trackOrders(phone) {
                 <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
             </div>`;
         }).join('');
-    } catch (e) { console.log("Refresh error"); }
+    } catch (e) { console.log("Check error"); }
 }
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
-    const email=document.getElementById("email").value;
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
-    
-    if(cart.length===0 || !name || !email || !phone || !address){
-        alert("Please fill in all professional details.");
-        return;
-    }
+    if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
     
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
@@ -209,28 +212,22 @@ async function sendOrder(){
     
     try{
         localStorage.setItem("gotchaUserPhone", phone);
-        localStorage.setItem("gotchaUserEmail", email);
-
-        // Notify Telegram
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nItems: ${itemsSummary}`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
-
-        // Save to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Email:email, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
-
-        alert("Order Successful! A confirmation will be sent to " + email);
-        cart=[]; saveAndRefresh(); switchPage('orders');
-    } catch(e) { alert("Error connecting to server."); }
+        alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
+    } catch(e) { alert("Error."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 
+// INITIALIZE: Check for orders the moment the site opens
 window.onload = () => {
     updateCartUI();
     const savedPhone = localStorage.getItem("gotchaUserPhone");
