@@ -27,6 +27,16 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 .page.active { display: block; }
 .section{background:var(--card-bg);padding:30px;border-radius:16px; margin-top: 20px; border: 1px solid #222;}
 
+/* Products */
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;}
+.card{background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;}
+.card img{width:100%; border-radius:10px;}
+
+/* Cart Controls */
+.qty-controls { display: flex; align-items: center; gap: 10px; }
+.qty-btn { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn:hover { background: var(--primary); color: black; }
+
 .order-record { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
 .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 .status-pending { background: #444; color: white; }
@@ -42,7 +52,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
 
 <body>
 
-<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:1000; font-weight: bold;">Added to Cart 📦</div>
+<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:1000; font-weight: bold;">Updated 📦</div>
 
 <div class="container">
     <header>
@@ -55,16 +65,16 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
 
     <!-- SHOP PAGE -->
     <div id="page-shop" class="page active">
-        <div class="products" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;">
-            <div class="card" style="background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;">
-                <img src="https://i.ibb.co/LdsXqW7/image-36.png" style="width:100%; border-radius:10px;">
+        <div class="products">
+            <div class="card">
+                <img src="https://i.ibb.co/LdsXqW7/image-36.png">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
                 <p>48,000 MMK</p>
                 <select id="size1"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
-            <div class="card" style="background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;">
-                <img src="https://i.ibb.co/LdsXqW7/image-35.png" style="width:100%; border-radius:10px;">
+            <div class="card">
+                <img src="https://i.ibb.co/LdsXqW7/image-35.png">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
                 <p>48,000 MMK</p>
                 <select id="size2"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
@@ -73,28 +83,28 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         </div>
 
         <div class="section">
-            <h2>Checkout</h2>
-            <div id="cartItems" style="margin-bottom: 20px;"></div>
-            <h3 style="text-align:right">Total: <span id="cartTotal">0</span> MMK</h3>
-            <input id="name" placeholder="Full Name">
-            <input id="phone" placeholder="Phone Number">
-            <textarea id="address" placeholder="Shipping Address"></textarea>
-            <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
+            <h2>Your Cart</h2>
+            <div id="cartItems"></div>
+            <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 15px;">Total: <span id="cartTotal">0</span> MMK</h3>
+            
+            <div style="margin-top:30px;">
+                <h3>Checkout</h3>
+                <input id="name" placeholder="Full Name">
+                <input id="phone" placeholder="Phone Number">
+                <textarea id="address" placeholder="Shipping Address"></textarea>
+                <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
+            </div>
         </div>
     </div>
 
-    <!-- AUTOMATIC ORDERS PAGE -->
+    <!-- ORDERS PAGE -->
     <div id="page-orders" class="page">
         <div class="section">
-            <h2 id="orderHeader">Your Orders</h2>
-            <div id="resultsList">
-                <!-- Orders show here automatically -->
-            </div>
-            <!-- Hidden Search (only shows if no orders found) -->
+            <h2>My Dashboard</h2>
+            <div id="resultsList"></div>
             <div id="fallbackSearch" style="display:none; margin-top:20px;">
-                <p style="opacity:0.6; font-size:13px;">No saved session found. Enter phone to see your details.</p>
                 <input id="trackPhone" placeholder="Enter Phone...">
-                <button class="btn" onclick="trackOrders()">Show My Details</button>
+                <button class="btn" onclick="trackOrders()">Show Orders</button>
             </div>
         </div>
     </div>
@@ -116,51 +126,25 @@ function switchPage(page) {
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active');
-    
     if(page === 'orders') {
         const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(savedPhone) {
-            document.getElementById("trackPhone").value = savedPhone;
-            trackOrders(); 
-        } else {
-            document.getElementById("fallbackSearch").style.display = "block";
-            document.getElementById("resultsList").innerHTML = "<p style='opacity:0.5'>No order history found on this device.</p>";
-        }
+        if(savedPhone) { trackOrders(savedPhone); } 
+        else { document.getElementById("fallbackSearch").style.display = "block"; }
     }
 }
 
-async function trackOrders() {
-    const phoneInput = document.getElementById("trackPhone").value.trim();
-    const resultsList = document.getElementById("resultsList");
-    const fallback = document.getElementById("fallbackSearch");
-    
-    if(!phoneInput) return;
-    
-    resultsList.innerHTML = "<p>Loading your treasure...</p>";
-
-    try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phoneInput)}'`;
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
-        const data = await res.json();
-        
-        if(data.records.length === 0) {
-            resultsList.innerHTML = "<p style='color:var(--danger)'>No orders found for this number.</p>";
-            fallback.style.display = "block";
-            return;
+// --- NEW QUANTITY LOGIC ---
+function updateQty(index, change) {
+    cart[index].qty += change;
+    if(cart[index].qty < 1) {
+        if(confirm("Remove this item from cart?")) {
+            cart.splice(index, 1);
+        } else {
+            cart[index].qty = 1;
         }
-
-        // Hide search once we have results
-        fallback.style.display = "none";
-        
-        resultsList.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
-            const f = record.fields;
-            const status = f.Status || 'Pending';
-            return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
-                <div style="margin-top:10px;font-size:13px; opacity:0.8;">Items: ${f.Items}<br>Total: ${f.Total.toLocaleString()} MMK</div>
-            </div>`;
-        }).join('');
-    } catch (e) { resultsList.innerHTML = "Error."; }
+    }
+    saveAndRefresh();
+    showToast("Cart updated");
 }
 
 function addToCart(name,price,sizeId){
@@ -169,10 +153,13 @@ function addToCart(name,price,sizeId){
     const existing=cart.find(i=>i.name===name && i.size===size);
     if(existing){existing.qty++;}else{ cart.push({name,size,price,qty:1}); }
     saveAndRefresh();
-    const t=document.getElementById("toast"); t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000);
+    showToast("Added to cart");
 }
 
-function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart)); updateCartUI(); }
+function saveAndRefresh(){ 
+    localStorage.setItem("gotchaCart",JSON.stringify(cart)); 
+    updateCartUI(); 
+}
 
 function updateCartUI(){
     const div=document.getElementById("cartItems");
@@ -180,47 +167,67 @@ function updateCartUI(){
     let total=0;
     cart.forEach((item,index)=>{
         total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #333; font-size: 14px;">
-            <span>${item.name} (${item.size}) x${item.qty}</span>
-            <button onclick="removeItem(${index})" style="background:none;border:none;color:var(--danger);cursor:pointer;">[x]</button>
+        div.innerHTML+=`
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #222;">
+            <div>
+                <div style="font-weight:bold;">${item.name}</div>
+                <div style="font-size:12px; color:var(--primary); opacity:0.8;">Size: ${item.size}</div>
+            </div>
+            <div class="qty-controls">
+                <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                <span style="min-width:20px; text-align:center;">${item.qty}</span>
+                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+            </div>
         </div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 
-function removeItem(i){ cart.splice(i,1); saveAndRefresh(); }
+// Tracking & Sending logic
+async function trackOrders(phoneOverride) {
+    const phone = phoneOverride || document.getElementById("trackPhone").value.trim();
+    const list = document.getElementById("resultsList");
+    if(!phone) return;
+    list.innerHTML = "<p>Loading...</p>";
+    try {
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
+        const data = await res.json();
+        list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
+            const f = record.fields;
+            return `<div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${(f.Status||'Pending').toLowerCase()}">${f.Status||'Pending'}</span></div>
+                <div style="font-size:13px;margin-top:5px;">Items: ${f.Items}</div>
+            </div>`;
+        }).join('') || "No orders found.";
+    } catch (e) { list.innerHTML = "Error."; }
+}
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
-    
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Sending...";
-    
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
     try{
-        // SAVE PHONE NUMBER AUTOMATICALLY HERE
         localStorage.setItem("gotchaUserPhone", phone);
-
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`🚨 NEW ORDER\nID: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
-        
-        alert("Order Received!"); 
-        cart=[]; saveAndRefresh(); 
-        switchPage('orders'); // Jump straight to their live orders!
+        alert("Done!"); cart=[]; saveAndRefresh(); switchPage('orders');
     } catch(e) { alert("Error."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
+
+function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 window.onload=updateCartUI;
 </script>
 
