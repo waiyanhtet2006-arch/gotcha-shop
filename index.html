@@ -97,14 +97,12 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         </div>
     </div>
 
-    <!-- ORDERS PAGE -->
+    <!-- ORDERS PAGE (CLEANED UP) -->
     <div id="page-orders" class="page">
         <div class="section">
             <h2>My Dashboard</h2>
-            <div id="resultsList"></div>
-            <div id="fallbackSearch" style="display:none; margin-top:20px;">
-                <input id="trackPhone" placeholder="Enter Phone...">
-                <button class="btn" onclick="trackOrders()">Show Orders</button>
+            <div id="resultsList">
+                <!-- Orders will load here automatically -->
             </div>
         </div>
     </div>
@@ -126,25 +124,24 @@ function switchPage(page) {
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active');
+    
     if(page === 'orders') {
         const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(savedPhone) { trackOrders(savedPhone); } 
-        else { document.getElementById("fallbackSearch").style.display = "block"; }
+        if(savedPhone) { 
+            trackOrders(savedPhone); 
+        } else {
+            document.getElementById("resultsList").innerHTML = "<p style='opacity:0.5'>No order history found. Please place an order first.</p>";
+        }
     }
 }
 
-// --- NEW QUANTITY LOGIC ---
 function updateQty(index, change) {
     cart[index].qty += change;
     if(cart[index].qty < 1) {
-        if(confirm("Remove this item from cart?")) {
-            cart.splice(index, 1);
-        } else {
-            cart[index].qty = 1;
-        }
+        if(confirm("Remove this item?")) { cart.splice(index, 1); } 
+        else { cart[index].qty = 1; }
     }
     saveAndRefresh();
-    showToast("Cart updated");
 }
 
 function addToCart(name,price,sizeId){
@@ -171,7 +168,7 @@ function updateCartUI(){
         <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #222;">
             <div>
                 <div style="font-weight:bold;">${item.name}</div>
-                <div style="font-size:12px; color:var(--primary); opacity:0.8;">Size: ${item.size}</div>
+                <div style="font-size:12px; color:var(--primary);">Size: ${item.size}</div>
             </div>
             <div class="qty-controls">
                 <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
@@ -183,24 +180,28 @@ function updateCartUI(){
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 
-// Tracking & Sending logic
-async function trackOrders(phoneOverride) {
-    const phone = phoneOverride || document.getElementById("trackPhone").value.trim();
+async function trackOrders(phone) {
     const list = document.getElementById("resultsList");
-    if(!phone) return;
-    list.innerHTML = "<p>Loading...</p>";
+    list.innerHTML = "<p style='opacity:0.5'>Checking your history...</p>";
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
+        
+        if(!data.records || data.records.length === 0) {
+            list.innerHTML = "<p style='opacity:0.5'>No orders found for this session.</p>";
+            return;
+        }
+
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
+            const status = f.Status || 'Pending';
             return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${(f.Status||'Pending').toLowerCase()}">${f.Status||'Pending'}</span></div>
-                <div style="font-size:13px;margin-top:5px;">Items: ${f.Items}</div>
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
+                <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
             </div>`;
-        }).join('') || "No orders found.";
-    } catch (e) { list.innerHTML = "Error."; }
+        }).join('');
+    } catch (e) { list.innerHTML = "Connection Error."; }
 }
 
 async function sendOrder(){
@@ -208,10 +209,13 @@ async function sendOrder(){
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
+    
     const btn=document.getElementById("confirmBtn");
-    btn.disabled=true; btn.innerText="Sending...";
+    btn.disabled=true; btn.innerText="Processing...";
+    
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    
     try{
         localStorage.setItem("gotchaUserPhone", phone);
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
@@ -222,7 +226,7 @@ async function sendOrder(){
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
-        alert("Done!"); cart=[]; saveAndRefresh(); switchPage('orders');
+        alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
     } catch(e) { alert("Error."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
