@@ -1,35 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>GOTCHA | Official Store</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root{ --primary:#d4af37; --bg:#0f0f0f; --card-bg:#1a1a1a; --text:#ffffff; }
-        body{margin:0;font-family:'Segoe UI',Arial;background:var(--bg);color:var(--text);line-height:1.6;}
-        .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
-        header{text-align:center; padding: 40px 0;}
-        h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom: 20px;}
-        
-        /* Navigation */
-        .nav-bar { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px;}
-        .nav-link { color: white; text-decoration: none; font-size: 11px; cursor: pointer; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px;}
-        .nav-link.active { opacity: 1; border-bottom: 2px solid var(--primary); padding-bottom: 5px;}
+<meta charset="UTF-8">
+<title>GOTCHA | Official Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* Sections */
-        .page { display: none; }
-        .page.active { display: block; }
-        .section{background:var(--card-bg);padding:30px;border-radius:16px; margin-top: 20px; border: 1px solid #222;}
-        
-        /* Buttons & Inputs */
-        .btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase;}
-        input, textarea { width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
-        
-        .order-card { background:#1a1a1a; padding:18px; border-radius:12px; margin-bottom:12px; border:1px solid #333; }
-        .status-badge { background:var(--primary); color:black; font-size:9px; padding:4px 10px; border-radius:50px; font-weight:bold; }
-    </style>
+<style>
+:root{
+--primary:#d4af37; 
+--bg:#0f0f0f;
+--card-bg:#1a1a1a;
+--text:#ffffff;
+--danger:#ff4d4d;
+--success:#00bfa6;
+}
+body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6;}
+.container{width:95%;max-width:1100px;margin:auto;padding:20px;}
+
+header{text-align:center; padding: 40px 0;}
+h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom: 20px;}
+.nav-bar { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px; flex-wrap: wrap;}
+.nav-link { color: white; text-decoration: none; font-size: 11px; cursor: pointer; opacity: 0.4; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+.nav-link.active { opacity: 1; border-bottom: 2px solid var(--primary); padding-bottom: 5px;}
+
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+.section{background:var(--card-bg);padding:30px;border-radius:16px; margin-top: 20px; border: 1px solid #222;}
+
+/* Products */
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;}
+.card{background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;}
+.card img{width:100%; border-radius:10px;}
+
+/* Cart */
+.qty-controls { display: flex; align-items: center; gap: 10px; }
+.qty-btn { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn:hover { background: var(--primary); color: black; }
+
+.order-record { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+.status-badge { padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+.status-pending { background: #444; color: white; }
+
+select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
+.btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
+
 <body>
+
+<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:1000; font-weight: bold;">Updated 📦</div>
 
 <div class="container">
     <header>
@@ -40,151 +61,182 @@
         </div>
     </header>
 
-    <!-- PAGE 1: SHOP (Visible by default) -->
     <div id="page-shop" class="page active">
-        <div class="section">
-            <h2 style="text-align:center;">CHECKOUT</h2>
-            <div id="cartSummary">
-                <!-- Cart items would show here -->
-                <p style="text-align:center; opacity:0.5;">Your cart is empty</p>
+        <div class="products">
+            <div class="card">
+                <img src="https://i.ibb.co/LdsXqW7/image-36.png">
+                <h3>CULTURAL TREASURE (WHITE)</h3>
+                <p>48,000 MMK</p>
+                <select id="size1"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+                <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
-            <input id="name" placeholder="Full Name">
-            <input id="email" placeholder="Email Address (Optional)">
-            <input id="phone" placeholder="Phone Number (09...)">
-            <textarea id="address" placeholder="Shipping Address"></textarea>
-            <button class="btn" onclick="sendOrder()">Place Order</button>
+            <div class="card">
+                <img src="https://i.ibb.co/LdsXqW7/image-35.png">
+                <h3>CULTURAL TREASURE (BLACK)</h3>
+                <p>48,000 MMK</p>
+                <select id="size2"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+                <button class="btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Your Cart</h2>
+            <div id="cartItems"></div>
+            <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 15px;">Total: <span id="cartTotal">0</span> MMK</h3>
+            
+            <div style="margin-top:30px;">
+                <h3>Checkout Details</h3>
+                <input id="name" placeholder="Full Name">
+                <input id="email" type="email" placeholder="Email Address (for order receipt)">
+                <input id="phone" placeholder="Phone Number">
+                <textarea id="address" placeholder="Shipping Address"></textarea>
+                <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
+            </div>
         </div>
     </div>
 
-    <!-- PAGE 2: MY ORDERS (The Portal) -->
     <div id="page-orders" class="page">
         <div class="section">
-            <h2 style="color:var(--primary); letter-spacing: 2px; text-align:center;">CUSTOMER PORTAL</h2>
-            
-            <!-- Login View -->
-            <div id="login-view" style="display:none; text-align:center;">
-                <p style="opacity:0.7; font-size: 14px;">Enter your phone or email to see order history.</p>
-                <input id="lookup-input" type="text" placeholder="Email or Phone Number" style="text-align:center; max-width:400px; margin:auto;">
-                <button class="btn" onclick="dualLookup()" style="max-width:400px; margin: 15px auto;">View Account</button>
-            </div>
-
-            <!-- Dashboard View -->
-            <div id="orders-view" style="display:none;">
-                <p id="user-display" style="font-size: 12px; color: var(--primary); text-align:center; margin-bottom:20px;"></p>
-                <div id="resultsList">Loading your orders...</div>
-                <button class="btn" style="background:#222; color:white; border: 1px solid #444; margin-top:30px;" onclick="signOut()">Sign Out</button>
+            <h2>My Dashboard</h2>
+            <div id="resultsList">
+                <p style="opacity:0.5">No orders found.</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// --- 1. CONFIGURATION ---
-const CONFIG = {
+const CONFIG={
+    token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
+    chatId: "7194426571",
     airtableBase: "appG57X3qkk4A5IHP",
     airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
     airtableTable: "Orders"
 };
 
-let cart = []; // Existing cart logic
+let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
-// --- 2. STARTUP LOGIC ---
-window.onload = () => {
-    checkSession(); // Check if they are logged in quietly
-};
-
-function switchPage(pageId) {
+function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    
-    document.getElementById('page-' + pageId).classList.add('active');
-    document.getElementById('link-' + pageId).classList.add('active');
-}
-
-// --- 3. ACCOUNT LOGIC ---
-function checkSession() {
-    const savedID = localStorage.getItem("gotchaUserID");
-    if (savedID) {
-        document.getElementById('login-view').style.display = 'none';
-        document.getElementById('orders-view').style.display = 'block';
-        document.getElementById('user-display').innerText = "Logged in as: " + savedID;
-        fetchOrders(savedID);
-    } else {
-        document.getElementById('login-view').style.display = 'block';
-        document.getElementById('orders-view').style.display = 'none';
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('link-' + page).classList.add('active');
+    if(page === 'orders') {
+        const savedPhone = localStorage.getItem("gotchaUserPhone");
+        if(savedPhone) trackOrders(savedPhone);
     }
 }
 
-function dualLookup() {
-    const input = document.getElementById('lookup-input').value.trim();
-    if(input.length < 5) return alert("Please enter a valid Phone or Email");
-    localStorage.setItem("gotchaUserID", input);
-    checkSession();
+function updateQty(index, change) {
+    cart[index].qty += change;
+    if(cart[index].qty < 1) {
+        if(confirm("Remove this item?")) { cart.splice(index, 1); } 
+        else { cart[index].qty = 1; }
+    }
+    saveAndRefresh();
 }
 
-function signOut() {
-    localStorage.removeItem("gotchaUserID");
-    location.reload();
+function addToCart(name,price,sizeId){
+    const size=document.getElementById(sizeId).value;
+    if(!size){alert("Select size");return;}
+    const existing=cart.find(i=>i.name===name && i.size===size);
+    if(existing){existing.qty++;}else{ cart.push({name,size,price,qty:1}); }
+    saveAndRefresh();
+    showToast("Added to cart");
 }
 
-// --- 4. AIRTABLE LOGIC ---
-async function fetchOrders(identity) {
+function saveAndRefresh(){ 
+    localStorage.setItem("gotchaCart",JSON.stringify(cart)); 
+    updateCartUI(); 
+}
+
+function updateCartUI(){
+    const div=document.getElementById("cartItems");
+    div.innerHTML="";
+    let total=0;
+    cart.forEach((item,index)=>{
+        total+=item.price*item.qty;
+        div.innerHTML+=`
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #222;">
+            <div>
+                <div style="font-weight:bold;">${item.name}</div>
+                <div style="font-size:12px; color:var(--primary);">Size: ${item.size}</div>
+            </div>
+            <div class="qty-controls">
+                <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                <span style="min-width:20px; text-align:center;">${item.qty}</span>
+                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById("cartTotal").innerText=total.toLocaleString();
+}
+
+async function trackOrders(phone) {
     const list = document.getElementById("resultsList");
-    const formula = `OR({Phone}='${identity}', {Email}='${identity}')`;
-    const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula=${encodeURIComponent(formula)}`;
-    
     try {
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
-        
-        if(!data.records || data.records.length === 0) {
-            list.innerHTML = "<p style='text-align:center; opacity:0.5;'>No orders found.</p>";
-            return;
-        }
-
-        list.innerHTML = data.records.map(r => `
-            <div class="order-card">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${r.fields.OrderID}</strong>
-                    <span class="status-badge">${r.fields.Status || 'Pending'}</span>
-                </div>
-                <div style="font-size:12px; margin-top:10px; opacity:0.7;">${r.fields.Items || 'No items listed'}</div>
-            </div>
-        `).join('');
-    } catch(e) { list.innerHTML = "Error loading history."; }
+        if(!data.records || data.records.length === 0) return;
+        list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
+            const f = record.fields;
+            const status = f.Status || 'Pending';
+            return `<div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
+                <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
+            </div>`;
+        }).join('');
+    } catch (e) { console.log("Refresh error"); }
 }
 
-async function sendOrder() {
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const email = document.getElementById("email").value;
-    const address = document.getElementById("address").value;
-
-    if(!name || !phone || !address) return alert("Please fill in Name, Phone, and Address.");
-
-    // Tag for automatic login
-    localStorage.setItem("gotchaUserID", phone);
-
-    const orderId = "GTC-" + Math.floor(1000 + Math.random() * 9000);
+async function sendOrder(){
+    const name=document.getElementById("name").value;
+    const email=document.getElementById("email").value;
+    const phone=document.getElementById("phone").value;
+    const address=document.getElementById("address").value;
     
-    try {
-        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${CONFIG.airtableToken}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ fields: { 
-                OrderID: orderId, 
-                CustomerName: name, 
-                Email: email, 
-                Phone: phone, 
-                Address: address, 
-                Items: "Items from Cart", // Placeholder for your cart items
-                Status: "Pending" 
-            } })
+    if(cart.length===0 || !name || !email || !phone || !address){
+        alert("Please fill in all professional details.");
+        return;
+    }
+    
+    const btn=document.getElementById("confirmBtn");
+    btn.disabled=true; btn.innerText="Processing...";
+    
+    const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
+    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    
+    try{
+        localStorage.setItem("gotchaUserPhone", phone);
+        localStorage.setItem("gotchaUserEmail", email);
+
+        // Notify Telegram
+        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
-        alert("Order Successful!");
-        location.reload();
-    } catch(e) { alert("Failed to send order."); }
+
+        // Save to Airtable
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Email:email, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+        });
+
+        alert("Order Successful! A confirmation will be sent to " + email);
+        cart=[]; saveAndRefresh(); switchPage('orders');
+    } catch(e) { alert("Error connecting to server."); }
+    btn.disabled=false; btn.innerText="Confirm Order";
 }
+
+function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
+
+window.onload = () => {
+    updateCartUI();
+    const savedPhone = localStorage.getItem("gotchaUserPhone");
+    if(savedPhone) trackOrders(savedPhone);
+};
 </script>
+
 </body>
 </html>
