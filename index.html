@@ -36,17 +36,21 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
     border-bottom: 1px solid #222; cursor: pointer;
 }
 .menu-footer { margin-top: 40px; }
-.menu-footer-item { display: flex; justify-content: space-between; padding: 15px 0; opacity: 0.8; font-size: 14px; border-bottom: 1px solid #111; }
+.menu-footer-item { display: flex; justify-content: space-between; padding: 15px 0; opacity: 0.8; font-size: 14px; border-bottom: 1px solid #111; cursor: pointer; }
 
 /* Existing Shop Styles */
 .page { display: none; padding-top: 20px; }
 .page.active { display: block; }
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
-.card{background:var(--card-bg);padding:15px;border-radius:12px; text-align: center;}
-.card img{width:100%; border-radius:8px;}
-.btn{background:var(--primary);color:black;width:100%;margin-top:10px;padding:12px;border:none;border-radius:8px; font-weight: bold; cursor: pointer;}
+.card{background:var(--card-bg);padding:15px;border-radius:12px; text-align: center; border: 1px solid #333;}
+.card img{width:100%; border-radius:8px; min-height: 200px; background: #222;}
+.btn{background:var(--primary);color:black;width:100%;margin-top:10px;padding:12px;border:none;border-radius:8px; font-weight: bold; cursor: pointer; text-transform: uppercase;}
+
+select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;border:1px solid #444;border-radius:8px;color:white; box-sizing: border-box;}
 
 #toast{position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:3000; font-weight: bold;}
+
+.order-record { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
 </style>
 </head>
 
@@ -59,7 +63,7 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
     
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Home</span>
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Products</span>
-    <span class="menu-item" onclick="switchPage('orders'); toggleMenu()">Shop</span>
+    <span class="menu-item" onclick="switchPage('orders'); toggleMenu()">My Orders</span>
     <span class="menu-item">Info</span>
 
     <div class="menu-footer">
@@ -83,7 +87,7 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
         <h1>GOTCHA</h1>
         <div class="header-icons">
             <span onclick="switchPage('shop')">🔍</span>
-            <span onclick="switchPage('shop')" style="position: relative;">
+            <span onclick="switchPage('shop')" style="position: relative; cursor: pointer;">
                 🛍️ <small id="cartCountHeader" style="position:absolute; top:-5px; right:-10px; background:var(--primary); color:black; border-radius:50%; padding:2px 6px; font-size:10px;">0</small>
             </span>
         </div>
@@ -93,14 +97,14 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-36.png">
+                <img src="https://i.ibb.co/LdsXqW7/image-36.png" alt="White Tee">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
                 <p>48,000 MMK</p>
                 <select id="size1"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-35.png">
+                <img src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Black Tee">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
                 <p>48,000 MMK</p>
                 <select id="size2"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
@@ -108,28 +112,29 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
             </div>
         </div>
 
-        <div class="section" style="background:var(--card-bg); padding:20px; margin-top:30px; border-radius:12px;">
-            <h2>Checkout</h2>
+        <div class="section" style="background:var(--card-bg); padding:20px; margin-top:30px; border-radius:12px; border: 1px solid #333;">
+            <h2>Your Cart & Checkout</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right;">Total: <span id="cartTotal">0</span> MMK</h3>
+            <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 10px;">Total: <span id="cartTotal">0</span> MMK</h3>
+            
             <input id="name" placeholder="Full Name">
             <input id="email" type="email" placeholder="Email">
-            <input id="phone" placeholder="Phone">
-            <textarea id="address" placeholder="Address"></textarea>
+            <input id="phone" placeholder="Phone Number">
+            <textarea id="address" placeholder="Shipping Address"></textarea>
             <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
         </div>
     </div>
 
-    <!-- ORDERS PAGE -->
+    <!-- ORDERS PAGE (DASHBOARD) -->
     <div id="page-orders" class="page">
-        <div class="section" style="background:var(--card-bg); padding:20px; border-radius:12px;">
+        <div class="section" style="background:var(--card-bg); padding:20px; border-radius:12px; border: 1px solid #333;">
             <h2 id="orderHeader">My Dashboard</h2>
-            <div id="resultsList"><p style="opacity:0.5">Login to see orders.</p></div>
+            <div id="resultsList"><p style="opacity:0.5">Please login to view your order history.</p></div>
         </div>
     </div>
 </div>
 
-<!-- FIREBASE & LOGIC -->
+<!-- FIREBASE MODULES -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -147,28 +152,45 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Force the Google Account Selection popup list
+provider.setCustomParameters({ prompt: 'select_account' });
+
 onAuthStateChanged(auth, (user) => {
     const sideBtn = document.getElementById('authBtnSide');
     if (user) {
         sideBtn.innerHTML = `<span>Logout (${user.displayName.split(' ')[0]})</span> 👤`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email').value = user.email;
+        document.getElementById('orderHeader').innerText = `${user.displayName}'s Dashboard`;
         window.trackOrders(user.email, "Email");
     } else {
         sideBtn.innerHTML = `<span>Login</span> 👤`;
+        document.getElementById('orderHeader').innerText = "My Dashboard";
+        document.getElementById('resultsList').innerHTML = '<p style="opacity:0.5">Login to see orders.</p>';
     }
 });
 
 window.handleAuth = async () => {
-    if (auth.currentUser) { await signOut(auth); toggleMenu(); }
-    else { try { await signInWithPopup(auth, provider); toggleMenu(); } catch(e) { alert("Login failed"); } }
+    if (auth.currentUser) { 
+        await signOut(auth); 
+        toggleMenu();
+        showToast("Logged Out");
+    } else { 
+        try { 
+            await signInWithPopup(auth, provider); 
+            toggleMenu();
+            showToast("Logged In!");
+        } catch(e) { 
+            console.error(e);
+            if(e.code === 'auth/popup-blocked') alert("Please allow popups for this site.");
+        } 
+    }
 };
 </script>
 
+<!-- APP LOGIC -->
 <script>
 const CONFIG={
-    token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
-    chatId: "7194426571",
     airtableBase: "appG57X3qkk4A5IHP",
     airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
     airtableTable: "Orders"
@@ -185,10 +207,11 @@ let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
 function addToCart(name,price,sizeId){
     const size=document.getElementById(sizeId).value;
-    if(!size){alert("Select size");return;}
-    cart.push({name,size,price,qty:1});
+    if(!size){alert("Please select a size");return;}
+    const existing = cart.find(item => item.name === name && item.size === size);
+    if(existing) { existing.qty++; } else { cart.push({name,size,price,qty:1}); }
     saveAndRefresh();
-    showToast("Added!");
+    showToast("Added to cart");
 }
 
 function saveAndRefresh(){
@@ -201,8 +224,11 @@ function updateCartUI(){
     div.innerHTML="";
     let total=0;
     cart.forEach((item)=>{
-        total+=item.price;
-        div.innerHTML+=`<div style="padding:10px 0; border-bottom:1px solid #222;">${item.name} (${item.size})</div>`;
+        total += (item.price * item.qty);
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222; font-size: 14px;">
+            <span>${item.name} (${item.size}) x${item.qty}</span>
+            <span>${(item.price * item.qty).toLocaleString()} MMK</span>
+        </div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
     document.getElementById("cartCountHeader").innerText=cart.length;
@@ -211,24 +237,58 @@ function updateCartUI(){
 
 async function trackOrders(identifier, fieldName) {
     const list = document.getElementById("resultsList");
-    const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
-    const data = await res.json();
-    if(data.records) {
-        list.innerHTML = data.records.map(r => `<div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px;">
-            Order #${r.fields.OrderID} - ${r.fields.Status}
-        </div>`).join('');
-    }
+    if(!identifier) return;
+    try {
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
+        const data = await res.json();
+        
+        if(!data.records || data.records.length === 0) {
+            list.innerHTML = '<p style="opacity:0.5">No orders found.</p>';
+            return;
+        }
+
+        list.innerHTML = data.records.map(r => {
+            const f = r.fields;
+            return `<div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>Order #${f.OrderID}</strong> <span>${f.Status || 'Pending'}</span></div>
+                <div style="font-size:12px; margin-top:5px; opacity:0.7;">${f.Items}</div>
+            </div>`;
+        }).join('');
+    } catch(e) { console.error(e); }
 }
 
 async function sendOrder(){
-    const orderId="GTC-"+Math.floor(Math.random()*9000);
-    // Airtable logic remains the same...
-    alert("Order Sent!");
-    cart=[]; saveAndRefresh();
+    const name=document.getElementById("name").value;
+    const email=document.getElementById("email").value;
+    const phone=document.getElementById("phone").value;
+    const address=document.getElementById("address").value;
+    
+    if(cart.length===0 || !name || !email || !phone || !address){
+        alert("Please fill in all details."); return;
+    }
+    
+    const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
+    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    
+    try{
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Email:email, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+        });
+
+        alert("Order Placed Successfully!");
+        cart=[]; saveAndRefresh(); 
+        switchPage('orders');
+    } catch(e) { alert("Error sending order."); }
 }
 
-function showToast(msg){ const t=document.getElementById("toast"); t.style.display="block"; setTimeout(()=>t.style.display="none",2000); }
+function showToast(msg){ 
+    const t=document.getElementById("toast"); 
+    t.innerText = msg;
+    t.style.display="block"; 
+    setTimeout(()=>t.style.display="none", 2500); 
+}
 
 window.onload = () => updateCartUI();
 </script>
