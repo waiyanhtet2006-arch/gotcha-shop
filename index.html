@@ -21,7 +21,7 @@ header{display: flex; justify-content: space-between; align-items: center; paddi
 h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; font-size: 22px;}
 .header-icons { display: flex; gap: 15px; font-size: 20px; }
 
-/* Side Menu Styles */
+/* Side Menu */
 .side-menu {
     position: fixed; top: 0; left: -100%; width: 100%; height: 100%;
     background: var(--bg); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,7 +38,7 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
 .menu-footer { margin-top: 40px; }
 .menu-footer-item { display: flex; justify-content: space-between; padding: 15px 0; opacity: 0.8; font-size: 14px; border-bottom: 1px solid #111; cursor: pointer; }
 
-/* Shop Styles */
+/* Shop Pages */
 .page { display: none; padding-top: 20px; }
 .page.active { display: block; }
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
@@ -56,7 +56,6 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
 
 <body>
 
-<!-- Side Menu Overlay -->
 <div id="sideMenu" class="side-menu">
     <span class="close-menu" onclick="toggleMenu()">✕</span>
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Home</span>
@@ -86,6 +85,7 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
         </div>
     </header>
 
+    <!-- SHOP PAGE -->
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
@@ -117,6 +117,7 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
         </div>
     </div>
 
+    <!-- ORDERS PAGE -->
     <div id="page-orders" class="page">
         <div class="section" style="background:var(--card-bg); padding:20px; border-radius:12px; border: 1px solid #333;">
             <h2 id="orderHeader">My Dashboard</h2>
@@ -126,6 +127,7 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
     </div>
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -142,7 +144,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
+provider.setCustomParameters({ prompt: 'select_account' }); //
 
 onAuthStateChanged(auth, (user) => {
     const sideBtn = document.getElementById('authBtnSide');
@@ -150,11 +152,11 @@ onAuthStateChanged(auth, (user) => {
         sideBtn.innerHTML = `<span>Logout (${user.displayName.split(' ')[0]})</span> 👤`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email').value = user.email;
-        window.trackOrders(user.email, "Email");
+        window.trackOrders(user.email, "Email"); //
     } else {
         sideBtn.innerHTML = `<span>Sign in with Google</span> 👤`;
         const savedPhone = localStorage.getItem("gotcha_customer_phone");
-        if(savedPhone) window.trackOrders(savedPhone, "Phone");
+        if(savedPhone) window.trackOrders(savedPhone, "Phone"); //
     }
 });
 
@@ -164,12 +166,12 @@ window.handleAuth = async () => {
 };
 </script>
 
+<!-- APP LOGIC -->
 <script>
-// IMPORTANT: Table Name is "Orders" based on your video
 const CONFIG={
     airtableBase: "appG57X3qkk4A5IHP",
     airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
-    airtableTable: "Orders" 
+    airtableTable: "Orders" //
 };
 
 function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
@@ -208,7 +210,7 @@ async function trackOrders(identifier, fieldName) {
     const statusText = document.getElementById("trackingStatus");
     if(!identifier) return;
     
-    statusText.innerText = `Updating dashboard for: ${identifier}...`;
+    statusText.innerText = `Searching orders for: ${identifier}...`;
     
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
@@ -216,13 +218,13 @@ async function trackOrders(identifier, fieldName) {
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = '<p style="opacity:0.5">No orders found. Refresh in a moment if you just placed one.</p>';
+            list.innerHTML = '<p style="opacity:0.5">No orders found. If you just placed an order, please refresh in a moment.</p>';
         } else {
             list.innerHTML = data.records.map(r => `<div class="order-record">
                 <strong>Order #${r.fields.OrderID}</strong> - ${r.fields.Status || 'Pending'}
                 <div style="font-size:11px; opacity:0.7; margin-top:5px;">${r.fields.Items}</div>
             </div>`).join('');
-            statusText.innerText = `Connected: Tracking via ${fieldName}`;
+            statusText.innerText = `Auto-tracking active via ${fieldName}`;
         }
     } catch(e) { console.error(e); }
 }
@@ -233,7 +235,7 @@ async function sendOrder(){
     const email=document.getElementById("email").value.trim();
     const address=document.getElementById("address").value.trim();
     
-    if(!name || !phone || !address || cart.length === 0){ alert("Please fill all details!"); return; }
+    if(!name || !phone || !address || cart.length === 0){ alert("Fill all details!"); return; }
     
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})`).join(", ");
@@ -244,22 +246,22 @@ async function sendOrder(){
             method:"POST", 
             headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{
-                OrderID: orderId, 
-                CustomerName: name, 
-                Email: email, 
-                Phone: phone, 
-                Address: address, 
-                Items: itemsSummary, 
-                Total: totalValue, 
-                Status: "Pending"
-            }})
+                "OrderID": orderId, 
+                "CustomerName": name, 
+                "Phone": phone, 
+                "Email": email, 
+                "Address": address, 
+                "Items": itemsSummary, 
+                "Total": totalValue, 
+                "Status": "Pending"
+            }}) //
         });
 
         if(response.ok) {
-            alert("Order Placed!");
-            localStorage.setItem("gotcha_customer_phone", phone);
+            alert("Order Placed Successfully!");
+            localStorage.setItem("gotcha_customer_phone", phone); //
             cart=[]; saveAndRefresh();
-            // Wait 2 seconds for Airtable to sync before loading the dashboard
+            // 2 second delay to ensure Airtable sync
             setTimeout(() => {
                 switchPage('orders');
                 trackOrders(phone, "Phone");
