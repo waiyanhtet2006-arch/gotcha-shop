@@ -38,7 +38,7 @@ h1{color:var(--primary); letter-spacing: 0.3em; font-weight: bold; margin: 0; fo
 .menu-footer { margin-top: 40px; }
 .menu-footer-item { display: flex; justify-content: space-between; padding: 15px 0; opacity: 0.8; font-size: 14px; border-bottom: 1px solid #111; cursor: pointer; }
 
-/* Existing Shop Styles */
+/* Shop Styles */
 .page { display: none; padding-top: 20px; }
 .page.active { display: block; }
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
@@ -59,22 +59,17 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
 <!-- Side Menu Overlay -->
 <div id="sideMenu" class="side-menu">
     <span class="close-menu" onclick="toggleMenu()">✕</span>
-    <input type="text" placeholder="Search products..." style="margin-bottom: 20px;">
     
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Home</span>
-    <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Products</span>
+    <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Shop</span>
     <span class="menu-item" onclick="switchPage('orders'); toggleMenu()">My Orders</span>
-    <span class="menu-item">Info</span>
 
     <div class="menu-footer">
         <div class="menu-footer-item" id="authBtnSide" onclick="handleAuth()">
-            <span>Login</span> 👤
+            <span>Sign in with Google</span> 👤
         </div>
         <div class="menu-footer-item" onclick="switchPage('shop'); toggleMenu()">
             <span>Cart</span> <span id="cartCountMenu">0</span> 🛍️
-        </div>
-        <div class="menu-footer-item">
-            <span>Wishlist</span> ♡
         </div>
     </div>
 </div>
@@ -86,7 +81,6 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
         <div class="hamburger" onclick="toggleMenu()">☰</div>
         <h1>GOTCHA</h1>
         <div class="header-icons">
-            <span onclick="switchPage('shop')">🔍</span>
             <span onclick="switchPage('shop')" style="position: relative; cursor: pointer;">
                 🛍️ <small id="cartCountHeader" style="position:absolute; top:-5px; right:-10px; background:var(--primary); color:black; border-radius:50%; padding:2px 6px; font-size:10px;">0</small>
             </span>
@@ -97,14 +91,14 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-36.png" alt="White Tee">
+                <img src="https://i.ibb.co/LdsXqW7/image-36.png">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
                 <p>48,000 MMK</p>
                 <select id="size1"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Black Tee">
+                <img src="https://i.ibb.co/LdsXqW7/image-35.png">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
                 <p>48,000 MMK</p>
                 <select id="size2"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
@@ -113,13 +107,13 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
         </div>
 
         <div class="section" style="background:var(--card-bg); padding:20px; margin-top:30px; border-radius:12px; border: 1px solid #333;">
-            <h2>Your Cart & Checkout</h2>
+            <h2 id="checkoutTitle">Quick Checkout</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 10px;">Total: <span id="cartTotal">0</span> MMK</h3>
+            <h3 style="text-align:right;">Total: <span id="cartTotal">0</span> MMK</h3>
             
             <input id="name" placeholder="Full Name">
-            <input id="email" type="email" placeholder="Email">
-            <input id="phone" placeholder="Phone Number">
+            <input id="phone" placeholder="Phone Number (Used to track order)">
+            <input id="email" type="email" placeholder="Email (Optional if not Google)">
             <textarea id="address" placeholder="Shipping Address"></textarea>
             <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
         </div>
@@ -129,12 +123,12 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
     <div id="page-orders" class="page">
         <div class="section" style="background:var(--card-bg); padding:20px; border-radius:12px; border: 1px solid #333;">
             <h2 id="orderHeader">My Dashboard</h2>
-            <div id="resultsList"><p style="opacity:0.5">Please login to view your order history.</p></div>
+            <p id="trackingStatus" style="font-size: 12px; opacity: 0.6; margin-bottom: 20px;"></p>
+            <div id="resultsList"></div>
         </div>
     </div>
 </div>
 
-<!-- FIREBASE MODULES -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -151,8 +145,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
-// Force the Google Account Selection popup list
 provider.setCustomParameters({ prompt: 'select_account' });
 
 onAuthStateChanged(auth, (user) => {
@@ -161,34 +153,27 @@ onAuthStateChanged(auth, (user) => {
         sideBtn.innerHTML = `<span>Logout (${user.displayName.split(' ')[0]})</span> 👤`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email').value = user.email;
-        document.getElementById('orderHeader').innerText = `${user.displayName}'s Dashboard`;
+        document.getElementById('checkoutTitle').innerText = "Logged in as " + user.displayName.split(' ')[0];
+        // Priority tracking: Google Email
         window.trackOrders(user.email, "Email");
     } else {
-        sideBtn.innerHTML = `<span>Login</span> 👤`;
-        document.getElementById('orderHeader').innerText = "My Dashboard";
-        document.getElementById('resultsList').innerHTML = '<p style="opacity:0.5">Login to see orders.</p>';
+        sideBtn.innerHTML = `<span>Sign in with Google</span> 👤`;
+        // If not logged in, try to track via Phone stored in localStorage
+        const savedPhone = localStorage.getItem("gotcha_customer_phone");
+        if(savedPhone) {
+            window.trackOrders(savedPhone, "Phone");
+        } else {
+            document.getElementById('resultsList').innerHTML = '<p style="opacity:0.5">No recent orders found. Place an order to see history.</p>';
+        }
     }
 });
 
 window.handleAuth = async () => {
-    if (auth.currentUser) { 
-        await signOut(auth); 
-        toggleMenu();
-        showToast("Logged Out");
-    } else { 
-        try { 
-            await signInWithPopup(auth, provider); 
-            toggleMenu();
-            showToast("Logged In!");
-        } catch(e) { 
-            console.error(e);
-            if(e.code === 'auth/popup-blocked') alert("Please allow popups for this site.");
-        } 
-    }
+    if (auth.currentUser) { await signOut(auth); toggleMenu(); location.reload(); }
+    else { try { await signInWithPopup(auth, provider); toggleMenu(); } catch(e) { console.error(e); } }
 };
 </script>
 
-<!-- APP LOGIC -->
 <script>
 const CONFIG={
     airtableBase: "appG57X3qkk4A5IHP",
@@ -207,11 +192,10 @@ let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
 function addToCart(name,price,sizeId){
     const size=document.getElementById(sizeId).value;
-    if(!size){alert("Please select a size");return;}
-    const existing = cart.find(item => item.name === name && item.size === size);
-    if(existing) { existing.qty++; } else { cart.push({name,size,price,qty:1}); }
+    if(!size){alert("Select size");return;}
+    cart.push({name,size,price,qty:1});
     saveAndRefresh();
-    showToast("Added to cart");
+    showToast("Added!");
 }
 
 function saveAndRefresh(){
@@ -221,15 +205,8 @@ function saveAndRefresh(){
 
 function updateCartUI(){
     const div=document.getElementById("cartItems");
-    div.innerHTML="";
-    let total=0;
-    cart.forEach((item)=>{
-        total += (item.price * item.qty);
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222; font-size: 14px;">
-            <span>${item.name} (${item.size}) x${item.qty}</span>
-            <span>${(item.price * item.qty).toLocaleString()} MMK</span>
-        </div>`;
-    });
+    div.innerHTML=""; let total=0;
+    cart.forEach((item)=>{ total += item.price; div.innerHTML+=`<div style="padding:5px 0;">${item.name} (${item.size})</div>`; });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
     document.getElementById("cartCountHeader").innerText=cart.length;
     document.getElementById("cartCountMenu").innerText=cart.length;
@@ -237,61 +214,53 @@ function updateCartUI(){
 
 async function trackOrders(identifier, fieldName) {
     const list = document.getElementById("resultsList");
-    if(!identifier) return;
+    const statusText = document.getElementById("trackingStatus");
+    statusText.innerText = `Auto-tracking via ${fieldName}: ${identifier}`;
+    
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = '<p style="opacity:0.5">No orders found.</p>';
-            return;
+            list.innerHTML = '<p style="opacity:0.5">No orders found for this account/phone.</p>';
+        } else {
+            list.innerHTML = data.records.map(r => `<div class="order-record">
+                <strong>Order #${r.fields.OrderID}</strong> - ${r.fields.Status || 'Pending'}
+                <div style="font-size:11px; opacity:0.7;">${r.fields.Items}</div>
+            </div>`).join('');
         }
-
-        list.innerHTML = data.records.map(r => {
-            const f = r.fields;
-            return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>Order #${f.OrderID}</strong> <span>${f.Status || 'Pending'}</span></div>
-                <div style="font-size:12px; margin-top:5px; opacity:0.7;">${f.Items}</div>
-            </div>`;
-        }).join('');
     } catch(e) { console.error(e); }
 }
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
-    const email=document.getElementById("email").value;
     const phone=document.getElementById("phone").value;
+    const email=document.getElementById("email").value;
     const address=document.getElementById("address").value;
     
-    if(cart.length===0 || !name || !email || !phone || !address){
-        alert("Please fill in all details."); return;
-    }
+    if(!name || !phone || !address || cart.length === 0){ alert("Fill all details!"); return; }
+    
+    // Save phone locally so we can track them next time they visit
+    localStorage.setItem("gotcha_customer_phone", phone);
     
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
-    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    const itemsSummary=cart.map(i=>`${i.name}(${i.size})`).join(", ");
     
     try{
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Email:email, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
-
-        alert("Order Placed Successfully!");
-        cart=[]; saveAndRefresh(); 
+        alert("Order Placed!");
+        cart=[]; saveAndRefresh();
+        trackOrders(phone, "Phone"); // Immediately show the new order
         switchPage('orders');
-    } catch(e) { alert("Error sending order."); }
+    } catch(e) { alert("Error"); }
 }
 
-function showToast(msg){ 
-    const t=document.getElementById("toast"); 
-    t.innerText = msg;
-    t.style.display="block"; 
-    setTimeout(()=>t.style.display="none", 2500); 
-}
-
+function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",2000); }
 window.onload = () => updateCartUI();
 </script>
-
 </body>
 </html>
