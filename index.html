@@ -60,6 +60,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         <div class="nav-bar">
             <span class="nav-link active" id="link-shop" onclick="switchPage('shop')">Shop</span>
             <span class="nav-link" id="link-orders" onclick="switchPage('orders')">My Orders</span>
+            <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
         </div>
     </header>
 
@@ -91,6 +92,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
                 <h3>Checkout</h3>
                 <input id="name" placeholder="Full Name">
                 <input id="phone" placeholder="Phone Number">
+                <input id="email" type="email" placeholder="Email Address (Optional)">
                 <textarea id="address" placeholder="Shipping Address"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
             </div>
@@ -107,6 +109,52 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         </div>
     </div>
 </div>
+
+<!-- FIREBASE AUTH SETUP -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAj7skSFoyw5U8yqZG6N-AoX0aNvY6Xzqo",
+  authDomain: "gotcha-official.firebaseapp.com",
+  projectId: "gotcha-official",
+  storageBucket: "gotcha-official.firebasestorage.app",
+  messagingSenderId: "301647267739",
+  appId: "1:301647267739:web:1adabbb3f3b49eeb6a433e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// Check user status
+onAuthStateChanged(auth, (user) => {
+    const authBtn = document.getElementById('authBtn');
+    if (user) {
+        authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
+        document.getElementById('name').value = user.displayName;
+        document.getElementById('email').value = user.email;
+        // Search dashboard by email automatically
+        trackOrders(user.email, "Email");
+    } else {
+        authBtn.innerText = "SIGN IN";
+        const savedPhone = localStorage.getItem("gotchaUserPhone");
+        if(savedPhone) trackOrders(savedPhone, "Phone");
+    }
+});
+
+window.handleAuth = async () => {
+    if (auth.currentUser) {
+        await signOut(auth);
+        location.reload();
+    } else {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (e) { console.error(e); }
+    }
+};
+</script>
 
 <script>
 const CONFIG={
@@ -125,10 +173,11 @@ function switchPage(page) {
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active');
     
-    // Refresh orders whenever the user clicks the tab
     if(page === 'orders') {
-        const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(savedPhone) trackOrders(savedPhone);
+        const email = document.getElementById('email').value;
+        const phone = localStorage.getItem("gotchaUserPhone");
+        if(email) trackOrders(email, "Email");
+        else if(phone) trackOrders(phone, "Phone");
     }
 }
 
@@ -177,11 +226,10 @@ function updateCartUI(){
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 
-// FIXED: This now runs automatically on page load and tab switch
-async function trackOrders(phone) {
+async function trackOrders(identifier, fieldName = "Phone") {
     const list = document.getElementById("resultsList");
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
@@ -195,12 +243,13 @@ async function trackOrders(phone) {
                 <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
             </div>`;
         }).join('');
-    } catch (e) { console.log("Check error"); }
+    } catch (e) { console.log("Tracking error"); }
 }
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
+    const email=document.getElementById("email").value;
     const address=document.getElementById("address").value;
     if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
     
@@ -214,11 +263,20 @@ async function sendOrder(){
         localStorage.setItem("gotchaUserPhone", phone);
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\nItems: ${itemsSummary}`})
         });
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+            body:JSON.stringify({fields:{
+                OrderID:orderId, 
+                CustomerName:name, 
+                Phone:phone, 
+                Email:email,
+                Address:address, 
+                Items:itemsSummary, 
+                Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), 
+                Status:"Pending"
+            }})
         });
         alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
     } catch(e) { alert("Error."); }
@@ -227,11 +285,8 @@ async function sendOrder(){
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 
-// INITIALIZE: Check for orders the moment the site opens
 window.onload = () => {
     updateCartUI();
-    const savedPhone = localStorage.getItem("gotchaUserPhone");
-    if(savedPhone) trackOrders(savedPhone);
 };
 </script>
 
