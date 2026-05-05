@@ -59,7 +59,6 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
 <!-- Side Menu Overlay -->
 <div id="sideMenu" class="side-menu">
     <span class="close-menu" onclick="toggleMenu()">✕</span>
-    
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Home</span>
     <span class="menu-item" onclick="switchPage('shop'); toggleMenu()">Shop</span>
     <span class="menu-item" onclick="switchPage('orders'); toggleMenu()">My Orders</span>
@@ -87,7 +86,6 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
         </div>
     </header>
 
-    <!-- SHOP PAGE -->
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
@@ -113,13 +111,12 @@ select,input,textarea{width:100%;padding:12px;margin-top:10px;background:#222;bo
             
             <input id="name" placeholder="Full Name">
             <input id="phone" placeholder="Phone Number (Used to track order)">
-            <input id="email" type="email" placeholder="Email (Optional if not Google)">
+            <input id="email" type="email" placeholder="Email (Optional)">
             <textarea id="address" placeholder="Shipping Address"></textarea>
             <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
         </div>
     </div>
 
-    <!-- ORDERS PAGE (DASHBOARD) -->
     <div id="page-orders" class="page">
         <div class="section" style="background:var(--card-bg); padding:20px; border-radius:12px; border: 1px solid #333;">
             <h2 id="orderHeader">My Dashboard</h2>
@@ -153,32 +150,26 @@ onAuthStateChanged(auth, (user) => {
         sideBtn.innerHTML = `<span>Logout (${user.displayName.split(' ')[0]})</span> 👤`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email').value = user.email;
-        document.getElementById('checkoutTitle').innerText = "Logged in as " + user.displayName.split(' ')[0];
-        // Priority tracking: Google Email
         window.trackOrders(user.email, "Email");
     } else {
         sideBtn.innerHTML = `<span>Sign in with Google</span> 👤`;
-        // If not logged in, try to track via Phone stored in localStorage
         const savedPhone = localStorage.getItem("gotcha_customer_phone");
-        if(savedPhone) {
-            window.trackOrders(savedPhone, "Phone");
-        } else {
-            document.getElementById('resultsList').innerHTML = '<p style="opacity:0.5">No recent orders found. Place an order to see history.</p>';
-        }
+        if(savedPhone) window.trackOrders(savedPhone, "Phone");
     }
 });
 
 window.handleAuth = async () => {
-    if (auth.currentUser) { await signOut(auth); toggleMenu(); location.reload(); }
+    if (auth.currentUser) { await signOut(auth); location.reload(); }
     else { try { await signInWithPopup(auth, provider); toggleMenu(); } catch(e) { console.error(e); } }
 };
 </script>
 
 <script>
+// IMPORTANT: Table Name is "Orders" based on your video
 const CONFIG={
     airtableBase: "appG57X3qkk4A5IHP",
     airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
-    airtableTable: "Orders"
+    airtableTable: "Orders" 
 };
 
 function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
@@ -215,7 +206,9 @@ function updateCartUI(){
 async function trackOrders(identifier, fieldName) {
     const list = document.getElementById("resultsList");
     const statusText = document.getElementById("trackingStatus");
-    statusText.innerText = `Auto-tracking via ${fieldName}: ${identifier}`;
+    if(!identifier) return;
+    
+    statusText.innerText = `Updating dashboard for: ${identifier}...`;
     
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
@@ -223,40 +216,58 @@ async function trackOrders(identifier, fieldName) {
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = '<p style="opacity:0.5">No orders found for this account/phone.</p>';
+            list.innerHTML = '<p style="opacity:0.5">No orders found. Refresh in a moment if you just placed one.</p>';
         } else {
             list.innerHTML = data.records.map(r => `<div class="order-record">
                 <strong>Order #${r.fields.OrderID}</strong> - ${r.fields.Status || 'Pending'}
-                <div style="font-size:11px; opacity:0.7;">${r.fields.Items}</div>
+                <div style="font-size:11px; opacity:0.7; margin-top:5px;">${r.fields.Items}</div>
             </div>`).join('');
+            statusText.innerText = `Connected: Tracking via ${fieldName}`;
         }
     } catch(e) { console.error(e); }
 }
 
 async function sendOrder(){
-    const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value;
-    const email=document.getElementById("email").value;
-    const address=document.getElementById("address").value;
+    const name=document.getElementById("name").value.trim();
+    const phone=document.getElementById("phone").value.trim();
+    const email=document.getElementById("email").value.trim();
+    const address=document.getElementById("address").value.trim();
     
-    if(!name || !phone || !address || cart.length === 0){ alert("Fill all details!"); return; }
-    
-    // Save phone locally so we can track them next time they visit
-    localStorage.setItem("gotcha_customer_phone", phone);
+    if(!name || !phone || !address || cart.length === 0){ alert("Please fill all details!"); return; }
     
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})`).join(", ");
-    
+    const totalValue = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
+
     try{
-        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
-            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Email:email, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+        const response = await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+            method:"POST", 
+            headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
+            body:JSON.stringify({fields:{
+                OrderID: orderId, 
+                CustomerName: name, 
+                Email: email, 
+                Phone: phone, 
+                Address: address, 
+                Items: itemsSummary, 
+                Total: totalValue, 
+                Status: "Pending"
+            }})
         });
-        alert("Order Placed!");
-        cart=[]; saveAndRefresh();
-        trackOrders(phone, "Phone"); // Immediately show the new order
-        switchPage('orders');
-    } catch(e) { alert("Error"); }
+
+        if(response.ok) {
+            alert("Order Placed!");
+            localStorage.setItem("gotcha_customer_phone", phone);
+            cart=[]; saveAndRefresh();
+            // Wait 2 seconds for Airtable to sync before loading the dashboard
+            setTimeout(() => {
+                switchPage('orders');
+                trackOrders(phone, "Phone");
+            }, 2000);
+        } else {
+            alert("Error: Check your Airtable Column Names match the code!");
+        }
+    } catch(e) { alert("Network Error"); }
 }
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",2000); }
