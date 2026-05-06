@@ -277,15 +277,17 @@ async function sendOrder(){
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
         
-        // SHOW PREMIUM MODAL INSTEAD OF ALERT
+        // SHOW PREMIUM MODAL
         document.getElementById("successModal").style.display = "flex";
-        cart=[]; saveAndRefreshUI();
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Error sending order."); }
+    } catch(e) { 
+        console.error("Order error:", e);
+        alert("Error sending order."); 
+    }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
-// Logic functions (no change)
+// Logic functions
 function manualLookup() {
     const inputPhone = document.getElementById("manualPhone").value.trim();
     if(!inputPhone) return; trackOrders(inputPhone, "Phone");
@@ -323,8 +325,6 @@ function updateCartUI(){
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
-window.onload = () => updateQty;
-// wait, we need to make sure updateCartUI runs at loading
 window.onload = () => updateCartUI();
 </script>
 
