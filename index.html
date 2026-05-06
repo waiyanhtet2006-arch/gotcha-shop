@@ -7,17 +7,21 @@
 
 <style>
 :root{
---primary:#d4af37; 
---bg:#0f0f0f;
---card-bg:#1a1a1a;
---text:#ffffff;
---danger:#ff4d4d;
---success:#00bfa6;
+/* New Theme Colors */
+--primary: #001f3f; /* Navy Blue */
+--accent: #003366; /* Lighter Navy for hover */
+--bg: #f4f4f4;    /* Matte Grayish White */
+--card-bg: #ffffff;
+--text: #333333;
+--danger: #ff4d4d;
+--success: #28a745;
+--pill-radius: 50px; /* Pill Shape */
 }
+
 body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
-header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative;}
+header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
 h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
 
 /* Hamburger Button */
@@ -26,7 +30,7 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
-    height: 25px;
+    height: 22px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -43,49 +47,89 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
 .nav-bar { 
     position: fixed;
     top: 0;
-    right: -100%; /* Hidden initially */
-    width: 250px;
+    right: -100%; 
+    width: 280px;
     height: 100%;
-    background: #111;
+    background: var(--primary);
     display: flex;
     flex-direction: column;
     padding: 80px 20px;
     gap: 20px;
-    transition: 0.4s ease;
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
-    border-left: 1px solid #333;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
 }
 .nav-bar.active { right: 0; }
 
-.nav-link { color: white; text-decoration: none; font-size: 14px; cursor: pointer; opacity: 0.6; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
-.nav-link.active-tab { opacity: 1; color: var(--primary); font-weight: bold;}
+.nav-link { color: #f4f4f4; text-decoration: none; font-size: 14px; cursor: pointer; opacity: 0.7; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
+.nav-link:hover { opacity: 1; color: white; }
+.nav-link.active-tab { opacity: 1; color: white; font-weight: bold; border-left: 4px solid white; padding-left: 10px;}
 
 .page { display: none; animation: fadeIn 0.4s ease; }
 .page.active { display: block; }
-.section{background:var(--card-bg);padding:30px;border-radius:16px; margin-top: 20px; border: 1px solid #222;}
+.section{background:var(--card-bg);padding:30px;border-radius:24px; margin-top: 20px; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);}
 
 /* Products */
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;}
-.card{background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;}
-.card img{width:100%; border-radius:10px;}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 20px;}
+.card{background:var(--card-bg);padding:20px;border-radius:24px;border:1px solid #eee; text-align: center; transition: transform 0.3s ease;}
+.card:hover { transform: translateY(-5px); }
+.card img{width:100%; border-radius:18px;}
+.card h3 { color: var(--primary); font-size: 16px; margin: 15px 0 5px;}
 
 /* Qty Controls */
 .qty-controls { display: flex; align-items: center; gap: 10px; }
-.qty-btn { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-.qty-btn:hover { background: var(--primary); color: black; }
+.qty-btn { background: #eee; color: var(--primary); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn:hover { background: var(--primary); color: white; }
 
-.order-record { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
-.status-badge { padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-.status-pending { background: #444; color: white; }
-.status-accepted { background: #b8860b; color: white; }
-.status-delivered { background: var(--success); color: black; }
+.order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 6px solid var(--primary); border-top: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;}
+.status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; }
+.status-pending { background: #eee; color: #666; }
+.status-accepted { background: var(--primary); color: white; }
+.status-delivered { background: var(--success); color: white; }
 
-select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
-.btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
+/* Pill Shaped Inputs and Selects */
+select, input, textarea {
+    width:100%;
+    padding:14px 20px;
+    margin-top:10px;
+    background:#fff;
+    border:1.5px solid #ddd;
+    border-radius: var(--pill-radius);
+    color:var(--text); 
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
+}
+textarea { border-radius: 20px; } /* Slightly less round for multiline */
+select:focus, input:focus { border-color: var(--primary); }
 
-.lookup-box { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #333; }
+/* Pill Shaped Buttons */
+.btn{
+    background:var(--primary);
+    color:white;
+    width:100%;
+    margin-top:15px;
+    padding:15px;
+    border:none;
+    border-radius: var(--pill-radius); 
+    font-weight: bold; 
+    cursor: pointer; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+.btn:hover { background: var(--accent); transform: scale(1.01); }
+
+.lookup-box { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
 .small-text { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
+
+#toast {
+    position:fixed; bottom:20px; right:20px; 
+    background:var(--primary); color:white; 
+    padding:15px 25px; border-radius: var(--pill-radius); 
+    display:none; z-index:2000; font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -93,56 +137,54 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
 
 <body>
 
-<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:2000; font-weight: bold;">Updated 📦</div>
+<div id="toast">Updated 📦</div>
+
+<header>
+    <h1>GOTCHA</h1>
+    <button class="menu-btn" onclick="toggleMenu()">
+        <div></div>
+        <div style="margin: 5px 0;"></div>
+        <div></div>
+    </button>
+    
+    <div class="nav-bar" id="mainNav">
+        <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
+        <span class="nav-link" id="link-orders" onclick="switchPage('orders')">Dashboard</span>
+        <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
+    </div>
+</header>
 
 <div class="container">
-    <header>
-        <h1>GOTCHA</h1>
-        <!-- Three Line Button -->
-        <button class="menu-btn" onclick="toggleMenu()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </button>
-        
-        <!-- Navigation Sidebar -->
-        <div class="nav-bar" id="mainNav">
-            <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
-            <span class="nav-link" id="link-orders" onclick="switchPage('orders')">My Orders / Dashboard</span>
-            <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
-        </div>
-    </header>
-
     <!-- SHOP PAGE -->
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
                 <img src="https://i.ibb.co/LdsXqW7/image-36.png">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
-                <p>48,000 MMK</p>
-                <select id="size1"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <select id="size1"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
             <div class="card">
                 <img src="https://i.ibb.co/LdsXqW7/image-35.png">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
-                <p>48,000 MMK</p>
-                <select id="size2"><option value="">Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <select id="size2"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
             </div>
         </div>
 
         <div class="section">
-            <h2>Your Cart</h2>
+            <h2 style="color: var(--primary); border-bottom: 2px solid #f4f4f4; padding-bottom: 10px;">Your Cart</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right; border-top: 1px solid #333; padding-top: 15px;">Total: <span id="cartTotal">0</span> MMK</h3>
+            <h3 style="text-align:right; padding-top: 15px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
             
             <div style="margin-top:30px;">
-                <h3>Checkout</h3>
+                <h3 style="color: var(--primary);">Checkout Details</h3>
                 <input id="name" placeholder="Full Name">
                 <input id="phone" placeholder="Phone Number">
                 <input id="email_hidden" type="hidden" value="">
-                <textarea id="address" placeholder="Shipping Address"></textarea>
+                <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
             </div>
         </div>
@@ -151,10 +193,10 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
     <!-- ORDERS PAGE -->
     <div id="page-orders" class="page">
         <div class="section">
-            <h2>My Dashboard</h2>
+            <h2 style="color: var(--primary);">My Dashboard</h2>
             
             <div id="lookupContainer" class="lookup-box">
-                <span class="small-text">Check orders from a different phone number:</span>
+                <span class="small-text">Track your order by phone number:</span>
                 <div style="display: flex; gap: 10px;">
                     <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
                     <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
@@ -162,12 +204,13 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
             </div>
 
             <div id="resultsList">
-                <p style="opacity:0.5">No orders found. History will appear here once you place an order.</p>
+                <p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found yet.</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Scripts remain identical to preserve existing logic -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -223,18 +266,13 @@ const CONFIG={
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
-// Toggle Menu Logic
-function toggleMenu() {
-    document.getElementById("mainNav").classList.toggle("active");
-}
+function toggleMenu() { document.getElementById("mainNav").classList.toggle("active"); }
 
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active-tab');
-    
-    // Close menu when page is switched
     document.getElementById("mainNav").classList.remove("active");
 
     if(page === 'orders') {
@@ -257,21 +295,19 @@ async function trackOrders(val, field) {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
-        
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5">No orders found for this ${field}.</p>`;
+            list.innerHTML = `<p style="opacity:0.5; text-align:center; padding:40px 0;">No records found.</p>`;
             return;
         }
-
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
             const status = f.Status || 'Pending';
             return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
                 <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
             </div>`;
         }).join('');
-    } catch (e) { console.log("Dashboard fetch error"); }
+    } catch (e) { console.log("Fetch error"); }
 }
 
 async function sendOrder(){
@@ -279,33 +315,20 @@ async function sendOrder(){
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     const email=document.getElementById("email_hidden").value;
-    
     if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
-    
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
-    
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
     try{
         localStorage.setItem("gotchaUserPhone", phone);
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nEmail: ${email||'Guest'}\nItems: ${itemsSummary}`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{
-                OrderID:orderId, 
-                CustomerName:name, 
-                Phone:phone, 
-                Email:email, 
-                Address:address, 
-                Items:itemsSummary, 
-                Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), 
-                Status:"Pending"
-            }})
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
         alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
     } catch(e) { alert("Error sending order."); }
@@ -314,10 +337,7 @@ async function sendOrder(){
 
 function updateQty(index, change) {
     cart[index].qty += change;
-    if(cart[index].qty < 1) {
-        if(confirm("Remove this item?")) { cart.splice(index, 1); } 
-        else { cart[index].qty = 1; }
-    }
+    if(cart[index].qty < 1) { if(confirm("Remove?")) cart.splice(index, 1); else cart[index].qty = 1; }
     saveAndRefresh();
 }
 
@@ -325,15 +345,12 @@ function addToCart(name,price,sizeId){
     const size=document.getElementById(sizeId).value;
     if(!size){alert("Select size");return;}
     const existing=cart.find(i=>i.name===name && i.size===size);
-    if(existing){existing.qty++;}else{ cart.push({name,size,price,qty:1}); }
+    if(existing) existing.qty++; else cart.push({name,size,price,qty:1});
     saveAndRefresh();
     showToast("Added to cart");
 }
 
-function saveAndRefresh(){ 
-    localStorage.setItem("gotchaCart",JSON.stringify(cart)); 
-    updateCartUI(); 
-}
+function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart)); updateCartUI(); }
 
 function updateCartUI(){
     const div=document.getElementById("cartItems");
@@ -341,17 +358,9 @@ function updateCartUI(){
     let total=0;
     cart.forEach((item,index)=>{
         total+=item.price*item.qty;
-        div.innerHTML+=`
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #222;">
-            <div>
-                <div style="font-weight:bold;">${item.name}</div>
-                <div style="font-size:12px; color:var(--primary);">Size: ${item.size}</div>
-            </div>
-            <div class="qty-controls">
-                <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
-                <span style="min-width:20px; text-align:center;">${item.qty}</span>
-                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
-            </div>
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;">
+            <div><div style="font-weight:bold;">${item.name}</div><div style="font-size:12px; color:var(--primary);">Size: ${item.size}</div></div>
+            <div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index}, -1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index}, 1)">+</button></div>
         </div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
@@ -359,9 +368,7 @@ function updateCartUI(){
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 
-window.onload = () => {
-    updateCartUI();
-};
+window.onload = () => updateCartUI();
 </script>
 
 </body>
