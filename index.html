@@ -32,7 +32,7 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 .card{background:var(--card-bg);padding:20px;border-radius:16px;border:1px solid #333; text-align: center;}
 .card img{width:100%; border-radius:10px;}
 
-/* Cart Controls */
+/* Qty Controls */
 .qty-controls { display: flex; align-items: center; gap: 10px; }
 .qty-btn { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 .qty-btn:hover { background: var(--primary); color: black; }
@@ -45,6 +45,10 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 
 select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
 .btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
+
+/* Manual Lookup Styling */
+.lookup-box { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #333; }
+.small-text { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -92,7 +96,6 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
                 <h3>Checkout</h3>
                 <input id="name" placeholder="Full Name">
                 <input id="phone" placeholder="Phone Number">
-                <!-- Hidden input to store Google Email -->
                 <input id="email_hidden" type="hidden" value="">
                 <textarea id="address" placeholder="Shipping Address"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
@@ -104,6 +107,16 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
     <div id="page-orders" class="page">
         <div class="section">
             <h2>My Dashboard</h2>
+            
+            <!-- NEW: Manual Phone Lookup for Guests -->
+            <div id="lookupContainer" class="lookup-box">
+                <span class="small-text">Check orders from a different phone number:</span>
+                <div style="display: flex; gap: 10px;">
+                    <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
+                    <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
+                </div>
+            </div>
+
             <div id="resultsList">
                 <p style="opacity:0.5">No orders found. History will appear here once you place an order.</p>
             </div>
@@ -111,7 +124,6 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
     </div>
 </div>
 
-<!-- FIREBASE & SMART TRACKING SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -129,18 +141,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Runs when user signs in or out
 onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
+    const lookup = document.getElementById('lookupContainer');
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        // Auto-refresh dashboard for signed-in email
+        if(lookup) lookup.style.display = "none"; // Hide lookup if signed in
         trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
         document.getElementById('email_hidden').value = "";
+        if(lookup) lookup.style.display = "block"; // Show lookup for guests
         const savedPhone = localStorage.getItem("gotchaUserPhone");
         if(savedPhone) trackOrders(savedPhone, "Phone");
     }
@@ -175,13 +188,18 @@ function switchPage(page) {
     if(page === 'orders') {
         const email = document.getElementById("email_hidden").value;
         const savedPhone = localStorage.getItem("gotchaUserPhone");
-        // Smart Check: Search by email if logged in, otherwise use phone
         if(email) trackOrders(email, "Email");
         else if(savedPhone) trackOrders(savedPhone, "Phone");
     }
 }
 
-// Logic to pull history from Airtable
+// NEW: Manual lookup function for guest users
+function manualLookup() {
+    const inputPhone = document.getElementById("manualPhone").value.trim();
+    if(!inputPhone) { alert("Please enter a phone number"); return; }
+    trackOrders(inputPhone, "Phone");
+}
+
 async function trackOrders(val, field) {
     const list = document.getElementById("resultsList");
     try {
@@ -189,7 +207,10 @@ async function trackOrders(val, field) {
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
-        if(!data.records || data.records.length === 0) return;
+        if(!data.records || data.records.length === 0) {
+            list.innerHTML = `<p style="opacity:0.5">No orders found for this ${field}.</p>`;
+            return;
+        }
 
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
@@ -218,12 +239,10 @@ async function sendOrder(){
     
     try{
         localStorage.setItem("gotchaUserPhone", phone);
-        // Telegram notification
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
             body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nEmail: ${email||'Guest'}\nItems: ${itemsSummary}`})
         });
-        // Airtable record creation
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{
@@ -242,7 +261,6 @@ async function sendOrder(){
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
-// Basic UI Helper functions
 function updateQty(index, change) {
     cart[index].qty += change;
     if(cart[index].qty < 1) {
@@ -292,8 +310,6 @@ function showToast(msg){ const t=document.getElementById("toast"); t.innerText=m
 
 window.onload = () => {
     updateCartUI();
-    const savedPhone = localStorage.getItem("gotchaUserPhone");
-    if(savedPhone) trackOrders(savedPhone, "Phone");
 };
 </script>
 
