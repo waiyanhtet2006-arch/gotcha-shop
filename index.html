@@ -14,14 +14,52 @@
 --danger:#ff4d4d;
 --success:#00bfa6;
 }
-body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6;}
+body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
-header{text-align:center; padding: 40px 0;}
-h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom: 20px;}
-.nav-bar { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px; flex-wrap: wrap;}
-.nav-link { color: white; text-decoration: none; font-size: 11px; cursor: pointer; opacity: 0.4; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;}
-.nav-link.active { opacity: 1; border-bottom: 2px solid var(--primary); padding-bottom: 5px;}
+header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative;}
+h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
+
+/* Hamburger Button */
+.menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+}
+.menu-btn div {
+    width: 30px;
+    height: 3px;
+    background: var(--primary);
+    transition: 0.3s;
+}
+
+/* Side Navigation Drawer */
+.nav-bar { 
+    position: fixed;
+    top: 0;
+    right: -100%; /* Hidden initially */
+    width: 250px;
+    height: 100%;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    padding: 80px 20px;
+    gap: 20px;
+    transition: 0.4s ease;
+    z-index: 1000;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    border-left: 1px solid #333;
+}
+.nav-bar.active { right: 0; }
+
+.nav-link { color: white; text-decoration: none; font-size: 14px; cursor: pointer; opacity: 0.6; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
+.nav-link.active-tab { opacity: 1; color: var(--primary); font-weight: bold;}
 
 .page { display: none; animation: fadeIn 0.4s ease; }
 .page.active { display: block; }
@@ -46,7 +84,6 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin-bottom
 select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;border:1px solid #444;border-radius:10px;color:white; box-sizing: border-box;}
 .btn{background:var(--primary);color:black;width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
 
-/* Manual Lookup Styling */
 .lookup-box { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #333; }
 .small-text { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
 
@@ -56,14 +93,22 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
 
 <body>
 
-<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:1000; font-weight: bold;">Updated 📦</div>
+<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--primary);color:black;padding:15px;border-radius:8px;display:none;z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <div class="container">
     <header>
         <h1>GOTCHA</h1>
-        <div class="nav-bar">
-            <span class="nav-link active" id="link-shop" onclick="switchPage('shop')">Shop</span>
-            <span class="nav-link" id="link-orders" onclick="switchPage('orders')">My Orders</span>
+        <!-- Three Line Button -->
+        <button class="menu-btn" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </button>
+        
+        <!-- Navigation Sidebar -->
+        <div class="nav-bar" id="mainNav">
+            <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
+            <span class="nav-link" id="link-orders" onclick="switchPage('orders')">My Orders / Dashboard</span>
             <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
         </div>
     </header>
@@ -108,7 +153,6 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
         <div class="section">
             <h2>My Dashboard</h2>
             
-            <!-- NEW: Manual Phone Lookup for Guests -->
             <div id="lookupContainer" class="lookup-box">
                 <span class="small-text">Check orders from a different phone number:</span>
                 <div style="display: flex; gap: 10px;">
@@ -148,12 +192,12 @@ onAuthStateChanged(auth, (user) => {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        if(lookup) lookup.style.display = "none"; // Hide lookup if signed in
+        if(lookup) lookup.style.display = "none";
         trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
         document.getElementById('email_hidden').value = "";
-        if(lookup) lookup.style.display = "block"; // Show lookup for guests
+        if(lookup) lookup.style.display = "block";
         const savedPhone = localStorage.getItem("gotchaUserPhone");
         if(savedPhone) trackOrders(savedPhone, "Phone");
     }
@@ -179,12 +223,20 @@ const CONFIG={
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 
+// Toggle Menu Logic
+function toggleMenu() {
+    document.getElementById("mainNav").classList.toggle("active");
+}
+
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
     document.getElementById('page-' + page).classList.add('active');
-    document.getElementById('link-' + page).classList.add('active');
+    document.getElementById('link-' + page).classList.add('active-tab');
     
+    // Close menu when page is switched
+    document.getElementById("mainNav").classList.remove("active");
+
     if(page === 'orders') {
         const email = document.getElementById("email_hidden").value;
         const savedPhone = localStorage.getItem("gotchaUserPhone");
@@ -193,7 +245,6 @@ function switchPage(page) {
     }
 }
 
-// NEW: Manual lookup function for guest users
 function manualLookup() {
     const inputPhone = document.getElementById("manualPhone").value.trim();
     if(!inputPhone) { alert("Please enter a phone number"); return; }
