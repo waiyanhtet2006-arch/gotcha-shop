@@ -5,58 +5,88 @@
 <title>GOTCHA | Official Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <style>
 :root{
---primary: #001f3f; /* Navy Blue */
---accent: #003366; 
---bg: #f4f4f4;    /* Matte Grayish White */
---card-bg: #ffffff;
---text: #333333;
---danger: #ff4d4d;
---success: #28a745;
---pill-radius: 50px; 
+--bg: #090C10; /* Premium Dark Background */
+--card-bg: rgba(22, 27, 34, 0.75); /* Glassmorphic Card Background */
+--card-border: rgba(255, 255, 255, 0.1);
+--primary: #D4AF37; /* Premium Gold Accent */
+--accent: #E5C56D; 
+--text: #EDF2F7;
+--text-secondary: #A0AEC0;
+--danger: #FF6B6B;
+--success: #48BB78;
+--pill-radius: 16px; 
 }
 
-body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
+body{
+    margin:0;
+    font-family:'Segoe UI',Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text); 
+    line-height: 1.6; 
+    overflow-x: hidden;
+    background-image: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
+}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
-header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
-h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
+header{
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 25px 5%; 
+    position: relative; 
+    background: var(--card-bg); 
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--card-border);
+}
+h1{
+    color:var(--primary); 
+    letter-spacing: 0.4em; 
+    font-weight: 800; 
+    margin: 0; 
+    font-size: 24px;
+    text-transform: uppercase;
+}
 
 /* Hamburger Button */
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
-.menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; }
+.menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; border-radius: 4px; }
 
 /* Side Navigation Drawer */
-.nav-bar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--primary); display: flex; flex-direction: column; padding: 80px 20px; gap: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
+.nav-bar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: #161b22; display: flex; flex-direction: column; padding: 80px 20px; gap: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; box-shadow: -5px 0 25px rgba(0,0,0,0.5); border-left: 1px solid var(--card-border); }
 .nav-bar.active { right: 0; }
-.nav-link { color: #f4f4f4; text-decoration: none; font-size: 14px; cursor: pointer; opacity: 0.7; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
-.nav-link.active-tab { opacity: 1; color: white; font-weight: bold; border-left: 4px solid white; padding-left: 10px;}
+.nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
+.nav-link.active-tab { color: var(--primary); font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px;}
 
 /* PREMIUM SUCCESS MODAL */
 #successModal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 31, 63, 0.4); /* Navy tinted glass */
-    backdrop-filter: blur(8px);
+    background: rgba(9, 12, 16, 0.75);
+    backdrop-filter: blur(12px);
     z-index: 3000;
     align-items: center;
     justify-content: center;
 }
 .modal-content {
-    background: var(--primary);
-    color: white;
+    background: linear-gradient(145deg, #1A1D24, #101217);
+    color: var(--text);
     padding: 40px;
-    border-radius: 30px;
+    border-radius: 24px;
     text-align: center;
     max-width: 400px;
     width: 85%;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
     animation: modalSlide 0.4s ease-out;
 }
-.modal-content h2 { margin-top: 0; letter-spacing: 2px; }
-.modal-content p { opacity: 0.9; font-size: 15px; margin-bottom: 25px; }
+.modal-content h2 { margin-top: 0; color: var(--primary); letter-spacing: 2px; }
+.modal-content p { color: var(--text-secondary); font-size: 14px; margin-bottom: 30px; }
 
 @keyframes modalSlide {
     from { transform: scale(0.8); opacity: 0; }
@@ -66,34 +96,128 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
 /* Page Elements */
 .page { display: none; animation: fadeIn 0.4s ease; }
 .page.active { display: block; }
-.section{background:var(--card-bg);padding:30px;border-radius:24px; margin-top: 20px; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);}
+.section{
+    background: var(--card-bg);
+    padding: 35px;
+    border-radius: 24px; 
+    margin-top: 25px; 
+    border: 1px solid var(--card-border); 
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
 
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 20px;}
-.card{background:var(--card-bg);padding:20px;border-radius:24px;border:1px solid #eee; text-align: center; transition: 0.3s ease;}
-.card:hover { transform: translateY(-5px); }
-.card img{width:100%; border-radius:18px;}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 25px;}
+.card{
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid var(--card-border); 
+    backdrop-filter: blur(12px);
+    text-align: center; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover { 
+    transform: translateY(-8px); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+    border-color: rgba(212, 175, 55, 0.3);
+}
+.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);}
 
-.qty-controls { display: flex; align-items: center; gap: 10px; }
-.qty-btn { background: #eee; color: var(--primary); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
+.qty-controls { display: flex; align-items: center; gap: 12px; }
+.qty-btn { background: rgba(255, 255, 255, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn:hover { background: var(--primary); color: #000; }
 
-.order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 6px solid var(--primary); border: 1px solid #eee; border-left-width: 6px; }
-.status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; }
+.order-record { 
+    background: rgba(255, 255, 255, 0.03); 
+    padding: 20px; 
+    border-radius: 18px; 
+    margin-bottom: 16px; 
+    border: 1px solid var(--card-border); 
+    transition: 0.2s;
+}
+.order-record:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+.status-badge { 
+    padding: 4px 12px; 
+    border-radius: var(--pill-radius); 
+    font-size: 10px; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--primary);
+}
 
-select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; background:#fff; border:1.5px solid #ddd; border-radius: var(--pill-radius); color:var(--text); box-sizing: border-box; outline: none; transition: 0.3s; }
+select, input, textarea { 
+    width:100%; 
+    padding:16px 22px; 
+    margin-top:12px; 
+    background: rgba(255, 255, 255, 0.04);
+    border:1px solid var(--card-border); 
+    border-radius: var(--pill-radius); 
+    color:var(--text); 
+    box-sizing: border-box; 
+    outline: none; 
+    transition: all 0.2s; 
+}
+select option {
+    background: #101217;
+    color: #fff;
+}
+select:focus, input:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+}
 textarea { border-radius: 20px; }
-.btn{ background:var(--primary); color:white; width:100%; margin-top:15px; padding:15px; border:none; border-radius: var(--pill-radius); font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-.btn:hover { background: var(--accent); }
-.btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
+.btn{ 
+    background: linear-gradient(135deg, #D4AF37, #B38F1E); 
+    color: #101217; 
+    width:100%; 
+    margin-top:20px; 
+    padding:16px; 
+    border:none; 
+    border-radius: var(--pill-radius); 
+    font-weight: bold; 
+    cursor: pointer; 
+    text-transform: uppercase; 
+    letter-spacing: 1.5px; 
+    transition: all 0.3s ease; 
+}
+.btn:hover { 
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(212, 175, 55, 0.3);
+}
+.btn:disabled { background: #333; color: #666; cursor: not-allowed; opacity: 0.6; filter: none; transform: none; }
 
-.google-btn { background: #ffffff; color: #333; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.google-btn { background: #ffffff !important; color: #1a1a1a !important; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; }
+.google-btn:hover { box-shadow: 0 10px 24px rgba(255, 255, 255, 0.2); }
 
-#toast { position:fixed; bottom:20px; right:20px; background:var(--primary); color:white; padding:15px 25px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+#toast { 
+    position:fixed; bottom:24px; right:24px; 
+    background: rgba(212, 175, 55, 0.95); 
+    color:#101217; 
+    padding:14px 28px; 
+    border-radius: var(--pill-radius); 
+    display:none; 
+    z-index:2000; 
+    font-weight: bold; 
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4); 
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 
 <body>
+
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" 
+     data-context="signin"
+     data-ux_mode="popup"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="true">
+</div>
 
 <div id="successModal">
     <div class="modal-content">
@@ -122,16 +246,16 @@ textarea { border-radius: 20px; }
     <div id="page-shop" class="page active">
         <div class="products">
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-36.png">
+                <img src="https://i.ibb.co/LdsXqW7/image-36.png" alt="Cultural Treasure White">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
-                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
                 <select id="size1"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
             <div class="card">
-                <img src="https://i.ibb.co/LdsXqW7/image-35.png">
+                <img src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Cultural Treasure Black">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
-                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
                 <select id="size2"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
             </div>
@@ -140,18 +264,18 @@ textarea { border-radius: 20px; }
         <div class="section">
             <h2 style="color: var(--primary);">Your Cart</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
+            <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
             
             <div style="margin-top:30px;">
                 <div id="authPrompt" style="margin-top: 20px; text-align: center;">
-                    <p style="color: #666; font-size: 13px;">🔒 You must Sign In with Google to place an order.</p>
+                    <p style="color: var(--text-secondary); font-size: 13px;">🔒 You must Sign In with Google to place an order.</p>
                     <button class="btn google-btn" onclick="handleAuth()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Sign In with Google
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google"> Sign In with Google
                     </button>
                 </div>
                 
                 <div id="checkoutForm" style="display: none;">
-                    <h3 style="color: var(--primary);">Checkout Details</h3>
+                    <h3 style="color: var(--primary); margin-top: 20px;">Checkout Details</h3>
                     <input id="name" placeholder="Full Name">
                     <input id="email" placeholder="Email Address">
                     <input id="phone" placeholder="Phone Number">
@@ -165,21 +289,21 @@ textarea { border-radius: 20px; }
     <div id="page-orders" class="page">
         <div class="section">
             <h2 style="color: var(--primary);">My Dashboard</h2>
-            <div id="lookupContainer">
-                <span class="small-text">Track by phone number:</span>
-                <div style="display: flex; gap: 10px;">
+            <div id="lookupContainer" style="margin-bottom: 25px;">
+                <span class="small-text" style="color: var(--text-secondary);">Track by phone number:</span>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
-                    <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
+                    <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 12px;">Find</button>
                 </div>
             </div>
-            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found yet.</p></div>
+            <div id="resultsList"><p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p></div>
         </div>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj7skSFoyw5U8yqZG6N-AoX0aNvY6Xzqo",
@@ -199,8 +323,7 @@ onAuthStateChanged(auth, (user) => {
     const authPrompt = document.getElementById('authPrompt');
 
     if (user) {
-        authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
-        document.getElementById('name').value = user.displayName;
+        authBtn.innerText = `LOGOUT (${user.displayName ? user.displayName.split(' ')[0] : 'User'})`;
         document.getElementById('email').value = user.email;
         checkoutForm.style.display = 'block';
         authPrompt.style.display = 'none';
@@ -208,7 +331,6 @@ onAuthStateChanged(auth, (user) => {
     } else {
         authBtn.innerText = "SIGN IN";
         document.getElementById('email').value = "";
-        document.getElementById('name').value = "";
         checkoutForm.style.display = 'none';
         authPrompt.style.display = 'block';
         const savedPhone = localStorage.getItem("gotchaUserPhone");
@@ -217,8 +339,26 @@ onAuthStateChanged(auth, (user) => {
 });
 
 window.handleAuth = async () => {
-    if (auth.currentUser) { await signOut(auth).then(() => location.reload()); } 
-    else { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } }
+    if (auth.currentUser) { 
+        await signOut(auth).then(() => location.reload()); 
+    } else { 
+        try { 
+            await signInWithPopup(auth, provider); 
+        } catch(e) { 
+            console.error(e); 
+        } 
+    }
+};
+
+// Handle One Tap Sign-In credentials
+window.handleCredentialResponse = async (response) => {
+    try {
+        const credential = GoogleAuthProvider.credential(response.credential);
+        await signInWithCredential(auth, credential);
+        showToast("Signed in with Google");
+    } catch (e) {
+        console.error("One Tap Sign In error:", e);
+    }
 };
 </script>
 
@@ -259,6 +399,7 @@ async function sendOrder(){
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     const email=document.getElementById("email").value;
+    
     if(cart.length===0 || !name || !phone || !address || !email){
         alert("Please fill in all checkout details");
         return;
@@ -272,16 +413,17 @@ async function sendOrder(){
     
     try{
         localStorage.setItem("gotchaUserPhone", phone);
+        
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
             body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
+        
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
         
-        // SHOW PREMIUM MODAL
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
     } catch(e) { 
@@ -291,7 +433,6 @@ async function sendOrder(){
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
-// Logic functions
 function manualLookup() {
     const inputPhone = document.getElementById("manualPhone").value.trim();
     if(!inputPhone) return; trackOrders(inputPhone, "Phone");
@@ -324,7 +465,7 @@ function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart
 function updateCartUI(){
     const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
