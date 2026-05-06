@@ -18,7 +18,7 @@
 body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
-header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
 h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
 
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
@@ -81,8 +81,8 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
     <div class="modal-content">
         <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
         <h2>GOTCHA!</h2>
-        <p>Order Placed Successfully! Your history is updated.</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">PERFECT</button>
+        <p>Order successful. We've remembered your number for next time!</p>
+        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">VIEW DASHBOARD</button>
     </div>
 </div>
 
@@ -136,15 +136,17 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
     <div id="page-orders" class="page">
         <div class="section">
             <h2 style="color: var(--primary);">My Dashboard</h2>
+            <p style="font-size: 12px; opacity: 0.7;">History updates automatically for your saved number.</p>
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
                 <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
             </div>
-            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">History will appear here.</p></div>
+            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching for history...</p></div>
         </div>
     </div>
 </div>
 
+<!-- Firebase Script Kept Intact -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -167,13 +169,8 @@ onAuthStateChanged(auth, (user) => {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        // Auto-check on login
-        trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
-        // Always try to load phone history even if not logged in
-        const saved = localStorage.getItem("gotchaUserPhone");
-        if(saved) trackOrders(saved, "Phone");
     }
 });
 
@@ -204,8 +201,7 @@ function switchPage(page) {
     document.getElementById("mainNav").classList.remove("active");
     
     if(page === 'orders') {
-        const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(savedPhone) trackOrders(savedPhone, "Phone");
+        runAutoRecall();
     }
 }
 
@@ -214,13 +210,20 @@ function closeSuccessModal() {
     switchPage('orders');
 }
 
+// Aggressive Auto Recall
+function runAutoRecall() {
+    const savedPhone = localStorage.getItem("gotchaUserPhone");
+    if(savedPhone) {
+        document.getElementById("manualPhone").value = savedPhone;
+        trackOrders(savedPhone);
+    }
+}
+
 async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value.trim();
     const address=document.getElementById("address").value;
-    const email=document.getElementById("email_hidden").value;
-    
-    if(cart.length===0 || !name || !phone || !address){alert("Please fill details");return;}
+    if(cart.length===0 || !name || !phone || !address){alert("Fill all fields");return;}
     
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
@@ -229,57 +232,55 @@ async function sendOrder(){
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
     
     try{
-        // Persistence: Save phone number immediately
+        // CORE FIX: Save phone to storage before any network calls
         localStorage.setItem("gotchaUserPhone", phone);
         
-        // Telegram API
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
             body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
 
-        // Airtable API
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
         
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Error connecting. Check connection."); }
+    } catch(e) { alert("Order error. Please try again."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
 function manualLookup() {
-    const inputPhone = document.getElementById("manualPhone").value.trim();
-    if(inputPhone) {
-        localStorage.setItem("gotchaUserPhone", inputPhone);
-        trackOrders(inputPhone, "Phone");
+    const p = document.getElementById("manualPhone").value.trim();
+    if(p) {
+        localStorage.setItem("gotchaUserPhone", p);
+        trackOrders(p);
     }
 }
 
-async function trackOrders(val, field) {
+async function trackOrders(phone) {
     const list = document.getElementById("resultsList");
-    if(!list) return;
-    list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">Loading history...</p>`;
-    
+    list.innerHTML = `<p style="text-align:center; padding:20px; opacity:0.5;">Loading...</p>`;
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found for ${val}.</p>`;
+            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No orders found for this number.</p>`;
             return;
         }
 
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
-            return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
+            const s = f.Status || 'Pending';
+            return `<div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${s}</span></div>
+                <div style="font-size:13px;margin-top:10px; opacity:0.8;">${f.Items}</div>
+            </div>`;
         }).join('');
-    } catch (e) {
-        list.innerHTML = `<p style="color:red; text-align: center; padding: 40px 0;">Error loading history. Check internet.</p>`;
-    }
+    } catch (e) { list.innerHTML = "Error loading history."; }
 }
 
 function addToCart(name,price,sizeId){
@@ -301,17 +302,14 @@ function updateCartUI(){
 }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 
-// THE PERSISTENCE TRIGGER
+// THE FINAL FIX: Run auto-recall every time the window gains focus (crucial for Notes browser)
+window.addEventListener('focus', runAutoRecall);
 window.onload = () => {
     updateCartUI();
-    const savedPhone = localStorage.getItem("gotchaUserPhone");
-    if(savedPhone) {
-        // Pre-fill fields for the user
-        if(document.getElementById('phone')) document.getElementById('phone').value = savedPhone;
-        if(document.getElementById('manualPhone')) document.getElementById('manualPhone').value = savedPhone;
-        // Run the history check immediately
-        trackOrders(savedPhone, "Phone");
-    }
+    runAutoRecall();
+    // Pre-fill phone if it exists
+    const saved = localStorage.getItem("gotchaUserPhone");
+    if(saved && document.getElementById('phone')) document.getElementById('phone').value = saved;
 };
 </script>
 
