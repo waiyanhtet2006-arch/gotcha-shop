@@ -48,7 +48,6 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
     max-width: 400px;
     width: 85%;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    animation: modalSlide 0.4s ease-out;
 }
 
 .page { display: none; animation: fadeIn 0.4s ease; }
@@ -62,7 +61,7 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
 .qty-controls { display: flex; align-items: center; gap: 10px; }
 .qty-btn { background: #eee; color: var(--primary); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
 
-.order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; border-left: 6px solid var(--primary); }
+.order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; border-left: 6px solid var(--primary); text-align: left;}
 .status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; background: #eee; }
 
 select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; background:#fff; border:1.5px solid #ddd; border-radius: var(--pill-radius); color:var(--text); box-sizing: border-box; outline: none; }
@@ -70,7 +69,6 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
 
 #toast { position:fixed; bottom:20px; right:20px; background:var(--primary); color:white; padding:15px 25px; border-radius: var(--pill-radius); display:none; z-index:2000; }
 
-@keyframes modalSlide { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -79,10 +77,9 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
 
 <div id="successModal">
     <div class="modal-content">
-        <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
         <h2>GOTCHA!</h2>
-        <p>Order successful. We've remembered your number for next time!</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">VIEW DASHBOARD</button>
+        <p>Order successful! Redirecting to your history...</p>
+        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">OK</button>
     </div>
 </div>
 
@@ -134,19 +131,20 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
     </div>
 
     <div id="page-orders" class="page">
-        <div class="section">
-            <h2 style="color: var(--primary);">My Dashboard</h2>
-            <p style="font-size: 12px; opacity: 0.7;">History updates automatically for your saved number.</p>
+        <div class="section" style="text-align: center;">
+            <h2 style="color: var(--primary); margin-bottom: 5px;">My Dashboard</h2>
+            <p style="font-size: 12px; opacity: 0.7; margin-bottom: 20px;">History updates automatically for your saved number.</p>
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
                 <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
             </div>
-            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching for history...</p></div>
+            <div id="resultsList">
+                <p id="searchingText" style="opacity:0.5; padding: 40px 0;">Searching for history...</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Firebase Script Kept Intact -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -199,10 +197,7 @@ function switchPage(page) {
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
-    
-    if(page === 'orders') {
-        runAutoRecall();
-    }
+    if(page === 'orders') forceRecall();
 }
 
 function closeSuccessModal() {
@@ -210,12 +205,15 @@ function closeSuccessModal() {
     switchPage('orders');
 }
 
-// Aggressive Auto Recall
-function runAutoRecall() {
-    const savedPhone = localStorage.getItem("gotchaUserPhone");
-    if(savedPhone) {
-        document.getElementById("manualPhone").value = savedPhone;
-        trackOrders(savedPhone);
+// THE FIX: Persistent Force Recall
+function forceRecall() {
+    const saved = localStorage.getItem("gotchaUserPhone");
+    if(saved) {
+        const input = document.getElementById("manualPhone");
+        if(input) input.value = saved;
+        trackOrders(saved);
+    } else {
+        document.getElementById("resultsList").innerHTML = `<p style="opacity:0.5; padding: 40px 0;">Enter phone to see history.</p>`;
     }
 }
 
@@ -232,7 +230,7 @@ async function sendOrder(){
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
     
     try{
-        // CORE FIX: Save phone to storage before any network calls
+        // Save phone immediately to storage
         localStorage.setItem("gotchaUserPhone", phone);
         
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
@@ -247,7 +245,7 @@ async function sendOrder(){
         
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Order error. Please try again."); }
+    } catch(e) { alert("Order failed. Check internet."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
@@ -261,26 +259,25 @@ function manualLookup() {
 
 async function trackOrders(phone) {
     const list = document.getElementById("resultsList");
-    list.innerHTML = `<p style="text-align:center; padding:20px; opacity:0.5;">Loading...</p>`;
+    list.innerHTML = `<p style="opacity:0.5; padding:40px 0;">Searching Airtable...</p>`;
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No orders found for this number.</p>`;
+            list.innerHTML = `<p style="opacity:0.5; padding: 40px 0;">No orders found for ${phone}.</p>`;
             return;
         }
 
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
-            const s = f.Status || 'Pending';
             return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${s}</span></div>
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status || 'Pending'}</span></div>
                 <div style="font-size:13px;margin-top:10px; opacity:0.8;">${f.Items}</div>
             </div>`;
         }).join('');
-    } catch (e) { list.innerHTML = "Error loading history."; }
+    } catch (e) { list.innerHTML = "Connection Error."; }
 }
 
 function addToCart(name,price,sizeId){
@@ -302,15 +299,14 @@ function updateCartUI(){
 }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 
-// THE FINAL FIX: Run auto-recall every time the window gains focus (crucial for Notes browser)
-window.addEventListener('focus', runAutoRecall);
+// Runs every time the page loads OR becomes visible again
 window.onload = () => {
     updateCartUI();
-    runAutoRecall();
-    // Pre-fill phone if it exists
-    const saved = localStorage.getItem("gotchaUserPhone");
-    if(saved && document.getElementById('phone')) document.getElementById('phone').value = saved;
+    forceRecall();
 };
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === 'visible') forceRecall();
+});
 </script>
 
 </body>
