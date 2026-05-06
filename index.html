@@ -92,6 +92,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
                 <h3>Checkout</h3>
                 <input id="name" placeholder="Full Name">
                 <input id="phone" placeholder="Phone Number">
+                <!-- Hidden input to store Google Email -->
                 <input id="email_hidden" type="hidden" value="">
                 <textarea id="address" placeholder="Shipping Address"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
@@ -110,7 +111,7 @@ select,input,textarea{width:100%;padding:14px;margin-top:10px;background:#222;bo
     </div>
 </div>
 
-<!-- FIREBASE AUTHENTICATION -->
+<!-- FIREBASE & SMART TRACKING SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -128,13 +129,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Runs when user signs in or out
 onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        // Search by email first if signed in
+        // Auto-refresh dashboard for signed-in email
         trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
@@ -146,8 +148,7 @@ onAuthStateChanged(auth, (user) => {
 
 window.handleAuth = async () => {
     if (auth.currentUser) {
-        await signOut(auth);
-        location.reload();
+        await signOut(auth).then(() => location.reload());
     } else {
         try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); }
     }
@@ -172,13 +173,76 @@ function switchPage(page) {
     document.getElementById('link-' + page).classList.add('active');
     
     if(page === 'orders') {
-        const email = document.getElementById('email_hidden').value;
+        const email = document.getElementById("email_hidden").value;
         const savedPhone = localStorage.getItem("gotchaUserPhone");
+        // Smart Check: Search by email if logged in, otherwise use phone
         if(email) trackOrders(email, "Email");
         else if(savedPhone) trackOrders(savedPhone, "Phone");
     }
 }
 
+// Logic to pull history from Airtable
+async function trackOrders(val, field) {
+    const list = document.getElementById("resultsList");
+    try {
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
+        const data = await res.json();
+        
+        if(!data.records || data.records.length === 0) return;
+
+        list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
+            const f = record.fields;
+            const status = f.Status || 'Pending';
+            return `<div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
+                <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
+            </div>`;
+        }).join('');
+    } catch (e) { console.log("Dashboard fetch error"); }
+}
+
+async function sendOrder(){
+    const name=document.getElementById("name").value;
+    const phone=document.getElementById("phone").value;
+    const address=document.getElementById("address").value;
+    const email=document.getElementById("email_hidden").value;
+    
+    if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
+    
+    const btn=document.getElementById("confirmBtn");
+    btn.disabled=true; btn.innerText="Processing...";
+    
+    const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
+    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    
+    try{
+        localStorage.setItem("gotchaUserPhone", phone);
+        // Telegram notification
+        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nEmail: ${email||'Guest'}\nItems: ${itemsSummary}`})
+        });
+        // Airtable record creation
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
+            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
+            body:JSON.stringify({fields:{
+                OrderID:orderId, 
+                CustomerName:name, 
+                Phone:phone, 
+                Email:email, 
+                Address:address, 
+                Items:itemsSummary, 
+                Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), 
+                Status:"Pending"
+            }})
+        });
+        alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
+    } catch(e) { alert("Error sending order."); }
+    btn.disabled=false; btn.innerText="Confirm Order";
+}
+
+// Basic UI Helper functions
 function updateQty(index, change) {
     cart[index].qty += change;
     if(cart[index].qty < 1) {
@@ -222,53 +286,6 @@ function updateCartUI(){
         </div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
-}
-
-async function trackOrders(identifier, fieldName = "Phone") {
-    const list = document.getElementById("resultsList");
-    try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${fieldName}}='${encodeURIComponent(identifier)}'`;
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
-        const data = await res.json();
-        
-        if(!data.records || data.records.length === 0) return;
-
-        list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
-            const f = record.fields;
-            const status = f.Status || 'Pending';
-            return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge status-${status.toLowerCase()}">${status}</span></div>
-                <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
-            </div>`;
-        }).join('');
-    } catch (e) { console.log("Check error"); }
-}
-
-async function sendOrder(){
-    const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value;
-    const address=document.getElementById("address").value;
-    if(cart.length===0 || !name || !phone || !address){alert("Fill details");return;}
-    
-    const btn=document.getElementById("confirmBtn");
-    btn.disabled=true; btn.innerText="Processing...";
-    
-    const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
-    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
-    try{
-        localStorage.setItem("gotchaUserPhone", phone);
-        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
-        });
-        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
-            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
-        });
-        alert("Order Successful!"); cart=[]; saveAndRefresh(); switchPage('orders');
-    } catch(e) { alert("Error."); }
-    btn.disabled=false; btn.innerText="Confirm Order";
 }
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
