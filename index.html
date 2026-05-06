@@ -18,7 +18,7 @@
 body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
-header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
 h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
 
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
@@ -63,7 +63,7 @@ h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; fo
 .qty-btn { background: #eee; color: var(--primary); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
 
 .order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; border-left: 6px solid var(--primary); }
-.status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; background: #eee; }
+.status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; background: #eee; color: var(--primary); }
 
 select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; background:#fff; border:1.5px solid #ddd; border-radius: var(--pill-radius); color:var(--text); box-sizing: border-box; outline: none; }
 .btn{ background:var(--primary); color:white; width:100%; margin-top:15px; padding:15px; border:none; border-radius: var(--pill-radius); font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
@@ -81,8 +81,8 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
     <div class="modal-content">
         <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
         <h2>GOTCHA!</h2>
-        <p>Thank you for shopping with us. Your style journey begins now!</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">PERFECT</button>
+        <p>Order received. We've updated your dashboard with your new history.</p>
+        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">VIEW DASHBOARD</button>
     </div>
 </div>
 
@@ -124,8 +124,9 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
             <div id="cartItems"></div>
             <h3 style="text-align:right;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
             <div style="margin-top:30px;">
+                <h3 style="color:var(--primary); font-size: 16px;">Quick Checkout</h3>
                 <input id="name" placeholder="Full Name">
-                <input id="phone" placeholder="Phone Number">
+                <input id="phone" placeholder="Phone Number (Used for tracking)">
                 <input id="email_hidden" type="hidden" value="">
                 <textarea id="address" placeholder="Shipping Address" rows="3" style="border-radius:20px;"></textarea>
                 <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
@@ -140,7 +141,7 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
                 <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
                 <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
             </div>
-            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Checking for history...</p></div>
+            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Looking for your saved number...</p></div>
         </div>
     </div>
 </div>
@@ -167,13 +168,11 @@ onAuthStateChanged(auth, (user) => {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        // If logged in, priority search by Email
-        trackOrders(user.email, "Email");
+        if(window.currentPage === 'orders') trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
-        // If not logged in, priority search by Saved Phone
-        const saved = localStorage.getItem("gotchaUserPhone");
-        if(saved) trackOrders(saved, "Phone");
+        // Call global memory check if no user
+        applyGlobalMemory();
     }
 });
 
@@ -193,32 +192,39 @@ const CONFIG={
 };
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
+window.currentPage = 'shop';
 
 function toggleMenu() { document.getElementById("mainNav").classList.toggle("active"); }
 
+function applyGlobalMemory() {
+    const savedPhone = localStorage.getItem("gotchaUserPhone");
+    if(savedPhone) {
+        // Pre-fill the checkout fields
+        document.getElementById('phone').value = savedPhone;
+        document.getElementById('manualPhone').value = savedPhone;
+        // If we are on orders page, auto-load the data
+        if(window.currentPage === 'orders') {
+            trackOrders(savedPhone, "Phone");
+        }
+    }
+}
+
 function switchPage(page) {
+    window.currentPage = page;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     
+    // Every time we switch to orders, we trigger a search based on whatever we have
     if(page === 'orders') {
-        checkSavedUser(); // Auto-load history whenever entering dashboard
-    }
-}
-
-// THE "RECALL" LOGIC
-function checkSavedUser() {
-    const email = document.getElementById("email_hidden").value;
-    const phone = localStorage.getItem("gotchaUserPhone");
-    
-    if(email) {
-        trackOrders(email, "Email");
-    } else if(phone) {
-        document.getElementById('manualPhone').value = phone;
-        document.getElementById('phone').value = phone;
-        trackOrders(phone, "Phone");
+        const email = document.getElementById("email_hidden").value;
+        const phone = localStorage.getItem("gotchaUserPhone") || document.getElementById('manualPhone').value;
+        
+        if(email) trackOrders(email, "Email");
+        else if(phone) trackOrders(phone, "Phone");
+        else document.getElementById("resultsList").innerHTML = "<p style='text-align:center;opacity:0.5;padding:40px 0;'>No phone number saved. Please enter it above.</p>";
     }
 }
 
@@ -229,25 +235,29 @@ function closeSuccessModal() {
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value;
+    const phone=document.getElementById("phone").value.trim();
     const address=document.getElementById("address").value;
     const email=document.getElementById("email_hidden").value;
+    
     if(cart.length===0 || !name || !phone || !address){alert("Please fill details");return;}
     
     const btn=document.getElementById("confirmBtn");
-    btn.disabled=true; btn.innerText="Processing...";
+    btn.disabled=true; btn.innerText="Sending Order...";
     
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
     
     try{
-        localStorage.setItem("gotchaUserPhone", phone); // Remember me for next time
+        // Update Local Memory Immediately
+        localStorage.setItem("gotchaUserPhone", phone);
         
+        // Telegram Notify
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`📦 NEW ORDER: ${orderId}\n👤 Name: ${name}\n📞 Phone: ${phone}\n🛒 Items: ${itemsSummary}`})
         });
 
+        // Airtable Save
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
@@ -255,37 +265,39 @@ async function sendOrder(){
         
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Error sending order."); }
+    } catch(e) { 
+        alert("System error. Please check internet."); 
+    }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
 function manualLookup() {
-    const inputPhone = document.getElementById("manualPhone").value.trim();
-    if(!inputPhone) return; 
-    localStorage.setItem("gotchaUserPhone", inputPhone);
-    trackOrders(inputPhone, "Phone");
+    const p = document.getElementById("manualPhone").value.trim();
+    if(p) {
+        localStorage.setItem("gotchaUserPhone", p);
+        trackOrders(p, "Phone");
+    }
 }
 
 async function trackOrders(val, field) {
     const list = document.getElementById("resultsList");
-    if(!list) return;
-    list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching history...</p>`;
+    list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching your history...</p>`;
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found yet.</p>`;
+            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found for: ${val}</p>`;
             return;
         }
 
         list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
             const f = record.fields;
-            return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
+            return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">${f.Items}</div></div>`;
         }).join('');
     } catch (e) {
-        list.innerHTML = `<p style="color:red; text-align: center; padding: 40px 0;">Error loading history.</p>`;
+        list.innerHTML = `<p style="color:red; text-align: center; padding: 40px 0;">Error connecting to database.</p>`;
     }
 }
 
@@ -307,9 +319,10 @@ function updateCartUI(){
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
+
 window.onload = () => {
     updateCartUI();
-    checkSavedUser(); // RUN IMMEDIATELY ON LOAD
+    applyGlobalMemory(); // Check for phone number memory immediately on boot
 };
 </script>
 
