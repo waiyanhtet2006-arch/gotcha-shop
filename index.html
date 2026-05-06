@@ -72,20 +72,22 @@ input, textarea, select { width:100%; padding:14px 20px; margin-top:10px; backgr
             <div id="cartItems"></div>
             <h3 style="text-align:right;">Total: <span id="cartTotal">0</span> MMK</h3>
             
-            <div id="checkoutForm" style="margin-top:30px;">
-                <input id="userName" placeholder="Full Name">
-                <input id="userEmail" placeholder="Email (Auto-filled after sign in)" readonly style="background: #f9f9f9;">
-                <input id="userPhone" placeholder="Phone Number">
-                <textarea id="userAddress" placeholder="Shipping Address" rows="3" style="border-radius: 20px;"></textarea>
-                
+            <div style="margin-top:30px;">
                 <div id="authPrompt" style="margin-top: 20px; text-align: center;">
-                    <p style="color: #666; font-size: 13px;">🔒 Login required to place order</p>
+                    <p style="color: #666; font-size: 13px;">🔒 You must Sign In with Google to place an order.</p>
                     <button class="btn google-btn" onclick="handleAuth()">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Sign In with Google
                     </button>
                 </div>
 
-                <button class="btn" id="confirmBtn" onclick="sendOrder()" disabled>Confirm Order</button>
+                <div id="checkoutForm" style="display: none;">
+                    <input id="userName" placeholder="Full Name" readonly style="background: #f9f9f9;">
+                    <input id="userEmail" placeholder="Email" readonly style="background: #f9f9f9;">
+                    <input id="userPhone" placeholder="Phone Number">
+                    <textarea id="userAddress" placeholder="Shipping Address" rows="3" style="border-radius: 20px;"></textarea>
+                    
+                    <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
+                </div>
             </div>
         </div>
     </div>
@@ -110,23 +112,23 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-window.auth = auth; // Make auth instance accessible globally
+window.auth = auth;
 
 onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
-    const confirmBtn = document.getElementById('confirmBtn');
+    const checkoutForm = document.getElementById('checkoutForm');
     const authPrompt = document.getElementById('authPrompt');
     
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('userName').value = user.displayName;
         document.getElementById('userEmail').value = user.email;
-        confirmBtn.disabled = false;
+        checkoutForm.style.display = 'block';
         authPrompt.style.display = 'none';
-        trackOrders(user.email); // Auto track when login state changes
+        trackOrders(user.email);
     } else {
         authBtn.innerText = "SIGN IN";
-        confirmBtn.disabled = true;
+        checkoutForm.style.display = 'none';
         authPrompt.style.display = 'block';
         document.getElementById('dashboardContent').innerHTML = `<p style="opacity:0.5; padding: 40px 0;">Please sign in to view your orders.</p>`;
     }
@@ -152,7 +154,6 @@ function switchPage(p) {
     document.getElementById("mainNav").classList.remove("active");
 
     if (p === 'orders') {
-        // Automatically check the user
         const authInstance = window.auth;
         if (authInstance && authInstance.currentUser) {
             trackOrders(authInstance.currentUser.email);
@@ -168,7 +169,7 @@ async function sendOrder() {
     const phone = document.getElementById("userPhone").value.trim();
     const address = document.getElementById("userAddress").value;
     
-    if(!name || !phone || !address || cart.length === 0) { alert("Please complete all fields."); return; }
+    if(!phone || !address || cart.length === 0) { alert("Please complete all fields and add to cart."); return; }
 
     const orderId = "GTC-" + Math.floor(1000 + Math.random() * 9000);
     const summary = cart.map(i => `${i.name}(${i.size})x${i.qty}`).join(", ");
