@@ -1,10 +1,9 @@
 :root {
-    --primary: #d4af37; /* Gold */
-    --primary-glow: rgba(212, 175, 55, 0.3);
-    --bg: #050505;
-    --card-bg: #121212;
-    --text: #ffffff;
-    --radius: 50px; /* Smooth rounded corners */
+    --primary: #d4af37;
+    --bg: #ffffff; /* Switched to White for that clean Mixtas look */
+    --card-bg: #f9f9f9;
+    --text: #111111;
+    --radius: 0px; /* Reference image uses sharp, clean edges */
 }
 
 body {
@@ -12,39 +11,84 @@ body {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text);
-    overflow-x: hidden;
 }
 
-.container { width: 92%; max-width: 1100px; margin: auto; padding: 10px; }
-
-/* Premium Header & Nav */
-header { 
-    padding: 30px 0; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+/* Header - Floating & Clean */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background: #fff;
+    border-bottom: 1px solid #eee;
     position: sticky;
     top: 0;
-    background: var(--bg);
-    z-index: 100;
+    z-index: 1000;
 }
 
-h1 { color: var(--primary); letter-spacing: 0.3em; font-size: 22px; margin: 0; font-weight: 700; }
+h1 { font-size: 20px; letter-spacing: 4px; margin: 0; }
 
-/* Three Line Bar */
-.menu-icon {
+/* Hero Section */
+.hero {
+    height: 80vh;
+    background: url('https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070') center/cover;
+    display: flex;
+    align-items: center;
+    padding: 0 10%;
+    color: white;
+}
+
+.hero-content h2 { font-size: 48px; margin-bottom: 20px; text-transform: uppercase; }
+
+/* Product Grid */
+.container { width: 90%; max-width: 1200px; margin: 40px auto; }
+.section-title { text-align: center; margin-bottom: 40px; font-size: 28px; text-transform: uppercase; }
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #fff;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.card img { width: 100%; height: 350px; object-fit: cover; background: #f4f4f4; }
+.card h3 { font-size: 14px; margin: 15px 0 5px; text-transform: uppercase; }
+.card p { color: #666; font-weight: bold; }
+
+/* Banner Grid (Bottom) */
+.banner-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    margin-top: 60px;
+}
+
+.banner-item {
+    height: 500px;
+    background-size: cover;
+    background-position: center;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    cursor: pointer;
-    padding: 10px;
+    justify-content: flex-end;
+    padding: 40px;
+    color: white;
 }
-.menu-icon span {
-    width: 28px;
-    height: 2px;
-    background: var(--primary);
-    transition: 0.3s;
-    border-radius: 2px;
+
+/* Buttons */
+.btn {
+    background: #111;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 2px;
 }
 
 /* Nav Drawer */
@@ -53,114 +97,15 @@ h1 { color: var(--primary); letter-spacing: 0.3em; font-size: 22px; margin: 0; f
     top: 0;
     right: -100%;
     height: 100vh;
-    width: 280px;
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(15px);
+    width: 300px;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     padding: 100px 40px;
-    gap: 30px;
-    transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    border-left: 1px solid #222;
+    gap: 20px;
+    transition: 0.4s;
+    z-index: 1100;
 }
 .nav-bar.open { right: 0; }
-
-.nav-link {
-    color: var(--text);
-    text-decoration: none;
-    font-size: 16px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: 0.3s;
-    opacity: 0.7;
-}
-.nav-link:hover, .nav-link.active { opacity: 1; color: var(--primary); }
-
-/* Premium Layout */
-.section {
-    background: var(--card-bg);
-    padding: 30px 20px;
-    border-radius: 30px;
-    margin-top: 25px;
-    border: 1px solid #1a1a1a;
-}
-
-.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-
-.card {
-    background: #181818;
-    padding: 20px;
-    border-radius: 30px;
-    border: 1px solid #222;
-    text-align: center;
-    transition: 0.3s;
-}
-.card:hover { border-color: var(--primary); transform: translateY(-5px); }
-.card img { width: 100%; border-radius: 20px; }
-
-/* Pill Shaped Smooth Buttons */
-.btn {
-    background: var(--primary);
-    color: #000;
-    width: 100%;
-    margin-top: 15px;
-    padding: 16px;
-    border: none;
-    border-radius: var(--radius);
-    font-weight: 700;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: 0.3s;
-}
-.btn:hover { transform: scale(1.02); filter: brightness(1.1); box-shadow: 0 5px 20px var(--primary-glow); }
-
-/* Smooth Inputs */
-select, input, textarea {
-    width: 100%;
-    padding: 16px 25px;
-    margin-top: 12px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: var(--radius);
-    color: white;
-    box-sizing: border-box;
-    outline: none;
-    font-family: inherit;
-}
-select:focus, input:focus { border-color: var(--primary); }
-
-/* Qty Controls */
-.qty-controls { display: flex; align-items: center; gap: 15px; }
-.qty-btn { 
-    background: #222; 
-    color: white; 
-    border: none; 
-    width: 35px; 
-    height: 35px; 
-    border-radius: 50%; 
-    cursor: pointer; 
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.order-record {
-    background: #1a1a1a;
-    padding: 20px;
-    border-radius: 25px;
-    margin-bottom: 15px;
-    border: 1px solid #222;
-}
-
-.status-badge { padding: 6px 12px; border-radius: var(--radius); font-size: 10px; font-weight: bold; }
-.status-pending { background: #333; color: #fff; }
-.status-accepted { background: #b8860b; color: #fff; }
-.status-delivered { background: #00bfa6; color: #000; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.page { display: none; animation: fadeIn 0.4s ease; }
-.page.active { display: block; }
+.nav-link { text-decoration: none; color: #111; font-weight: bold; cursor: pointer; }
