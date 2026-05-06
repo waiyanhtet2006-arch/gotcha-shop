@@ -152,9 +152,9 @@ textarea { border-radius: 20px; }
                 
                 <div id="checkoutForm" style="display: none;">
                     <h3 style="color: var(--primary);">Checkout Details</h3>
-                    <input id="name" placeholder="Full Name" readonly style="background: #f9f9f9;">
+                    <input id="name" placeholder="Full Name">
+                    <input id="email" placeholder="Email Address">
                     <input id="phone" placeholder="Phone Number">
-                    <input id="email_hidden" type="hidden" value="">
                     <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
                     <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
                 </div>
@@ -201,13 +201,14 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
-        document.getElementById('email_hidden').value = user.email;
+        document.getElementById('email').value = user.email;
         checkoutForm.style.display = 'block';
         authPrompt.style.display = 'none';
         trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
-        document.getElementById('email_hidden').value = "";
+        document.getElementById('email').value = "";
+        document.getElementById('name').value = "";
         checkoutForm.style.display = 'none';
         authPrompt.style.display = 'block';
         const savedPhone = localStorage.getItem("gotchaUserPhone");
@@ -241,7 +242,7 @@ function switchPage(page) {
     document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     if(page === 'orders') {
-        const email = document.getElementById("email_hidden").value;
+        const email = document.getElementById("email").value;
         const savedPhone = localStorage.getItem("gotchaUserPhone");
         if(email) trackOrders(email, "Email");
         else if(savedPhone) trackOrders(savedPhone, "Phone");
@@ -257,8 +258,11 @@ async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
-    const email=document.getElementById("email_hidden").value;
-    if(cart.length===0 || !name || !phone || !address){alert("Please fill details");return;}
+    const email=document.getElementById("email").value;
+    if(cart.length===0 || !name || !phone || !address || !email){
+        alert("Please fill in all checkout details");
+        return;
+    }
     
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
