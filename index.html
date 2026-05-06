@@ -140,12 +140,11 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
                 <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
                 <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
             </div>
-            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Loading history...</p></div>
+            <div id="resultsList"><p style="opacity:0.5; text-align: center; padding: 40px 0;">Checking for history...</p></div>
         </div>
     </div>
 </div>
 
-<!-- FIREBASE & AUTH -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -168,14 +167,13 @@ onAuthStateChanged(auth, (user) => {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
         document.getElementById('email_hidden').value = user.email;
-        if(document.getElementById('page-orders').classList.contains('active')) trackOrders(user.email, "Email");
+        // If logged in, priority search by Email
+        trackOrders(user.email, "Email");
     } else {
         authBtn.innerText = "SIGN IN";
-        const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(savedPhone) {
-            document.getElementById('phone').value = savedPhone;
-            document.getElementById('manualPhone').value = savedPhone;
-        }
+        // If not logged in, priority search by Saved Phone
+        const saved = localStorage.getItem("gotchaUserPhone");
+        if(saved) trackOrders(saved, "Phone");
     }
 });
 
@@ -185,7 +183,6 @@ window.handleAuth = async () => {
 };
 </script>
 
-<!-- APP LOGIC -->
 <script>
 const CONFIG={
     token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
@@ -207,11 +204,21 @@ function switchPage(page) {
     document.getElementById("mainNav").classList.remove("active");
     
     if(page === 'orders') {
-        const email = document.getElementById("email_hidden").value;
-        const savedPhone = localStorage.getItem("gotchaUserPhone");
-        if(email) trackOrders(email, "Email");
-        else if(savedPhone) trackOrders(savedPhone, "Phone");
-        else document.getElementById("resultsList").innerHTML = "<p style='text-align:center;opacity:0.5;'>Enter phone to see history.</p>";
+        checkSavedUser(); // Auto-load history whenever entering dashboard
+    }
+}
+
+// THE "RECALL" LOGIC
+function checkSavedUser() {
+    const email = document.getElementById("email_hidden").value;
+    const phone = localStorage.getItem("gotchaUserPhone");
+    
+    if(email) {
+        trackOrders(email, "Email");
+    } else if(phone) {
+        document.getElementById('manualPhone').value = phone;
+        document.getElementById('phone').value = phone;
+        trackOrders(phone, "Phone");
     }
 }
 
@@ -234,15 +241,13 @@ async function sendOrder(){
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
     
     try{
-        localStorage.setItem("gotchaUserPhone", phone);
+        localStorage.setItem("gotchaUserPhone", phone); // Remember me for next time
         
-        // Telegram
         await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
             method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}\nTotal: ${document.getElementById("cartTotal").innerText} MMK`})
+            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
         });
 
-        // Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
@@ -250,10 +255,7 @@ async function sendOrder(){
         
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { 
-        console.error(e);
-        alert("Connection Error. Please check your internet."); 
-    }
+    } catch(e) { alert("Error sending order."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
@@ -266,14 +268,15 @@ function manualLookup() {
 
 async function trackOrders(val, field) {
     const list = document.getElementById("resultsList");
-    list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching...</p>`;
+    if(!list) return;
+    list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">Searching history...</p>`;
     try {
         const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
         
         if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No orders found.</p>`;
+            list.innerHTML = `<p style="opacity:0.5; text-align: center; padding: 40px 0;">No history found yet.</p>`;
             return;
         }
 
@@ -282,7 +285,7 @@ async function trackOrders(val, field) {
             return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
         }).join('');
     } catch (e) {
-        list.innerHTML = `<p style="color:red; text-align: center; padding: 40px 0;">Error loading history. Try again.</p>`;
+        list.innerHTML = `<p style="color:red; text-align: center; padding: 40px 0;">Error loading history.</p>`;
     }
 }
 
@@ -297,14 +300,17 @@ function addToCart(name,price,sizeId){
 function updateQty(i, c) { cart[i].qty += c; if(cart[i].qty < 1) cart.splice(i, 1); saveAndRefresh(); }
 function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart)); updateCartUI(); }
 function updateCartUI(){
-    const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
+    const div=document.getElementById("cartItems"); if(!div) return; div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
         div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
-window.onload = () => updateCartUI();
+window.onload = () => {
+    updateCartUI();
+    checkSavedUser(); // RUN IMMEDIATELY ON LOAD
+};
 </script>
 
 </body>
