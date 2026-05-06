@@ -4,92 +4,43 @@
 <meta charset="UTF-8">
 <title>GOTCHA | Official Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-:root{
---primary: #001f3f; 
---accent: #003366; 
---bg: #f4f4f4;    
---card-bg: #ffffff;
---text: #333333;
---pill-radius: 50px; 
-}
-
+:root{ --primary: #001f3f; --accent: #003366; --bg: #f4f4f4; --card-bg: #ffffff; --text: #333333; --pill-radius: 50px; }
 body{margin:0;font-family:'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text); line-height: 1.6; overflow-x: hidden;}
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
-
 header{display: flex; justify-content: space-between; align-items: center; padding: 30px 5%; position: relative; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
 h1{color:var(--primary); letter-spacing: 0.5em; font-weight: bold; margin: 0; font-size: 24px;}
-
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
 .menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; }
-
 .nav-bar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--primary); display: flex; flex-direction: column; padding: 80px 20px; gap: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
 .nav-bar.active { right: 0; }
 .nav-link { color: #f4f4f4; text-decoration: none; font-size: 14px; cursor: pointer; opacity: 0.7; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
 .nav-link.active-tab { opacity: 1; color: white; font-weight: bold; border-left: 4px solid white; padding-left: 10px;}
-
-#successModal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 31, 63, 0.4); 
-    backdrop-filter: blur(8px);
-    z-index: 3000;
-    align-items: center;
-    justify-content: center;
-}
-.modal-content {
-    background: var(--primary);
-    color: white;
-    padding: 40px;
-    border-radius: 30px;
-    text-align: center;
-    max-width: 400px;
-    width: 85%;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
+#successModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 31, 63, 0.4); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; }
+.modal-content { background: var(--primary); color: white; padding: 40px; border-radius: 30px; text-align: center; max-width: 400px; width: 85%; }
 .page { display: none; animation: fadeIn 0.4s ease; }
 .page.active { display: block; }
 .section{background:var(--card-bg);padding:30px;border-radius:24px; margin-top: 20px; border: 1px solid #e0e0e0;}
-
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 20px;}
 .card{background:var(--card-bg);padding:20px;border-radius:24px;border:1px solid #eee; text-align: center;}
 .card img{width:100%; border-radius:18px;}
-
-.qty-controls { display: flex; align-items: center; gap: 10px; }
-.qty-btn { background: #eee; color: var(--primary); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
-
 .order-record { background: #fdfdfd; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; border-left: 6px solid var(--primary); text-align: left;}
 .status-badge { padding: 6px 12px; border-radius: var(--pill-radius); font-size: 10px; font-weight: bold; text-transform: uppercase; background: #eee; }
-
-select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; background:#fff; border:1.5px solid #ddd; border-radius: var(--pill-radius); color:var(--text); box-sizing: border-box; outline: none; }
-.btn{ background:var(--primary); color:white; width:100%; margin-top:15px; padding:15px; border:none; border-radius: var(--pill-radius); font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-
+input, textarea, select { width:100%; padding:14px 20px; margin-top:10px; background:#fff; border:1.5px solid #ddd; border-radius: var(--pill-radius); box-sizing: border-box; outline: none; }
+.btn{ background:var(--primary); color:white; width:100%; margin-top:15px; padding:15px; border:none; border-radius: var(--pill-radius); font-weight: bold; cursor: pointer; text-transform: uppercase; }
+.btn:disabled { background: #ccc; cursor: not-allowed; }
 #toast { position:fixed; bottom:20px; right:20px; background:var(--primary); color:white; padding:15px 25px; border-radius: var(--pill-radius); display:none; z-index:2000; }
-
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
-
 <body>
 
-<div id="successModal">
-    <div class="modal-content">
-        <h2>GOTCHA!</h2>
-        <p>Order successful! Redirecting to your history...</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">OK</button>
-    </div>
-</div>
-
+<div id="successModal"><div class="modal-content"><h2>GOTCHA!</h2><p>Order successful!</p><button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">VIEW DASHBOARD</button></div></div>
 <div id="toast">Updated 📦</div>
 
 <header>
     <h1>GOTCHA</h1>
-    <button class="menu-btn" onclick="toggleMenu()">
-        <div></div><div style="margin: 5px 0;"></div><div></div>
-    </button>
+    <button class="menu-btn" onclick="toggleMenu()"><div></div><div style="margin: 5px 0;"></div><div></div></button>
     <div class="nav-bar" id="mainNav">
         <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
         <span class="nav-link" id="link-orders" onclick="switchPage('orders')">Dashboard</span>
@@ -103,43 +54,40 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
             <div class="card">
                 <img src="https://i.ibb.co/LdsXqW7/image-36.png">
                 <h3>CULTURAL TREASURE (WHITE)</h3>
-                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <p>48,000 MMK</p>
                 <select id="size1"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('White Tee', 48000, 'size1')">Add To Cart</button>
             </div>
             <div class="card">
                 <img src="https://i.ibb.co/LdsXqW7/image-35.png">
                 <h3>CULTURAL TREASURE (BLACK)</h3>
-                <p style="font-weight: bold; color: var(--primary);">48,000 MMK</p>
+                <p>48,000 MMK</p>
                 <select id="size2"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addToCart('Black Tee', 48000, 'size2')">Add To Cart</button>
             </div>
         </div>
 
         <div class="section">
-            <h2 style="color: var(--primary);">Your Cart</h2>
+            <h2>Your Cart</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
+            <h3 style="text-align:right;">Total: <span id="cartTotal">0</span> MMK</h3>
             <div style="margin-top:30px;">
-                <input id="name" placeholder="Full Name">
+                <input id="name" placeholder="Name" readonly>
+                <input id="email_display" placeholder="Email (Sign in to fill)" readonly>
                 <input id="phone" placeholder="Phone Number">
-                <input id="email_hidden" type="hidden" value="">
-                <textarea id="address" placeholder="Shipping Address" rows="3" style="border-radius:20px;"></textarea>
-                <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
+                <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
+                
+                <p id="loginWarning" style="color: red; font-size: 12px; text-align: center; margin-top: 10px;">⚠️ You must Sign In with Google to place an order.</p>
+                <button class="btn" id="confirmBtn" onclick="sendOrder()" disabled>Confirm Order</button>
             </div>
         </div>
     </div>
 
     <div id="page-orders" class="page">
         <div class="section" style="text-align: center;">
-            <h2 style="color: var(--primary); margin-bottom: 5px;">My Dashboard</h2>
-            <p style="font-size: 12px; opacity: 0.7; margin-bottom: 20px;">History updates automatically for your saved number.</p>
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input id="manualPhone" placeholder="Enter Phone Number" style="margin-top: 0; flex: 2;">
-                <button class="btn" onclick="manualLookup()" style="margin-top: 0; flex: 1; padding: 10px;">Find</button>
-            </div>
-            <div id="resultsList">
-                <p id="searchingText" style="opacity:0.5; padding: 40px 0;">Searching for history...</p>
+            <h2>My Dashboard</h2>
+            <div id="dashboardContent">
+                <p style="opacity:0.5; padding: 40px 0;">Please sign in to view your order history.</p>
             </div>
         </div>
     </div>
@@ -149,26 +97,28 @@ select, input, textarea { width:100%; padding:14px 20px; margin-top:10px; backgr
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAj7skSFoyw5U8yqZG6N-AoX0aNvY6Xzqo",
-  authDomain: "gotcha-official.firebaseapp.com",
-  projectId: "gotcha-official",
-  storageBucket: "gotcha-official.firebasestorage.app",
-  messagingSenderId: "301647267739",
-  appId: "1:301647267739:web:1adabbb3f3b49eeb6a433e"
-};
+const firebaseConfig = { apiKey: "AIzaSyAj7skSFoyw5U8yqZG6N-AoX0aNvY6Xzqo", authDomain: "gotcha-official.firebaseapp.com", projectId: "gotcha-official", storageBucket: "gotcha-official.firebasestorage.app", messagingSenderId: "301647267739", appId: "1:301647267739:web:1adabbb3f3b49eeb6a433e" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const loginWarning = document.getElementById('loginWarning');
+    
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('name').value = user.displayName;
-        document.getElementById('email_hidden').value = user.email;
+        document.getElementById('email_display').value = user.email;
+        confirmBtn.disabled = false;
+        loginWarning.style.display = 'none';
+        trackOrders(user.email);
     } else {
         authBtn.innerText = "SIGN IN";
+        confirmBtn.disabled = true;
+        loginWarning.style.display = 'block';
+        document.getElementById('dashboardContent').innerHTML = `<p style="opacity:0.5; padding: 40px 0;">Please sign in to view your order history.</p>`;
     }
 });
 
@@ -179,135 +129,83 @@ window.handleAuth = async () => {
 </script>
 
 <script>
-const CONFIG={
-    token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
-    chatId: "7194426571",
-    airtableBase: "appG57X3qkk4A5IHP",
-    airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06",
-    airtableTable: "Orders"
-};
-
-let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
+const CONFIG={ token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik", chatId: "7194426571", airtableBase: "appG57X3qkk4A5IHP", airtableToken: "patChpUg2SUHRGuIh.f98b61f7e06b47534f6e53c55f9fe4469999eb57eec3a23d0b4a4e6a685f4b06", airtableTable: "Orders" };
+let cart = JSON.parse(localStorage.getItem("gotchaCart")) || [];
 
 function toggleMenu() { document.getElementById("mainNav").classList.toggle("active"); }
-
-function switchPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+function switchPage(p) {
+    document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
-    document.getElementById('page-' + page).classList.add('active');
-    document.getElementById('link-' + page).classList.add('active-tab');
+    document.getElementById('page-'+p).classList.add('active');
+    document.getElementById('link-'+p).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
-    if(page === 'orders') forceRecall();
 }
 
-function closeSuccessModal() {
-    document.getElementById("successModal").style.display = "none";
-    switchPage('orders');
-}
-
-// THE FIX: Persistent Force Recall
-function forceRecall() {
-    const saved = localStorage.getItem("gotchaUserPhone");
-    if(saved) {
-        const input = document.getElementById("manualPhone");
-        if(input) input.value = saved;
-        trackOrders(saved);
-    } else {
-        document.getElementById("resultsList").innerHTML = `<p style="opacity:0.5; padding: 40px 0;">Enter phone to see history.</p>`;
-    }
-}
-
-async function sendOrder(){
-    const name=document.getElementById("name").value;
-    const phone=document.getElementById("phone").value.trim();
-    const address=document.getElementById("address").value;
-    if(cart.length===0 || !name || !phone || !address){alert("Fill all fields");return;}
+async function sendOrder() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email_display").value;
+    const phone = document.getElementById("phone").value.trim();
+    const address = document.getElementById("address").value;
     
-    const btn=document.getElementById("confirmBtn");
-    btn.disabled=true; btn.innerText="Processing...";
+    if(!phone || !address || cart.length === 0) { alert("Please fill phone and address."); return; }
+
+    const orderId = "GTC-" + Math.floor(1000 + Math.random() * 9000);
+    const summary = cart.map(i => `${i.name}(${i.size})x${i.qty}`).join(", ");
     
-    const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
-    const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
-    try{
-        // Save phone immediately to storage
-        localStorage.setItem("gotchaUserPhone", phone);
-        
-        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
-        });
-
-        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
-            method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
-        });
-        
-        document.getElementById("successModal").style.display = "flex";
-        cart=[]; saveAndRefresh();
-    } catch(e) { alert("Order failed. Check internet."); }
-    btn.disabled=false; btn.innerText="Confirm Order";
-}
-
-function manualLookup() {
-    const p = document.getElementById("manualPhone").value.trim();
-    if(p) {
-        localStorage.setItem("gotchaUserPhone", p);
-        trackOrders(p);
-    }
-}
-
-async function trackOrders(phone) {
-    const list = document.getElementById("resultsList");
-    list.innerHTML = `<p style="opacity:0.5; padding:40px 0;">Searching Airtable...</p>`;
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Phone}='${encodeURIComponent(phone)}'`;
+        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`, {
+            method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ chat_id: CONFIG.chatId, text: `NEW ORDER: ${orderId}\nCustomer: ${name}\nEmail: ${email}\nItems: ${summary}` })
+        });
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`, {
+            method: "POST", headers: { Authorization: `Bearer ${CONFIG.airtableToken}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: { OrderID: orderId, CustomerName: name, Phone: phone, Address: address, Items: summary, Status: "Pending", CustomerEmail: email } })
+        });
+        document.getElementById("successModal").style.display = "flex";
+        cart = []; saveAndRefresh();
+    } catch(e) { alert("Order error."); }
+}
+
+async function trackOrders(email) {
+    const content = document.getElementById("dashboardContent");
+    content.innerHTML = "Loading history...";
+    try {
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={CustomerEmail}='${encodeURIComponent(email)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
-        
-        if(!data.records || data.records.length === 0) {
-            list.innerHTML = `<p style="opacity:0.5; padding: 40px 0;">No orders found for ${phone}.</p>`;
-            return;
-        }
-
-        list.innerHTML = data.records.sort((a,b) => new Date(b.createdTime) - new Date(a.createdTime)).map(record => {
-            const f = record.fields;
-            return `<div class="order-record">
-                <div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status || 'Pending'}</span></div>
-                <div style="font-size:13px;margin-top:10px; opacity:0.8;">${f.Items}</div>
-            </div>`;
-        }).join('');
-    } catch (e) { list.innerHTML = "Connection Error."; }
+        if(!data.records || data.records.length === 0) { content.innerHTML = "No previous orders found."; return; }
+        content.innerHTML = data.records.map(r => `
+            <div class="order-record">
+                <div style="display:flex;justify-content:space-between;"><strong>${r.fields.OrderID}</strong> <span class="status-badge">${r.fields.Status || 'Pending'}</span></div>
+                <div style="font-size:12px;margin-top:5px;opacity:0.7;">${r.fields.Items}</div>
+            </div>
+        `).join('');
+    } catch(e) { content.innerHTML = "Error loading history."; }
 }
 
-function addToCart(name,price,sizeId){
-    const size=document.getElementById(sizeId).value;
-    if(!size){alert("Select size");return;}
-    const existing=cart.find(i=>i.name===name && i.size===size);
-    if(existing) existing.qty++; else cart.push({name,size,price,qty:1});
-    saveAndRefresh(); showToast("Added to cart");
+function addToCart(name, price, sId) {
+    const size = document.getElementById(sId).value;
+    if(!size) { alert("Select size"); return; }
+    const exists = cart.find(i => i.name === name && i.size === size);
+    if(exists) exists.qty++; else cart.push({name, size, price, qty: 1});
+    saveAndRefresh(); showToast("Added to bag");
 }
 
-function updateQty(i, c) { cart[i].qty += c; if(cart[i].qty < 1) cart.splice(i, 1); saveAndRefresh(); }
-function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart)); updateCartUI(); }
-function updateCartUI(){
-    const div=document.getElementById("cartItems"); if(!div) return; div.innerHTML=""; let total=0;
-    cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+function saveAndRefresh() { localStorage.setItem("gotchaCart", JSON.stringify(cart)); updateCartUI(); }
+function updateCartUI() {
+    const div = document.getElementById("cartItems"); div.innerHTML = ""; let total = 0;
+    cart.forEach((item, idx) => {
+        total += item.price * item.qty;
+        div.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
+            <span>${item.name} (${item.size}) x${item.qty}</span>
+            <span>${(item.price * item.qty).toLocaleString()}</span>
+        </div>`;
     });
-    document.getElementById("cartTotal").innerText=total.toLocaleString();
+    document.getElementById("cartTotal").innerText = total.toLocaleString();
 }
-function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
-
-// Runs every time the page loads OR becomes visible again
-window.onload = () => {
-    updateCartUI();
-    forceRecall();
-};
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === 'visible') forceRecall();
-});
+function showToast(m) { const t=document.getElementById("toast"); t.innerText=m; t.style.display="block"; setTimeout(()=>t.style.display="none",2000); }
+function closeSuccessModal() { document.getElementById("successModal").style.display="none"; switchPage('orders'); }
+window.onload = updateCartUI;
 </script>
-
 </body>
 </html>
