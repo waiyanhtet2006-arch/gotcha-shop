@@ -150,11 +150,6 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-.card:hover { 
-    transform: translateY(-8px); 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-    border-color: rgba(212, 175, 55, 0.3);
-}
 .card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
 
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
@@ -387,6 +382,12 @@ function switchPage(page) {
     if(document.getElementById('link-' + page)) document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    // Auto-refresh orders when switching to dashboard
+    if(page === 'orders') {
+        const email = document.getElementById('email').value;
+        if(email) trackOrders(email);
+    }
 }
 
 function switchColor(color, imgUrl, el) {
@@ -407,18 +408,36 @@ async function sendOrder(){
     const address=document.getElementById("address").value;
     const email=document.getElementById("email").value;
     if(cart.length===0 || !name || !phone || !address || !email){ alert("Fill all details"); return; }
+    
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
+    
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
+    const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
+
     try{
+        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
+
+        // 2. Send to Telegram
+        const tgMsg = `🛍️ *NEW ORDER: ${orderId}*\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n📦 Items: ${itemsSummary}\n💰 Total: ${totalVal.toLocaleString()} MMK`;
+        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CONFIG.chatId, text: tgMsg, parse_mode: 'Markdown' })
+        });
+
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Error sending order."); }
+        trackOrders(email); // Refresh dashboard immediately
+    } catch(e) { 
+        alert("Error sending order."); 
+        console.error(e);
+    }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
@@ -427,35 +446,41 @@ let cachedOrders = [];
 async function trackOrders(email) {
     const list = document.getElementById("resultsList");
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Email}='${encodeURIComponent(email)}'`;
+        // Fix: Use correct Airtable filter syntax
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Email}='${email}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
+        
         cachedOrders = data.records || [];
         if(cachedOrders.length === 0) {
             list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p>';
             return;
         }
+
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
-            const isDelivered = (f.Status || "").toLowerCase() === "delivered";
+            const status = f.Status || "Pending";
+            const isDelivered = status.toLowerCase() === "delivered";
             return `
                 <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <strong>${f.OrderID}</strong>
-                        <span class="status-badge">${f.Status||'Pending'}</span>
+                        <span class="status-badge">${status}</span>
                     </div>
                     <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
                     ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
                 </div>`;
         }).join('');
-    } catch (e) {}
+    } catch (e) {
+        console.error("Dashboard Fetch Error:", e);
+    }
 }
 
 function showOrderDetail(index) {
     const f = cachedOrders[index].fields;
     document.getElementById("detID").innerText = f.OrderID;
     document.getElementById("detItems").innerText = f.Items;
-    document.getElementById("detTotal").innerText = f.Total.toLocaleString();
+    document.getElementById("detTotal").innerText = (f.Total || 0).toLocaleString();
     document.getElementById("detStatus").innerText = f.Status || 'Pending';
     document.getElementById("detName").innerText = f.CustomerName;
     document.getElementById("detPhone").innerText = f.Phone;
