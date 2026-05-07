@@ -1,184 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>GOTCHA | Official Store</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-/* Reset and core styles */
-:root { --primary-color: #001f3f; /* Navy blue */ --bg-color: #f4f4f4; --card-bg: #ffffff; --text-color: #333333; }
-body { margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); }
-.container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 20px 0; }
+<div id="collections" class="products">
+    <div class="card">
+        <img id="mainProductImage" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Cultural Treasure">
+        <h3 id="displayTitle">CULTURAL TREASURE (BLACK)</h3>
+        <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">
+            <span id="displayPrice">48,000</span> MMK
+        </p>
 
-/* Top Nav Bar */
-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background-color: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.brand-name { font-size: 24px; font-weight: bold; color: var(--primary-color); text-decoration: none; }
-.nav-menu { display: flex; gap: 20px; }
-.nav-link { text-decoration: none; color: var(--text-color); font-weight: 500; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background 0.3s; }
-.nav-link:hover, .nav-link.active { background-color: rgba(0, 31, 63, 0.1); color: var(--primary-color); }
-
-/* Main sections */
-.page { display: none; }
-.page.active { display: block; }
-
-/* Product Grid */
-.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 20px; }
-.product-card { background-color: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-.product-image { width: 100%; border-radius: 15px; margin-bottom: 15px; }
-.product-title { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-.product-price { font-size: 16px; color: var(--primary-color); font-weight: bold; margin-bottom: 15px; }
-
-/* Size Selector and Add Button */
-.controls-container { display: flex; flex-direction: column; gap: 10px; }
-.size-select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; background-color: #fff; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M7%2010l5%205%205-5z%22/%3E%3C/svg%22%3E'); background-repeat: no-repeat; background-position: right 10px top 50%; }
-.add-to-cart-btn { background-color: var(--primary-color); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-.add-to-cart-btn:hover { background-color: #00152b; }
-
-/* Cart and Checkout Section */
-.cart-section { background-color: var(--card-bg); border-radius: 20px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-.section-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-.cart-total { text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 25px; }
-.cart-total .total-amount { color: var(--primary-color); }
-
-/* Form Fields */
-.form-group { margin-bottom: 15px; }
-.input-field { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; box-sizing: border-box; }
-.input-field::placeholder { color: #aaa; }
-.textarea-field { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; height: 100px; resize: none; box-sizing: border-box; }
-
-/* Status and Action Buttons */
-.auth-warning { color: red; font-size: 14px; text-align: center; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-.auth-warning:before { content: "⚠️"; }
-.confirm-btn { width: 100%; background-color: #d1d1d1; /* Disabled state */ color: #888; border: none; padding: 18px; border-radius: 20px; font-weight: bold; cursor: default; }
-.confirm-btn.enabled { background-color: var(--primary-color); color: #fff; cursor: pointer; }
-.confirm-btn.enabled:hover { background-color: #00152b; }
-
-/* MODALS */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-.modal-title { font-size: 24px; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
-.modal-text { margin-bottom: 20px; color: var(--text-color); }
-.modal-btn { background-color: var(--primary-color); color: #fff; border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-/* Dashboard and status messages */
-.status-container { background-color: var(--card-bg); border-radius: 20px; padding: 100px 20px; text-align: center; margin-top: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-.no-orders-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: var(--text-color); }
-.no-orders-text { color: #888; }
-</style>
-</head>
-<body>
-
-    <header>
-        <a href="#" class="brand-name">G O T C H A</a>
-        <nav class="nav-menu">
-            <span class="nav-link active" onclick="switchPage('shop')">Shop</span>
-            <span class="nav-link" onclick="switchPage('dashboard')">Dashboard</span>
-        </nav>
-    </header>
-
-    <div class="container">
-
-        <div id="page-shop" class="page active">
-            
-            <div class="products-grid">
-                <div class="product-card">
-                    <img src="image_14.png" alt="Cultural Treasure T-Shirt Black" class="product-image">
-                    <h3 class="product-title">CULTURAL TREASURE (BLACK)</h3>
-                    <p class="product-price">48,000 MMK</p>
-                    <div class="controls-container">
-                        <select class="size-select">
-                            <option value="" disabled selected>Select Size</option>
-                            <option value="s">S</option>
-                            <option value="m">M</option>
-                            <option value="l">L</option>
-                            <option value="xl">XL</option>
-                        </select>
-                        <button class="add-to-cart-btn">ADD TO CART</button>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <img src="image_15.png" alt="Cultural Treasure T-Shirt White" class="product-image">
-                    <h3 class="product-title">CULTURAL TREASURE (WHITE)</h3>
-                    <p class="product-price">48,000 MMK</p>
-                    <div class="controls-container">
-                        <select class="size-select">
-                            <option value="" disabled selected>Select Size</option>
-                            <option value="s">S</option>
-                            <option value="m">M</option>
-                            <option value="l">L</option>
-                            <option value="xl">XL</option>
-                        </select>
-                        <button class="add-to-cart-btn">ADD TO CART</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cart-section">
-                <h2 class="section-title">Your Cart</h2>
-                <div class="cart-total">Total: <span class="total-amount">0 MMK</span></div>
-                
-                <form id="checkout-form">
-                    <h2 class="section-title">Checkout Details</h2>
-                    <div class="form-group"><input type="text" placeholder="Name" class="input-field"></div>
-                    <div class="form-group"><input type="email" placeholder="Email (Sign in to fill)" class="input-field"></div>
-                    <div class="form-group"><input type="tel" placeholder="Phone Number" class="input-field"></div>
-                    <div class="form-group"><textarea placeholder="Shipping Address" class="textarea-field"></textarea></div>
-                    
-                    <div id="status-area">
-                        <div class="auth-warning">You must Sign In with Google to place an order.</div>
-                        <button type="submit" id="main-confirm-btn" class="confirm-btn" disabled>CONFIRM ORDER</button>
-                    </div>
-                </form>
-            </div>
+        <div style="margin-top: 15px;">
+            <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Select Color</label>
+            <select id="colorSelect" onchange="updateProductVariant()">
+                <option value="Black" data-img="https://i.ibb.co/LdsXqW7/image-35.png" data-price="48000">Black</option>
+                <option value="White" data-img="https://i.ibb.co/LdsXqW7/image-36.png" data-price="48000">White</option>
+            </select>
         </div>
 
-        <div id="page-dashboard" class="page">
-            <div class="status-container">
-                <h2 class="section-title">My Dashboard</h2>
-                <p class="no-orders-text">No orders found.</p>
-            </div>
+        <div style="margin-top: 10px;">
+            <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Select Size</label>
+            <select id="sizeSelect">
+                <option value="">Choose Size</option>
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+                <option>XL</option>
+            </select>
         </div>
 
-    </div><div id="success-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title">G O T C H A !</div>
-            <p class="modal-text">Order successful!</p>
-            <button class="modal-btn" onclick="closeModal()">VIEW DASHBOARD</button>
-        </div>
+        <button class="btn" onclick="addUnifiedToCart()">Add To Cart</button>
     </div>
+</div>
 
-    <script>
-        // Page switching logic
-        function switchPage(pageId) {
-            // Update active links
-            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
+<script>
+// Function to switch photos and text based on selected color
+function updateProductVariant() {
+    const selector = document.getElementById('colorSelect');
+    const selectedOption = selector.options[selector.selectedIndex];
+    
+    const newImg = selectedOption.getAttribute('data-img');
+    const newPrice = selectedOption.getAttribute('data-price');
+    const colorName = selectedOption.value;
 
-            // Hide all pages and show the active one
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-        }
+    // Update UI Elements
+    document.getElementById('mainProductImage').src = newImg;
+    document.getElementById('displayTitle').innerText = `CULTURAL TREASURE (${colorName.toUpperCase()})`;
+    document.getElementById('displayPrice').innerText = parseInt(newPrice).toLocaleString();
+}
 
-        // Mock Checkout Logic (Ready for integration)
-        document.getElementById('checkout-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // This button is mock-disabled by default, mimicking your original logic.
-            // When a user is signed in, you'll toggle the 'enabled' class on #main-confirm-btn.
-            // For now, we will show the success modal for visual testing.
-            showSuccessModal();
-        });
+// Updated Add to Cart logic to handle the dynamic selection
+function addUnifiedToCart() {
+    const color = document.getElementById('colorSelect').value;
+    const size = document.getElementById('sizeSelect').value;
+    const price = 48000; // Standard price for this collection
 
-        // Function to show success modal
-        function showSuccessModal() {
-            document.getElementById('success-modal').style.display = 'flex';
-        }
+    if (!size) {
+        alert("Please select a size first.");
+        return;
+    }
 
-        // Function to close modal
-        function closeModal() {
-            document.getElementById('success-modal').style.display = 'none';
-            switchPage('dashboard');
-        }
-    </script>
-</body>
-</html>
+    const itemName = `Cultural Treasure (${color})`;
+    
+    // Uses your existing cart logic
+    const existing = cart.find(i => i.name === itemName && i.size === size);
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({ name: itemName, size: size, price: price, qty: 1 });
+    }
+    
+    saveAndRefresh();
+    showToast(`${color} item added to cart`);
+}
+</script>
