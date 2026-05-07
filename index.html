@@ -383,7 +383,6 @@ function switchPage(page) {
     document.getElementById("mainNav").classList.remove("active");
     window.scrollTo({top: 0, behavior: 'smooth'});
     
-    // Auto-refresh orders when switching to dashboard
     if(page === 'orders') {
         const email = document.getElementById('email').value;
         if(email) trackOrders(email);
@@ -424,19 +423,22 @@ async function sendOrder(){
         });
 
         // 2. Send to Telegram
-        const tgMsg = `🛍️ *NEW ORDER: ${orderId}*\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n📦 Items: ${itemsSummary}\n💰 Total: ${totalVal.toLocaleString()} MMK`;
-        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`, {
+        const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
+        
+        await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CONFIG.chatId, text: tgMsg, parse_mode: 'Markdown' })
+            body: JSON.stringify({ chat_id: CONFIG.chatId, text: tgMsg })
         });
 
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-        trackOrders(email); // Refresh dashboard immediately
+        
+        // Fix: Ensure dashboard refreshes immediately
+        trackOrders(email); 
+        
     } catch(e) { 
         alert("Error sending order."); 
-        console.error(e);
     }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
@@ -444,11 +446,11 @@ async function sendOrder(){
 let cachedOrders = [];
 
 async function trackOrders(email) {
+    if(!email) return;
     const list = document.getElementById("resultsList");
     try {
-        // Fix: Use correct Airtable filter syntax
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Email}='${email}'`;
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
+        const url = "https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "?filterByFormula={Email}='" + email + "'";
+        const res = await fetch(url, { headers: { Authorization: "Bearer " + CONFIG.airtableToken } });
         const data = await res.json();
         
         cachedOrders = data.records || [];
@@ -472,7 +474,7 @@ async function trackOrders(email) {
                 </div>`;
         }).join('');
     } catch (e) {
-        console.error("Dashboard Fetch Error:", e);
+        console.error(e);
     }
 }
 
@@ -491,9 +493,9 @@ function showOrderDetail(index) {
 async function deleteOrder(recordId) {
     if(!confirm("Delete this delivered order record?")) return;
     try {
-        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}/${recordId}`, {
+        await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
             method: "DELETE",
-            headers: { Authorization: `Bearer ${CONFIG.airtableToken}` }
+            headers: { Authorization: "Bearer " + CONFIG.airtableToken }
         });
         const email = document.getElementById('email').value;
         trackOrders(email);
