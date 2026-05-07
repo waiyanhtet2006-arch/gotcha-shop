@@ -83,13 +83,12 @@ footer {
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
 .menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; border-radius: 4px; }
 
-/* FIXED NAV BAR BACKGROUND */
 .nav-bar { 
     position: fixed; 
     top: 0; 
     right: -100%; 
     width: 280px; 
-    height: 100vh; /* Set to full viewport height */
+    height: 100vh;
     background: #161b22; 
     display: flex; 
     flex-direction: column; 
@@ -99,13 +98,13 @@ footer {
     z-index: 1000; 
     box-shadow: -5px 0 25px rgba(0,0,0,0.5); 
     border-left: 1px solid var(--card-border); 
-    overflow-y: auto; /* Ensure scrolling if menu is long */
+    overflow-y: auto;
 }
 .nav-bar.active { right: 0; }
 .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
 .nav-link.active-tab { color: var(--primary); font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px;}
 
-#successModal {
+#successModal, #detailModal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -158,7 +157,6 @@ footer {
 }
 .card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
 
-.color-options { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
 .dot-white { background: #FFFFFF; }
@@ -173,6 +171,8 @@ footer {
     border-radius: 18px; 
     margin-bottom: 16px; 
     border: 1px solid var(--card-border); 
+    cursor: pointer;
+    position: relative;
 }
 .status-badge { 
     padding: 4px 12px; 
@@ -182,6 +182,17 @@ footer {
     text-transform: uppercase; 
     background: rgba(212, 175, 55, 0.15);
     color: var(--primary);
+}
+
+.delete-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 select, input, textarea { 
@@ -209,36 +220,12 @@ select, input, textarea {
     letter-spacing: 1.5px; 
     transition: all 0.3s ease; 
 }
-.btn:hover { 
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-}
-.btn:disabled { background: #333; color: #666; cursor: not-allowed; }
-
-#toast { 
-    position:fixed; bottom:24px; right:24px; 
-    background: rgba(212, 175, 55, 0.95); 
-    color:#101217; 
-    padding:14px 28px; 
-    border-radius: var(--pill-radius); 
-    display:none; 
-    z-index:2000; 
-    font-weight: bold; 
-}
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 
 <body>
-
-<div id="g_id_onload"
-     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" 
-     data-context="signin"
-     data-ux_mode="popup"
-     data-callback="handleCredentialResponse"
-     data-auto_prompt="true">
-</div>
 
 <div id="successModal">
     <div class="modal-content">
@@ -249,7 +236,21 @@ select, input, textarea {
     </div>
 </div>
 
-<div id="toast">Updated 📦</div>
+<div id="detailModal">
+    <div class="modal-content" style="text-align: left;">
+        <h2 id="detID" style="color: var(--primary);"></h2>
+        <hr style="border: 0.5px solid var(--card-border); margin: 15px 0;">
+        <p><strong>Items:</strong> <span id="detItems"></span></p>
+        <p><strong>Total:</strong> <span id="detTotal"></span> MMK</p>
+        <p><strong>Status:</strong> <span id="detStatus"></span></p>
+        <p><strong>Customer:</strong> <span id="detName"></span></p>
+        <p><strong>Phone:</strong> <span id="detPhone"></span></p>
+        <p><strong>Address:</strong> <span id="detAddress"></span></p>
+        <button class="btn" onclick="document.getElementById('detailModal').style.display='none'">CLOSE</button>
+    </div>
+</div>
+
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#101217; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <header>
     <h1>GOTCHA</h1>
@@ -267,7 +268,6 @@ select, input, textarea {
 </header>
 
 <div class="container">
-    
     <div id="page-shop" class="page active">
         <section class="hero">
             <p>Limited Release</p>
@@ -277,16 +277,13 @@ select, input, textarea {
 
         <div id="collections" class="products">
             <div class="card">
-                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Cultural Treasure">
+                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Product">
                 <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
                 <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
-                
-                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Select Color</p>
-                <div class="color-options">
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
                     <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
                     <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
                 </div>
-
                 <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
             </div>
@@ -296,23 +293,16 @@ select, input, textarea {
             <h2 style="color: var(--primary);">Your Cart</h2>
             <div id="cartItems"></div>
             <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
-            
-            <div style="margin-top:30px;">
-                <div id="authPrompt" style="margin-top: 20px; text-align: center;">
-                    <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
-                    <button class="btn" style="background: white; color: black; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="handleAuth()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Google Sign In
-                    </button>
-                </div>
-                
-                <div id="checkoutForm" style="display: none;">
-                    <h3 style="color: var(--primary); margin-top: 20px;">Checkout Details</h3>
-                    <input id="name" placeholder="Full Name">
-                    <input id="email" placeholder="Email Address" readonly>
-                    <input id="phone" placeholder="Phone Number">
-                    <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
-                    <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
-                </div>
+            <div id="authPrompt" style="margin-top: 20px; text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
+                <button class="btn" style="background: white; color: black;" onclick="handleAuth()">Google Sign In</button>
+            </div>
+            <div id="checkoutForm" style="display: none;">
+                <input id="name" placeholder="Full Name">
+                <input id="email" placeholder="Email Address" readonly>
+                <input id="phone" placeholder="Phone Number">
+                <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
+                <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
             </div>
         </div>
     </div>
@@ -324,36 +314,17 @@ select, input, textarea {
         </div>
     </div>
 
-    <div id="page-about" class="page">
-        <div class="section">
-            <h2 style="color: var(--primary);">About GOTCHA</h2>
-            <p>GOTCHA represents a modern interpretation of Burmese tradition, weaving cultural stories into premium streetwear. Every piece is an archival treasure meant to last.</p>
-        </div>
-    </div>
-
-    <div id="page-shipping" class="page">
-        <div class="section">
-            <h2 style="color: var(--primary);">Shipping Information</h2>
-            <p>We provide fast and secure shipping across Myanmar. Orders are typically processed within 24-48 hours.</p>
-        </div>
-    </div>
-
-    <div id="page-contact" class="page">
-        <div class="section">
-            <h2 style="color: var(--primary);">Contact Us</h2>
-            <p>Have questions about your order? Reach out to us via our official social channels or support bot.</p>
-        </div>
-    </div>
+    <div id="page-about" class="page"><div class="section"><h2 style="color: var(--primary);">About Us</h2><p>Archival streetwear rooted in culture.</p></div></div>
+    <div id="page-shipping" class="page"><div class="section"><h2 style="color: var(--primary);">Shipping</h2><p>Secure delivery across Myanmar.</p></div></div>
+    <div id="page-contact" class="page"><div class="section"><h2 style="color: var(--primary);">Contact</h2><p>Support via official channels.</p></div></div>
 </div>
 
 <footer>
     <div class="footer-links">
         <a href="#" onclick="switchPage('shop')">HOME</a>
-        <a href="#" onclick="switchPage('shop')">COLLECTIONS</a>
         <a href="#" onclick="switchPage('contact')">CONTACT</a>
-        <a href="#">PRIVACY</a>
     </div>
-    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 2px;">© 2026 GOTCHA OFFICIAL ARCHIVE</p>
+    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 2px;">© 2026 GOTCHA OFFICIAL</p>
 </footer>
 
 <script type="module">
@@ -376,13 +347,12 @@ onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
     const checkoutForm = document.getElementById('checkoutForm');
     const authPrompt = document.getElementById('authPrompt');
-
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('email').value = user.email;
         checkoutForm.style.display = 'block';
         authPrompt.style.display = 'none';
-        trackOrders(user.email, "Email");
+        trackOrders(user.email);
     } else {
         authBtn.innerText = "SIGN IN";
         checkoutForm.style.display = 'none';
@@ -413,10 +383,8 @@ function toggleMenu() { document.getElementById("mainNav").classList.toggle("act
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
-    const targetPage = document.getElementById('page-' + page);
-    const targetLink = document.getElementById('link-' + page);
-    if(targetPage) targetPage.classList.add('active');
-    if(targetLink) targetLink.classList.add('active-tab');
+    if(document.getElementById('page-' + page)) document.getElementById('page-' + page).classList.add('active');
+    if(document.getElementById('link-' + page)) document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -429,61 +397,82 @@ function switchColor(color, imgUrl, el) {
     el.classList.add('active');
 }
 
-function addSelectedToCart() {
-    const name = `${currentColor} Tee`;
-    addToCart(name, 48000, 'sizeMain');
-}
+function addSelectedToCart() { addToCart(`${currentColor} Tee`, 48000, 'sizeMain'); }
 
-function closeSuccessModal() {
-    document.getElementById("successModal").style.display = "none";
-    switchPage('orders');
-}
+function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; switchPage('orders'); }
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     const email=document.getElementById("email").value;
-    
-    if(cart.length===0 || !name || !phone || !address || !email){
-        alert("Please fill in all details"); return;
-    }
-    
+    if(cart.length===0 || !name || !phone || !address || !email){ alert("Fill all details"); return; }
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
-    
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
     try{
-        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
-        });
-        
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
         });
-        
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
     } catch(e) { alert("Error sending order."); }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
-async function trackOrders(val, field) {
+let cachedOrders = [];
+
+async function trackOrders(email) {
     const list = document.getElementById("resultsList");
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
+        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={Email}='${encodeURIComponent(email)}'`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
         const data = await res.json();
-        if(!data.records || data.records.length === 0) return;
-        list.innerHTML = data.records.map(record => {
+        cachedOrders = data.records || [];
+        if(cachedOrders.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p>';
+            return;
+        }
+        list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
-            return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
+            const isDelivered = (f.Status || "").toLowerCase() === "delivered";
+            return `
+                <div class="order-record" onclick="showOrderDetail(${index})">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <strong>${f.OrderID}</strong>
+                        <span class="status-badge">${f.Status||'Pending'}</span>
+                    </div>
+                    <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
+                    ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
+                </div>`;
         }).join('');
     } catch (e) {}
+}
+
+function showOrderDetail(index) {
+    const f = cachedOrders[index].fields;
+    document.getElementById("detID").innerText = f.OrderID;
+    document.getElementById("detItems").innerText = f.Items;
+    document.getElementById("detTotal").innerText = f.Total.toLocaleString();
+    document.getElementById("detStatus").innerText = f.Status || 'Pending';
+    document.getElementById("detName").innerText = f.CustomerName;
+    document.getElementById("detPhone").innerText = f.Phone;
+    document.getElementById("detAddress").innerText = f.Address;
+    document.getElementById("detailModal").style.display = "flex";
+}
+
+async function deleteOrder(recordId) {
+    if(!confirm("Delete this delivered order record?")) return;
+    try {
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}/${recordId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${CONFIG.airtableToken}` }
+        });
+        const email = document.getElementById('email').value;
+        trackOrders(email);
+    } catch(e) { alert("Delete failed"); }
 }
 
 function addToCart(name,price,sizeId){
@@ -491,7 +480,7 @@ function addToCart(name,price,sizeId){
     if(!size){alert("Select size");return;}
     const existing=cart.find(i=>i.name===name && i.size===size);
     if(existing) existing.qty++; else cart.push({name,size,price,qty:1});
-    saveAndRefresh(); showToast("Added to cart");
+    saveAndRefresh();
 }
 
 function updateQty(i, c) { cart[i].qty += c; if(cart[i].qty < 1) cart.splice(i, 1); saveAndRefresh(); }
@@ -503,7 +492,6 @@ function updateCartUI(){
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
-function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 window.onload = () => updateCartUI();
 </script>
 
