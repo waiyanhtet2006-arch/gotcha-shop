@@ -56,21 +56,42 @@ h1{
     text-transform: uppercase;
 }
 
+/* Updated Hero Section with new texture and layout */
 .hero {
-    height: 60vh;
+    height: 70vh; /* Increased height for content spacing */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* BACKGROUND PHOTO REPLACED BELOW */
-    background: url('https://i.ibb.co/Rkh7TRsz/C07168-D4-5930-4240-BAD2-DA9-BC3-C73-B78.png') center/cover;
+    /* NEW: Texture graphic from image_7.png with dark overlay for readability */
+    background: linear-gradient(rgba(27,20,17,0.8), rgba(27,20,17,0.8)), url('https://i.ibb.co/3YVfX6m/image-7.png') center/cover;
     border-radius: 30px;
     margin-top: 20px;
     padding: 20px;
+    position: relative; /* For layout positioning */
 }
-.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
-.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+
+/* NEW: Layout group for text and button */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; /* NEW: Spaces button lower down, under text */
+    max-width: 90%;
+    margin-top: 60px; /* Positions overall content under where a logo would typically sit */
+}
+
+/* NEW: Styles for the new "FIX YOUR DRIP" title */
+.hero-content h2 { 
+    font-size: 3rem; 
+    margin: 0; 
+    letter-spacing: 5px; 
+    color: #fff; 
+    text-transform: uppercase; 
+    line-height: 1.2;
+}
+.hero-content p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
 
 footer {
     margin-top: 80px;
@@ -267,18 +288,23 @@ select, input, textarea {
 
 <div class="container">
     <div id="page-shop" class="page active">
+        
         <section class="hero">
-            <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
+            <div class="hero-content">
+                <h2>FIX YOUR DRIP<br>WITH GOTCHA</h2>
+                
+                <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
+            </div>
         </section>
 
         <div id="collections" class="products">
             <div class="card">
-                <img id="mainProductImg" src="https://i.ibb.co/v4HBxXLp/IMG-4925.jpg" alt="Product">
+                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Product">
                 <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
                 <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
                 <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
-                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/v4HBxXLp/IMG-4925.jpg', this)"></div>
-                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/B2fXQ5FW/IMG-4516.jpg', this)"></div>
+                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
+                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
                 </div>
                 <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
