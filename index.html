@@ -9,85 +9,80 @@
 
 <style>
 :root{
---bg: #090C10; 
---card-bg: rgba(22, 27, 34, 0.75); 
---card-border: rgba(255, 255, 255, 0.1);
---primary: #D4AF37; 
---accent: #E5C56D; 
---text: #EDF2F7;
---text-secondary: #A0AEC0;
---danger: #FF6B6B;
---success: #48BB78;
---pill-radius: 16px; 
+    --bg: #0B0E14; 
+    --card-bg: rgba(23, 28, 36, 0.7); 
+    --card-border: rgba(197, 160, 89, 0.15);
+    --primary: #C5A059; /* Premium Brushed Gold */
+    --accent: #E5C56D; 
+    --text: #F0F2F5;
+    --text-secondary: #8E9AAF;
+    --danger: #FF5E5E;
+    --success: #00C896;
+    --pill-radius: 50px; /* Force Pill Shape */
 }
 
 body{
     margin:0;
     font-family:'Segoe UI',Roboto,Arial,sans-serif;
+    background:var(--bg);
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    /* BACKGROUND IMAGE UPDATE START */
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://i.imgur.com/vHqY7Zp.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    /* BACKGROUND IMAGE UPDATE END */
+    /* Premium Texture Background */
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(197, 160, 89, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 100% 100%, rgba(197, 160, 89, 0.05) 0%, transparent 35%);
 }
-.container{width:95%;max-width:1100px;margin:auto;padding:20px;}
+
+.container{width:92%;max-width:1100px;margin:auto;padding:20px;}
 
 header{
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding: 20px 5%; 
+    padding: 15px 5%; 
     position: sticky; 
     top: 0;
-    background: rgba(9, 12, 16, 0.9); 
-    backdrop-filter: blur(20px);
+    background: rgba(11, 14, 20, 0.85); 
+    backdrop-filter: blur(25px);
     border-bottom: 1px solid var(--card-border);
     z-index: 2000;
 }
+
 h1{
     color:var(--primary); 
-    letter-spacing: 0.4em; 
-    font-weight: 800; 
+    letter-spacing: 0.5em; 
+    font-weight: 900; 
     margin: 0; 
-    font-size: 22px;
+    font-size: 20px;
     text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
 }
 
 .hero {
-    height: 60vh;
+    height: 50vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: rgba(0,0,0,0.4);
-    border-radius: 30px;
-    margin-top: 20px;
+    background: linear-gradient(rgba(11,14,20,0.6), rgba(11,14,20,0.8)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
+    border-radius: 40px;
+    margin-top: 10px;
     padding: 20px;
     border: 1px solid var(--card-border);
-    backdrop-filter: blur(5px);
 }
-.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
-.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+
+.hero h2 { font-size: 2.5rem; margin: 0; letter-spacing: 8px; color: #fff; text-transform: uppercase; }
+.hero p { color: var(--primary); font-weight: 400; letter-spacing: 4px; text-transform: uppercase; font-size: 12px; margin-bottom: 15px;}
 
 footer {
     margin-top: 80px;
-    padding: 60px 0;
+    padding: 40px 0;
     border-top: 1px solid var(--card-border);
     text-align: center;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.2);
 }
-.footer-links { margin-bottom: 20px; }
-.footer-links a { color: var(--text-secondary); margin: 0 15px; text-decoration: none; font-size: 12px; transition: 0.3s; }
-.footer-links a:hover { color: var(--primary); }
-
-.menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
-.menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; border-radius: 4px; }
 
 .nav-bar { 
     position: fixed; 
@@ -95,134 +90,144 @@ footer {
     right: -100%; 
     width: 280px; 
     height: 100vh;
-    background: #161b22; 
+    background: #0F1218; 
     display: flex; 
     flex-direction: column; 
     padding: 80px 20px; 
-    gap: 20px; 
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    gap: 15px; 
+    transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
     z-index: 1000; 
-    box-shadow: -5px 0 25px rgba(0,0,0,0.5); 
+    box-shadow: -10px 0 30px rgba(0,0,0,0.8); 
     border-left: 1px solid var(--card-border); 
-    overflow-y: auto;
 }
+
 .nav-bar.active { right: 0; }
-.nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
-.nav-link.active-tab { color: var(--primary); font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px;}
-
-#successModal, #detailModal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(9, 12, 16, 0.75);
-    backdrop-filter: blur(12px);
-    z-index: 3000;
-    align-items: center;
-    justify-content: center;
+.nav-link { 
+    color: var(--text-secondary); 
+    text-decoration: none; 
+    font-size: 13px; 
+    padding: 12px 20px;
+    border-radius: var(--pill-radius);
+    cursor: pointer; 
+    transition: 0.3s; 
+    text-transform: uppercase; 
+    letter-spacing: 2px;
 }
-.modal-content {
-    background: linear-gradient(145deg, #1A1D24, #101217);
-    color: var(--text);
-    padding: 40px;
-    border-radius: 24px;
-    text-align: center;
-    max-width: 400px;
-    width: 85%;
-    border: 1px solid var(--card-border);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-    animation: modalSlide 0.4s ease-out;
-}
+.nav-link.active-tab { background: rgba(197, 160, 89, 0.1); color: var(--primary); font-weight: bold; }
 
-.page { display: none; animation: fadeIn 0.4s ease; }
+.page { display: none; animation: fadeIn 0.6s ease; }
 .page.active { display: block; }
+
 .section{
     background: var(--card-bg);
-    padding: 35px;
-    border-radius: 24px; 
+    padding: 30px;
+    border-radius: 35px; 
     margin-top: 25px; 
     border: 1px solid var(--card-border); 
-    backdrop-filter: blur(16px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    backdrop-filter: blur(20px);
 }
 
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 25px; justify-content: center;}
 .card{
     background: var(--card-bg);
-    padding: 24px;
-    border-radius: 24px;
+    padding: 30px;
+    border-radius: 40px;
     border: 1px solid var(--card-border); 
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(15px);
     text-align: center; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 400px;
-}
-.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
-
-.color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-.color-dot.active { border-color: var(--primary); transform: scale(1.2); }
-.dot-white { background: #FFFFFF; }
-.dot-black { background: #1A1A1A; }
-
-.qty-controls { display: flex; align-items: center; gap: 12px; }
-.qty-btn { background: rgba(255, 255, 255, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-
-.order-record { 
-    background: rgba(255, 255, 255, 0.03); 
-    padding: 20px; 
-    border-radius: 18px; 
-    margin-bottom: 16px; 
-    border: 1px solid var(--card-border); 
-    cursor: pointer;
-    position: relative;
-}
-.status-badge { 
-    padding: 4px 12px; 
-    border-radius: var(--pill-radius); 
-    font-size: 10px; 
-    font-weight: bold; 
-    text-transform: uppercase; 
-    background: rgba(212, 175, 55, 0.15);
-    color: var(--primary);
+    transition: transform 0.3s ease;
 }
 
-.delete-btn {
-    background: var(--danger);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-}
+.card img{width:100%; border-radius:30px; margin-bottom: 20px;}
 
+/* Pill Shaped Inputs & Selects */
 select, input, textarea { 
     width:100%; 
-    padding:16px 22px; 
+    padding:16px 25px; 
     margin-top:12px; 
-    background: rgba(255, 255, 255, 0.04);
-    border:1px solid var(--card-border); 
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(197, 160, 89, 0.2); 
     border-radius: var(--pill-radius); 
     color:var(--text); 
     box-sizing: border-box; 
     outline: none; 
-}
-.btn{ 
-    background: linear-gradient(135deg, #D4AF37, #B38F1E); 
-    color: #101217; 
-    width:100%; 
-    margin-top:20px; 
-    padding:16px; 
-    border:none; 
-    border-radius: var(--pill-radius); 
-    font-weight: bold; 
-    cursor: pointer; 
-    text-transform: uppercase; 
-    letter-spacing: 1.5px; 
-    transition: all 0.3s ease; 
+    font-size: 14px;
+    transition: 0.3s;
 }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+select:focus, input:focus {
+    border-color: var(--primary);
+    background: rgba(197, 160, 89, 0.05);
+}
+
+/* Size Selector Premium Look */
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C5A059' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 20px) center;
+}
+
+/* Premium Pill Buttons */
+.btn{ 
+    background: linear-gradient(135deg, #C5A059 0%, #94763A 100%); 
+    color: #0B0E14; 
+    width:100%; 
+    margin-top:15px; 
+    padding: 16px 30px; 
+    border:none; 
+    border-radius: var(--pill-radius); 
+    font-weight: 700; 
+    cursor: pointer; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    transition: all 0.4s ease; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(197, 160, 89, 0.2);
+    filter: brightness(1.1);
+}
+
+.qty-btn { 
+    background: rgba(197, 160, 89, 0.1); 
+    color: var(--primary); 
+    border: 1px solid var(--primary); 
+    border-radius: 50%; 
+    width: 35px; height: 35px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    transition: 0.2s; 
+}
+
+.color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+.color-dot.active { border-color: var(--primary); transform: scale(1.2); box-shadow: 0 0 10px var(--primary); }
+
+.status-badge { 
+    padding: 6px 16px; 
+    border-radius: var(--pill-radius); 
+    font-size: 10px; 
+    font-weight: bold; 
+    background: rgba(197, 160, 89, 0.15);
+    color: var(--primary);
+    border: 1px solid var(--card-border);
+}
+
+.modal-content {
+    background: #11141B;
+    padding: 40px;
+    border-radius: 40px;
+    border: 1px solid var(--primary);
+}
+
+.menu-btn div { background: var(--primary); height: 2px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Products Grid */
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px; margin-top: 30px;}
 </style>
 </head>
 
@@ -231,15 +236,15 @@ select, input, textarea {
 <div id="successModal">
     <div class="modal-content">
         <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
-        <h2>GOTCHA!</h2>
+        <h2 style="color:var(--primary); letter-spacing: 3px;">GOTCHA!</h2>
         <p>Thank you for shopping with us. Your style journey begins now!</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">PERFECT</button>
+        <button class="btn" style="background: white; color: var(--bg);" onclick="closeSuccessModal()">PERFECT</button>
     </div>
 </div>
 
 <div id="detailModal">
     <div class="modal-content" style="text-align: left;">
-        <h2 id="detID" style="color: var(--primary);"></h2>
+        <h2 id="detID" style="color: var(--primary); letter-spacing: 2px;"></h2>
         <hr style="border: 0.5px solid var(--card-border); margin: 15px 0;">
         <p><strong>Items:</strong> <span id="detItems"></span></p>
         <p><strong>Total:</strong> <span id="detTotal"></span> MMK</p>
@@ -251,12 +256,12 @@ select, input, textarea {
     </div>
 </div>
 
-<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#101217; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#101217; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Updated 📦</div>
 
 <header>
     <h1>GOTCHA</h1>
     <button class="menu-btn" onclick="toggleMenu()">
-        <div></div><div style="margin: 5px 0;"></div><div></div>
+        <div></div><div style="margin: 6px 0;"></div><div></div>
     </button>
     <div class="nav-bar" id="mainNav">
         <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
@@ -273,31 +278,41 @@ select, input, textarea {
         <section class="hero">
             <p>Limited Release</p>
             <h2>CULTURAL TREASURE</h2>
-            <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
+            <button class="btn" style="width: 220px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
         <div id="collections" class="products">
             <div class="card">
                 <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Product">
-                <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
-                <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
-                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
-                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
-                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
+                <h3 id="productTitle" style="letter-spacing: 2px;">CULTURAL TREASURE (BLACK)</h3>
+                <p style="font-weight: bold; color: var(--primary); margin-top: 10px; font-size: 18px;">48,000 MMK</p>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 20px 0;">
+                    <div class="color-dot dot-black active" style="background:#1A1A1A;" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
+                    <div class="color-dot dot-white" style="background:#FFFFFF;" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
                 </div>
-                <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+
+                <select id="sizeMain">
+                    <option value="">SELECT SIZE</option>
+                    <option>S</option>
+                    <option>M</option>
+                    <option>L</option>
+                    <option>XL</option>
+                </select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
             </div>
         </div>
 
         <div class="section">
-            <h2 style="color: var(--primary);">Your Cart</h2>
+            <h2 style="color: var(--primary); letter-spacing: 3px;">YOUR CART</h2>
             <div id="cartItems"></div>
-            <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
+            <h3 style="text-align:right; margin-top: 25px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
+            
             <div id="authPrompt" style="margin-top: 20px; text-align: center;">
                 <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
-                <button class="btn" style="background: white; color: black;" onclick="handleAuth()">Google Sign In</button>
+                <button class="btn" style="background: white; color: black; max-width: 300px;" onclick="handleAuth()">Google Sign In</button>
             </div>
+            
             <div id="checkoutForm" style="display: none;">
                 <input id="name" placeholder="Full Name">
                 <input id="email" placeholder="Email Address" readonly>
@@ -310,7 +325,7 @@ select, input, textarea {
 
     <div id="page-orders" class="page">
         <div class="section">
-            <h2 style="color: var(--primary);">My Dashboard</h2>
+            <h2 style="color: var(--primary); letter-spacing: 3px;">MY DASHBOARD</h2>
             <div id="resultsList"><p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p></div>
         </div>
     </div>
@@ -321,11 +336,11 @@ select, input, textarea {
 </div>
 
 <footer>
-    <div class="footer-links">
+    <div class="footer-links" style="margin-bottom: 15px;">
         <a href="#" onclick="switchPage('shop')">HOME</a>
         <a href="#" onclick="switchPage('contact')">CONTACT</a>
     </div>
-    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 2px;">© 2026 GOTCHA OFFICIAL</p>
+    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 3px;">© 2026 GOTCHA OFFICIAL</p>
 </footer>
 
 <script type="module">
@@ -466,13 +481,13 @@ async function trackOrders(email) {
             const status = f.Status || "Pending";
             const isDelivered = status.toLowerCase() === "delivered";
             return `
-                <div class="order-record" onclick="showOrderDetail(${index})">
+                <div class="order-record" onclick="showOrderDetail(${index})" style="background:rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding:20px; border-radius:25px; margin-bottom:15px; cursor:pointer;">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <strong>${f.OrderID}</strong>
                         <span class="status-badge">${status}</span>
                     </div>
                     <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
-                    ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
+                    ${isDelivered ? `<button class="delete-btn" style="background:var(--danger); border:none; color:white; padding:5px 12px; border-radius:20px; font-size:10px; margin-top:10px;" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
                 </div>`;
         }).join('');
     } catch (e) {
@@ -517,7 +532,7 @@ function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart
 function updateCartUI(){
     const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span style="margin:0 10px;">${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
