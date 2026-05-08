@@ -9,15 +9,16 @@
 
 <style>
 :root{
---bg: #090C10; 
---card-bg: rgba(22, 27, 34, 0.75); 
---card-border: rgba(255, 255, 255, 0.1);
---primary: #D4AF37; 
---accent: #E5C56D; 
---text: #EDF2F7;
---text-secondary: #A0AEC0;
---danger: #FF6B6B;
---success: #48BB78;
+/* Coffee and Cream Theme Palette */
+--bg: #1B1411; /* Deep Espresso */
+--card-bg: rgba(43, 34, 30, 0.8); /* Roasted Coffee */
+--card-border: rgba(235, 227, 213, 0.15); /* Faint Cream border */
+--primary: #EBE3D5; /* Rich Cream */
+--accent: #B0926A; /* Caramel/Latte */
+--text: #F3EEEA; /* White Coffee */
+--text-secondary: #9A8378; /* Muted Cocoa */
+--danger: #A75D5D;
+--success: #607274;
 --pill-radius: 16px; 
 }
 
@@ -28,8 +29,9 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    background-image: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
-                      radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
+    /* Custom Coffee Gradient */
+    background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
 }
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
@@ -40,7 +42,7 @@ header{
     padding: 20px 5%; 
     position: sticky; 
     top: 0;
-    background: rgba(9, 12, 16, 0.9); 
+    background: rgba(27, 20, 17, 0.95); 
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--card-border);
     z-index: 2000;
@@ -61,7 +63,7 @@ h1{
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
+    background: linear-gradient(rgba(27,20,17,0.7), rgba(27,20,17,0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
     border-radius: 30px;
     margin-top: 20px;
     padding: 20px;
@@ -69,23 +71,12 @@ h1{
 .hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
 .hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
 
-.trust-bar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin: 40px 0;
-    text-align: center;
-}
-.trust-item { padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); }
-.trust-item span { display: block; color: var(--primary); font-size: 24px; margin-bottom: 10px; }
-.trust-item h4 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-
 footer {
     margin-top: 80px;
     padding: 60px 0;
     border-top: 1px solid var(--card-border);
     text-align: center;
-    background: rgba(255,255,255,0.02);
+    background: rgba(235, 227, 213, 0.02);
 }
 .footer-links { margin-bottom: 20px; }
 .footer-links a { color: var(--text-secondary); margin: 0 15px; text-decoration: none; font-size: 12px; transition: 0.3s; }
@@ -94,23 +85,39 @@ footer {
 .menu-btn { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 22px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
 .menu-btn div { width: 30px; height: 3px; background: var(--primary); transition: 0.3s; border-radius: 4px; }
 
-.nav-bar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: #161b22; display: flex; flex-direction: column; padding: 80px 20px; gap: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; box-shadow: -5px 0 25px rgba(0,0,0,0.5); border-left: 1px solid var(--card-border); }
+.nav-bar { 
+    position: fixed; 
+    top: 0; 
+    right: -100%; 
+    width: 280px; 
+    height: 100vh;
+    background: #2B221E; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 80px 20px; 
+    gap: 20px; 
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    z-index: 1000; 
+    box-shadow: -5px 0 25px rgba(0,0,0,0.5); 
+    border-left: 1px solid var(--card-border); 
+    overflow-y: auto;
+}
 .nav-bar.active { right: 0; }
 .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
 .nav-link.active-tab { color: var(--primary); font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px;}
 
-#successModal {
+#successModal, #detailModal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(9, 12, 16, 0.75);
+    background: rgba(27, 20, 17, 0.85);
     backdrop-filter: blur(12px);
     z-index: 3000;
     align-items: center;
     justify-content: center;
 }
 .modal-content {
-    background: linear-gradient(145deg, #1A1D24, #101217);
+    background: linear-gradient(145deg, #2B221E, #1B1411);
     color: var(--text);
     padding: 40px;
     border-radius: 24px;
@@ -145,29 +152,24 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-.card:hover { 
-    transform: translateY(-8px); 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-    border-color: rgba(212, 175, 55, 0.3);
-}
 .card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
 
-/* Color Selection Styles */
-.color-options { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
-.dot-white { background: #FFFFFF; }
-.dot-black { background: #1A1A1A; }
+.dot-white { background: #F3EEEA; }
+.dot-black { background: #1B1411; }
 
 .qty-controls { display: flex; align-items: center; gap: 12px; }
-.qty-btn { background: rgba(255, 255, 255, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn { background: rgba(235, 227, 213, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 
 .order-record { 
-    background: rgba(255, 255, 255, 0.03); 
+    background: rgba(235, 227, 213, 0.03); 
     padding: 20px; 
     border-radius: 18px; 
     margin-bottom: 16px; 
     border: 1px solid var(--card-border); 
+    cursor: pointer;
+    position: relative;
 }
 .status-badge { 
     padding: 4px 12px; 
@@ -175,15 +177,26 @@ footer {
     font-size: 10px; 
     font-weight: bold; 
     text-transform: uppercase; 
-    background: rgba(212, 175, 55, 0.15);
+    background: rgba(176, 146, 106, 0.2);
     color: var(--primary);
+}
+
+.delete-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 select, input, textarea { 
     width:100%; 
     padding:16px 22px; 
     margin-top:12px; 
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(235, 227, 213, 0.05);
     border:1px solid var(--card-border); 
     border-radius: var(--pill-radius); 
     color:var(--text); 
@@ -191,8 +204,8 @@ select, input, textarea {
     outline: none; 
 }
 .btn{ 
-    background: linear-gradient(135deg, #D4AF37, #B38F1E); 
-    color: #101217; 
+    background: linear-gradient(135deg, #EBE3D5, #B0926A); 
+    color: #1B1411; 
     width:100%; 
     margin-top:20px; 
     padding:16px; 
@@ -204,22 +217,6 @@ select, input, textarea {
     letter-spacing: 1.5px; 
     transition: all 0.3s ease; 
 }
-.btn:hover { 
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-}
-.btn:disabled { background: #333; color: #666; cursor: not-allowed; }
-
-#toast { 
-    position:fixed; bottom:24px; right:24px; 
-    background: rgba(212, 175, 55, 0.95); 
-    color:#101217; 
-    padding:14px 28px; 
-    border-radius: var(--pill-radius); 
-    display:none; 
-    z-index:2000; 
-    font-weight: bold; 
-}
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -227,24 +224,30 @@ select, input, textarea {
 
 <body>
 
-<div id="g_id_onload"
-     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" 
-     data-context="signin"
-     data-ux_mode="popup"
-     data-callback="handleCredentialResponse"
-     data-auto_prompt="true">
-</div>
-
 <div id="successModal">
     <div class="modal-content">
         <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
-        <h2>GOTCHA!</h2>
+        <h2 style="color: var(--primary);">GOTCHA!</h2>
         <p>Thank you for shopping with us. Your style journey begins now!</p>
-        <button class="btn" style="background: white; color: var(--primary);" onclick="closeSuccessModal()">PERFECT</button>
+        <button class="btn" style="background: var(--primary); color: var(--bg);" onclick="closeSuccessModal()">PERFECT</button>
     </div>
 </div>
 
-<div id="toast">Updated 📦</div>
+<div id="detailModal">
+    <div class="modal-content" style="text-align: left;">
+        <h2 id="detID" style="color: var(--primary);"></h2>
+        <hr style="border: 0.5px solid var(--card-border); margin: 15px 0;">
+        <p><strong>Items:</strong> <span id="detItems"></span></p>
+        <p><strong>Total:</strong> <span id="detTotal"></span> MMK</p>
+        <p><strong>Status:</strong> <span id="detStatus"></span></p>
+        <p><strong>Customer:</strong> <span id="detName"></span></p>
+        <p><strong>Phone:</strong> <span id="detPhone"></span></p>
+        <p><strong>Address:</strong> <span id="detAddress"></span></p>
+        <button class="btn" onclick="document.getElementById('detailModal').style.display='none'">CLOSE</button>
+    </div>
+</div>
+
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#1B1411; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <header>
     <h1>GOTCHA</h1>
@@ -254,12 +257,14 @@ select, input, textarea {
     <div class="nav-bar" id="mainNav">
         <span class="nav-link active-tab" id="link-shop" onclick="switchPage('shop')">Shop</span>
         <span class="nav-link" id="link-orders" onclick="switchPage('orders')">Dashboard</span>
+        <span class="nav-link" id="link-about" onclick="switchPage('about')">About Us</span>
+        <span class="nav-link" id="link-shipping" onclick="switchPage('shipping')">Shipping</span>
+        <span class="nav-link" id="link-contact" onclick="switchPage('contact')">Contact</span>
         <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
     </div>
 </header>
 
 <div class="container">
-    
     <div id="page-shop" class="page active">
         <section class="hero">
             <p>Limited Release</p>
@@ -267,24 +272,15 @@ select, input, textarea {
             <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
-        <div class="trust-bar">
-            <div class="trust-item"><span>🛡️</span><h4>Authentic Wear</h4></div>
-            <div class="trust-item"><span>🚀</span><h4>Fast Shipping</h4></div>
-            <div class="trust-item"><span>💎</span><h4>Premium Quality</h4></div>
-        </div>
-
         <div id="collections" class="products">
             <div class="card">
-                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Cultural Treasure">
+                <img id="mainProductImg" src="https://i.ibb.co/v4HBxXLp/IMG-4925.jpg" alt="Product">
                 <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
                 <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
-                
-                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Select Color</p>
-                <div class="color-options">
-                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
-                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
+                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/v4HBxXLp/IMG-4925.jpg', this)"></div>
+                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/B2fXQ5FW/IMG-4516.jpg', this)"></div>
                 </div>
-
                 <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
             </div>
@@ -294,23 +290,16 @@ select, input, textarea {
             <h2 style="color: var(--primary);">Your Cart</h2>
             <div id="cartItems"></div>
             <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
-            
-            <div style="margin-top:30px;">
-                <div id="authPrompt" style="margin-top: 20px; text-align: center;">
-                    <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
-                    <button class="btn" style="background: white; color: black; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="handleAuth()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Google Sign In
-                    </button>
-                </div>
-                
-                <div id="checkoutForm" style="display: none;">
-                    <h3 style="color: var(--primary); margin-top: 20px;">Checkout Details</h3>
-                    <input id="name" placeholder="Full Name">
-                    <input id="email" placeholder="Email Address">
-                    <input id="phone" placeholder="Phone Number">
-                    <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
-                    <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
-                </div>
+            <div id="authPrompt" style="margin-top: 20px; text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
+                <button class="btn" style="background: var(--primary); color: var(--bg);" onclick="handleAuth()">Google Sign In</button>
+            </div>
+            <div id="checkoutForm" style="display: none;">
+                <input id="name" placeholder="Full Name">
+                <input id="email" placeholder="Email Address" readonly>
+                <input id="phone" placeholder="Phone Number">
+                <textarea id="address" placeholder="Shipping Address" rows="3"></textarea>
+                <button class="btn" id="confirmBtn" onclick="sendOrder()">Confirm Order</button>
             </div>
         </div>
     </div>
@@ -321,21 +310,23 @@ select, input, textarea {
             <div id="resultsList"><p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p></div>
         </div>
     </div>
+
+    <div id="page-about" class="page"><div class="section"><h2 style="color: var(--primary);">About Us</h2><p>Archival streetwear rooted in culture.</p></div></div>
+    <div id="page-shipping" class="page"><div class="section"><h2 style="color: var(--primary);">Shipping</h2><p>Secure delivery across Myanmar.</p></div></div>
+    <div id="page-contact" class="page"><div class="section"><h2 style="color: var(--primary);">Contact</h2><p>Support via official channels.</p></div></div>
 </div>
 
 <footer>
     <div class="footer-links">
-        <a href="#">HOME</a>
-        <a href="#">COLLECTIONS</a>
-        <a href="#">CONTACT</a>
-        <a href="#">PRIVACY</a>
+        <a href="#" onclick="switchPage('shop')">HOME</a>
+        <a href="#" onclick="switchPage('contact')">CONTACT</a>
     </div>
-    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 2px;">© 2026 GOTCHA OFFICIAL ARCHIVE</p>
+    <p style="font-size: 10px; color: var(--text-secondary); letter-spacing: 2px;">© 2026 GOTCHA OFFICIAL</p>
 </footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj7skSFoyw5U8yqZG6N-AoX0aNvY6Xzqo",
@@ -353,13 +344,12 @@ onAuthStateChanged(auth, (user) => {
     const authBtn = document.getElementById('authBtn');
     const checkoutForm = document.getElementById('checkoutForm');
     const authPrompt = document.getElementById('authPrompt');
-
     if (user) {
         authBtn.innerText = `LOGOUT (${user.displayName.split(' ')[0]})`;
         document.getElementById('email').value = user.email;
         checkoutForm.style.display = 'block';
         authPrompt.style.display = 'none';
-        trackOrders(user.email, "Email");
+        trackOrders(user.email);
     } else {
         authBtn.innerText = "SIGN IN";
         checkoutForm.style.display = 'none';
@@ -383,85 +373,135 @@ const CONFIG={
 };
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
-let currentColor = "Black"; // Default tracking
+let currentColor = "Black"; 
 
 function toggleMenu() { document.getElementById("mainNav").classList.toggle("active"); }
 
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-tab'));
-    document.getElementById('page-' + page).classList.add('active');
-    document.getElementById('link-' + page).classList.add('active-tab');
+    if(document.getElementById('page-' + page)) document.getElementById('page-' + page).classList.add('active');
+    if(document.getElementById('link-' + page)) document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    if(page === 'orders') {
+        const email = document.getElementById('email').value;
+        if(email) trackOrders(email);
+    }
 }
 
 function switchColor(color, imgUrl, el) {
     currentColor = color;
     document.getElementById('mainProductImg').src = imgUrl;
     document.getElementById('productTitle').innerText = `CULTURAL TREASURE (${color.toUpperCase()})`;
-    
-    // UI Update for dots
     document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
     el.classList.add('active');
 }
 
-function addSelectedToCart() {
-    // Reusing your existing addToCart logic but adapting for the unified box
-    const name = `${currentColor} Tee`;
-    addToCart(name, 48000, 'sizeMain');
-}
+function addSelectedToCart() { addToCart(`${currentColor} Tee`, 48000, 'sizeMain'); }
 
-function closeSuccessModal() {
-    document.getElementById("successModal").style.display = "none";
-    switchPage('orders');
-}
+function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; switchPage('orders'); }
 
 async function sendOrder(){
     const name=document.getElementById("name").value;
     const phone=document.getElementById("phone").value;
     const address=document.getElementById("address").value;
     const email=document.getElementById("email").value;
-    
-    if(cart.length===0 || !name || !phone || !address || !email){
-        alert("Please fill in all details"); return;
-    }
+    if(cart.length===0 || !name || !phone || !address || !email){ alert("Fill all details"); return; }
     
     const btn=document.getElementById("confirmBtn");
     btn.disabled=true; btn.innerText="Processing...";
     
     const orderId="GTC-"+Math.floor(1000+Math.random()*9000);
     const itemsSummary=cart.map(i=>`${i.name}(${i.size})x${i.qty}`).join(", ");
-    
+    const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
+
     try{
-        await fetch(`https://api.telegram.org/bot${CONFIG.token}/sendMessage`,{
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({chat_id:CONFIG.chatId, text:`NEW ORDER: ${orderId}\nName: ${name}\nPhone: ${phone}\nItems: ${itemsSummary}`})
-        });
-        
+        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
-            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,'')), Status:"Pending"}})
+            body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
+
+        // 2. Send to Telegram
+        const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
         
+        await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CONFIG.chatId, text: tgMsg })
+        });
+
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-    } catch(e) { alert("Error sending order."); }
+        
+        // Fix: Ensure dashboard refreshes immediately
+        trackOrders(email); 
+        
+    } catch(e) { 
+        alert("Error sending order."); 
+    }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
-async function trackOrders(val, field) {
+let cachedOrders = [];
+
+async function trackOrders(email) {
+    if(!email) return;
     const list = document.getElementById("resultsList");
     try {
-        const url = `https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}?filterByFormula={${field}}='${encodeURIComponent(val)}'`;
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } });
+        const url = "https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "?filterByFormula={Email}='" + email + "'";
+        const res = await fetch(url, { headers: { Authorization: "Bearer " + CONFIG.airtableToken } });
         const data = await res.json();
-        if(!data.records || data.records.length === 0) return;
-        list.innerHTML = data.records.map(record => {
+        
+        cachedOrders = data.records || [];
+        if(cachedOrders.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p>';
+            return;
+        }
+
+        list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
-            return `<div class="order-record"><div style="display:flex;justify-content:space-between;"><strong>${f.OrderID}</strong><span class="status-badge">${f.Status||'Pending'}</span></div><div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
+            const status = f.Status || "Pending";
+            const isDelivered = status.toLowerCase() === "delivered";
+            return `
+                <div class="order-record" onclick="showOrderDetail(${index})">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <strong>${f.OrderID}</strong>
+                        <span class="status-badge">${status}</span>
+                    </div>
+                    <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
+                    ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
+                </div>`;
         }).join('');
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function showOrderDetail(index) {
+    const f = cachedOrders[index].fields;
+    document.getElementById("detID").innerText = f.OrderID;
+    document.getElementById("detItems").innerText = f.Items;
+    document.getElementById("detTotal").innerText = (f.Total || 0).toLocaleString();
+    document.getElementById("detStatus").innerText = f.Status || 'Pending';
+    document.getElementById("detName").innerText = f.CustomerName;
+    document.getElementById("detPhone").innerText = f.Phone;
+    document.getElementById("detAddress").innerText = f.Address;
+    document.getElementById("detailModal").style.display = "flex";
+}
+
+async function deleteOrder(recordId) {
+    if(!confirm("Delete this delivered order record?")) return;
+    try {
+        await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + CONFIG.airtableToken }
+        });
+        const email = document.getElementById('email').value;
+        trackOrders(email);
+    } catch(e) { alert("Delete failed"); }
 }
 
 function addToCart(name,price,sizeId){
@@ -469,7 +509,7 @@ function addToCart(name,price,sizeId){
     if(!size){alert("Select size");return;}
     const existing=cart.find(i=>i.name===name && i.size===size);
     if(existing) existing.qty++; else cart.push({name,size,price,qty:1});
-    saveAndRefresh(); showToast("Added to cart");
+    saveAndRefresh();
 }
 
 function updateQty(i, c) { cart[i].qty += c; if(cart[i].qty < 1) cart.splice(i, 1); saveAndRefresh(); }
@@ -477,14 +517,12 @@ function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart
 function updateCartUI(){
     const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(235, 227, 213, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
-function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>{t.style.display="none";},2000); }
 window.onload = () => updateCartUI();
 </script>
 
 </body>
 </html>
-p
