@@ -9,14 +9,14 @@
 
 <style>
 :root{
-/* Coffee and Cream Theme Palette - PRESERVED UNTOUCHED */
---bg: #1B1411; 
---card-bg: rgba(43, 34, 30, 0.8); 
---card-border: rgba(235, 227, 213, 0.15); 
---primary: #EBE3D5; 
---accent: #B0926A; 
---text: #F3EEEA; 
---text-secondary: #9A8378; 
+/* Coffee and Cream Theme Palette */
+--bg: #1B1411; /* Deep Espresso */
+--card-bg: rgba(43, 34, 30, 0.8); /* Roasted Coffee */
+--card-border: rgba(235, 227, 213, 0.15); /* Faint Cream border */
+--primary: #EBE3D5; /* Rich Cream */
+--accent: #B0926A; /* Caramel/Latte */
+--text: #F3EEEA; /* White Coffee */
+--text-secondary: #9A8378; /* Muted Cocoa */
 --danger: #A75D5D;
 --success: #607274;
 --pill-radius: 16px; 
@@ -29,6 +29,7 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
+    /* Custom Coffee Gradient */
     background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
                       radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
 }
@@ -46,7 +47,7 @@ header{
     border-bottom: 1px solid var(--card-border);
     z-index: 2000;
 }
-h1.site-logo{
+h1{
     color:var(--primary); 
     letter-spacing: 0.4em; 
     font-weight: 800; 
@@ -56,40 +57,19 @@ h1.site-logo{
 }
 
 .hero {
-    height: 75vh;
+    height: 60vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: url('https://i.ibb.co/Rkh7TRsz/C07168-D4-5930-4240-BAD2-DA9-BC3-C73-B78.png') center/cover no-repeat;
+    background: linear-gradient(rgba(27,20,17,0.7), rgba(27,20,17,0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
     border-radius: 30px;
     margin-top: 20px;
-    padding: 40px;
+    padding: 20px;
 }
-
-/* 2. Added Text with Cool Premium Texture */
-.premium-text-overlay {
-    font-size: 2.8rem;
-    margin: 20px 0 0 0;
-    letter-spacing: 5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    /* Metallic Gold Texture with Gradient and Clipping */
-    background-image: linear-gradient(145deg, #FFF8E1 0%, #D4AF37 30%, #B38F1E 60%, #5D4037 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 2px 4px 6px rgba(0,0,0,0.4);
-}
-
-.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0;}
-
-/* 1. view collection box a bit lower down right under that logo watermark */
-.view-btn { 
-    width: 200px; 
-    margin-top: 180px; /* Specific push down to avoid text overlay */
-}
+.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
+.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
 
 footer {
     margin-top: 80px;
@@ -270,7 +250,7 @@ select, input, textarea {
 <div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#1B1411; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <header>
-    <h1 class="site-logo">GOTCHA</h1>
+    <h1>GOTCHA</h1>
     <button class="menu-btn" onclick="toggleMenu()">
         <div></div><div style="margin: 5px 0;"></div><div></div>
     </button>
@@ -288,18 +268,18 @@ select, input, textarea {
     <div id="page-shop" class="page active">
         <section class="hero">
             <p>Limited Release</p>
-            <h1 class="premium-text-overlay">FIX YOUR DRIP WITH GOTCHA</h1>
-            <button class="btn view-btn" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
+            <h2>CULTURAL TREASURE</h2>
+            <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
         <div id="collections" class="products">
             <div class="card">
-                <img id="mainProductImg" src="https://i.ibb.co/v4HBxXLp/IMG-4925.jpg" alt="Product">
+                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Product">
                 <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
                 <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
                 <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
-                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/v4HBxXLp/IMG-4925.jpg', this)"></div>
-                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/B2fXQ5FW/IMG-4516.jpg', this)"></div>
+                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
+                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
                 </div>
                 <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
@@ -345,7 +325,6 @@ select, input, textarea {
 </footer>
 
 <script type="module">
-/* Firebase and Authentication System (Untouched) */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -385,7 +364,6 @@ window.handleAuth = async () => {
 </script>
 
 <script>
-/* Order and Cart System (Untouched) */
 const CONFIG={
     token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
     chatId: "7194426571",
@@ -440,11 +418,13 @@ async function sendOrder(){
     const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
 
     try{
+        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
 
+        // 2. Send to Telegram
         const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
@@ -455,6 +435,8 @@ async function sendOrder(){
 
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
+        
+        // Fix: Ensure dashboard refreshes immediately
         trackOrders(email); 
         
     } catch(e) { 
