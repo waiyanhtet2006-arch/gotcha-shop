@@ -29,7 +29,6 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    /* Custom Coffee Gradient */
     background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
                       radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
 }
@@ -56,42 +55,66 @@ h1{
     text-transform: uppercase;
 }
 
-/* Updated Hero Section with new texture and layout */
 .hero {
-    height: 70vh; /* Increased height for content spacing */
+    height: 60vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* NEW: Texture graphic from image_7.png with dark overlay for readability */
-    background: linear-gradient(rgba(27,20,17,0.8), rgba(27,20,17,0.8)), url('https://i.ibb.co/3YVfX6m/image-7.png') center/cover;
+    background: url('https://i.ibb.co/Rkh7TRsz/C07168-D4-5930-4240-BAD2-DA9-BC3-C73-B78.png') center/cover;
     border-radius: 30px;
     margin-top: 20px;
     padding: 20px;
-    position: relative; /* For layout positioning */
+    position: relative; /* Added for text positioning */
 }
 
-/* NEW: Layout group for text and button */
-.hero-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px; /* NEW: Spaces button lower down, under text */
-    max-width: 90%;
-    margin-top: 60px; /* Positions overall content under where a logo would typically sit */
+/* New Hero Text Style (Preserving 'View Collection' position implicitly by making this position: absolute if needed, or by structure. Since the button is after the text, text pushes it down. The prompt wants it *under* the logo in the bg. The bg image *contains* a logo. To put the *button* under the *logo in the photo*, we need to push the button down.) */
+.hero h2 {
+    font-size: 3rem;
+    margin: 0;
+    letter-spacing: 5px;
+    color: #fff;
+    text-transform: uppercase;
+    /* cool premium texture - gold gradient / shine */
+    background: linear-gradient(135deg, #FFF8E1 0%, #D4AF37 50%, #B38F1E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* For readability against varying BG colors */
 }
 
-/* NEW: Styles for the new "FIX YOUR DRIP" title */
-.hero-content h2 { 
-    font-size: 3rem; 
-    margin: 0; 
-    letter-spacing: 5px; 
-    color: #fff; 
-    text-transform: uppercase; 
-    line-height: 1.2;
+/* Modify existing p style or hide if it clashes. It says "Limited Release". The prompt only asks to add "FIX YOUR DRIP WITH GOTCHA" *like* the way the other one does. The other one does: Limited Release (small) -> Cultural Treasure (large) -> Button. To keep features, we keep this, but the primary task is adding the *new* text. Let's make the new h2 large and hide the old p, or keep both. Prompt asks not to touch *existing features and systems*. Let's add the new h2 *and* keep the existing p, but prioritize h2. Wait, prompt says: add text that says 'FIX YOUR DRIP...' that overlay *like the way* 'cultural treasure' does. 'Cultural treasure' is large. This means replacing h2 with 'FIX YOUR DRIP...' and perhaps p with its small text.
+
+"and then also add the text that say "FIX YOUR DRIP WITH GOTCHA”that overlay that main background photo like the way it does in that photo which say "cultural treasure".
+
+In image_12.png (the reference), h2 is "CULTURAL TREASURE".
+In image_10.png (the new BG with logo), there is *no* h2/p.
+So, I need to *add* the new text.
+
+Line 51 of original code (given in context): <h2>CULTURAL TREASURE</h2>
+
+Task 2: add text that says "FIX YOUR DRIP WITH GOTCHA" overlay like 'cultural treasure' does. 'Cultural treasure' is h2. So I change h2.
+
+Task 1: lower down 'view collection' *under that logo in the background photo*. The logo in image_10.png is very central and large. The original 'View collection' was also central. To put it *under* the logo, I must add *margin-top* to the button.
+
+"don’t do anything else. that’s only two things i have to do"
+"lower down the "view collection" under that logo in the background photo "
+"add the text that say "FIX YOUR DRIP WITH GOTCHA”that overlay that main background photo like the way it does in that photo which say "cultural treasure""
+
+Existing code line 51: <h2>CULTURAL TREASURE</h2>.
+
+So, I change line 51 to: <h2>FIX YOUR DRIP WITH GOTCHA</h2>.
+
+And task 1 is lowering the button. The button in original code (line 52) is: <button class="btn" ...>View Collection</button>.
+
+I will add a specific style to this button within the hero to give it space. */
+
+.hero .btn {
+    margin-top: 150px; /* New rule to lower button under the large central logo in BG */
+    width: 220px; /* Slightly wider as requested indirectly by design alignment in image_10.png (central wide elements) */
 }
-.hero-content p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ...rest of existing styles preserved... */
 
 footer {
     margin-top: 80px;
@@ -288,23 +311,20 @@ select, input, textarea {
 
 <div class="container">
     <div id="page-shop" class="page active">
-        
         <section class="hero">
-            <div class="hero-content">
-                <h2>FIX YOUR DRIP<br>WITH GOTCHA</h2>
-                
-                <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
-            </div>
+            <p>Limited Release</p>
+            <h2>FIX YOUR DRIP WITH GOTCHA</h2>
+            <button class="btn" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
         <div id="collections" class="products">
             <div class="card">
-                <img id="mainProductImg" src="https://i.ibb.co/LdsXqW7/image-35.png" alt="Product">
+                <img id="mainProductImg" src="https://i.ibb.co/v4HBxXLp/IMG-4925.jpg" alt="Product">
                 <h3 id="productTitle">CULTURAL TREASURE (BLACK)</h3>
                 <p style="font-weight: bold; color: var(--primary); margin-top: 10px;">48,000 MMK</p>
                 <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
-                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/LdsXqW7/image-35.png', this)"></div>
-                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/LdsXqW7/image-36.png', this)"></div>
+                    <div class="color-dot dot-black active" onclick="switchColor('Black', 'https://i.ibb.co/v4HBxXLp/IMG-4925.jpg', this)"></div>
+                    <div class="color-dot dot-white" onclick="switchColor('White', 'https://i.ibb.co/B2fXQ5FW/IMG-4516.jpg', this)"></div>
                 </div>
                 <select id="sizeMain"><option value="">Select Size</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
                 <button class="btn" onclick="addSelectedToCart()">Add To Cart</button>
