@@ -10,7 +10,7 @@
 <style>
 :root{
 --bg: #090C10; 
---card-bg: rgba(22, 27, 34, 0.85); 
+--card-bg: rgba(22, 27, 34, 0.75); 
 --card-border: rgba(255, 255, 255, 0.1);
 --primary: #D4AF37; 
 --accent: #E5C56D; 
@@ -27,14 +27,13 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    /* ADDED YOUR IMAGE AS MAIN BACKGROUND */
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://i.ibb.co/L7Ym0X9/image.png');
+    /* ADDED YOUR PHOTO AS BACKGROUND BELOW */
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://i.imgur.com/G3pYnB8.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
-
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
 header{
@@ -65,15 +64,14 @@ h1{
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* UPDATED HERO BACKGROUND TO MATCH */
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.3);
     border-radius: 30px;
     margin-top: 20px;
     padding: 20px;
     border: 1px solid var(--card-border);
     backdrop-filter: blur(5px);
 }
-.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
 .hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
 
 footer {
@@ -81,7 +79,7 @@ footer {
     padding: 60px 0;
     border-top: 1px solid var(--card-border);
     text-align: center;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.8);
 }
 .footer-links { margin-bottom: 20px; }
 .footer-links a { color: var(--text-secondary); margin: 0 15px; text-decoration: none; font-size: 12px; transition: 0.3s; }
@@ -115,7 +113,7 @@ footer {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(9, 12, 16, 0.85);
+    background: rgba(9, 12, 16, 0.75);
     backdrop-filter: blur(12px);
     z-index: 3000;
     align-items: center;
@@ -143,7 +141,7 @@ footer {
     margin-top: 25px; 
     border: 1px solid var(--card-border); 
     backdrop-filter: blur(16px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px; margin-top: 25px; justify-content: center;}
@@ -252,6 +250,8 @@ select, input, textarea {
     </div>
 </div>
 
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#101217; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
+
 <header>
     <h1>GOTCHA</h1>
     <button class="menu-btn" onclick="toggleMenu()">
@@ -271,7 +271,7 @@ select, input, textarea {
     <div id="page-shop" class="page active">
         <section class="hero">
             <p>Limited Release</p>
-            <h2>FIX YOUR DRIP</h2>
+            <h2>CULTURAL TREASURE</h2>
             <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
@@ -387,6 +387,11 @@ function switchPage(page) {
     if(document.getElementById('link-' + page)) document.getElementById('link-' + page).classList.add('active-tab');
     document.getElementById("mainNav").classList.remove("active");
     window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    if(page === 'orders') {
+        const email = document.getElementById('email').value;
+        if(email) trackOrders(email);
+    }
 }
 
 function switchColor(color, imgUrl, el) {
@@ -396,6 +401,8 @@ function switchColor(color, imgUrl, el) {
     document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
     el.classList.add('active');
 }
+
+function addSelectedToCart() { addToCart(`${currentColor} Tee`, 48000, 'sizeMain'); }
 
 function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; switchPage('orders'); }
 
@@ -420,6 +427,7 @@ async function sendOrder(){
         });
 
         const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
+        
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -430,11 +438,14 @@ async function sendOrder(){
         cart=[]; saveAndRefresh();
         trackOrders(email); 
         
-    } catch(e) { alert("Error sending order."); }
+    } catch(e) { 
+        alert("Error sending order."); 
+    }
     btn.disabled=false; btn.innerText="Confirm Order";
 }
 
 let cachedOrders = [];
+
 async function trackOrders(email) {
     if(!email) return;
     const list = document.getElementById("resultsList");
@@ -442,18 +453,30 @@ async function trackOrders(email) {
         const url = "https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "?filterByFormula={Email}='" + email + "'";
         const res = await fetch(url, { headers: { Authorization: "Bearer " + CONFIG.airtableToken } });
         const data = await res.json();
+        
         cachedOrders = data.records || [];
-        if(cachedOrders.length === 0) return;
+        if(cachedOrders.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">No history found yet.</p>';
+            return;
+        }
 
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
-            return `<div class="order-record" onclick="showOrderDetail(${index})">
+            const status = f.Status || "Pending";
+            const isDelivered = status.toLowerCase() === "delivered";
+            return `
+                <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <strong>${f.OrderID}</strong><span class="status-badge">${f.Status || "Pending"}</span>
+                        <strong>${f.OrderID}</strong>
+                        <span class="status-badge">${status}</span>
                     </div>
-                    <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div></div>`;
+                    <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
+                    ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
+                </div>`;
         }).join('');
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 function showOrderDetail(index) {
@@ -466,6 +489,18 @@ function showOrderDetail(index) {
     document.getElementById("detPhone").innerText = f.Phone;
     document.getElementById("detAddress").innerText = f.Address;
     document.getElementById("detailModal").style.display = "flex";
+}
+
+async function deleteOrder(recordId) {
+    if(!confirm("Delete this delivered order record?")) return;
+    try {
+        await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + CONFIG.airtableToken }
+        });
+        const email = document.getElementById('email').value;
+        trackOrders(email);
+    } catch(e) { alert("Delete failed"); }
 }
 
 function addToCart(name,price,sizeId){
