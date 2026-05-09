@@ -9,14 +9,14 @@
 
 <style>
 :root{
-/* NEW THEME: Green and Beige (Green Majority) */
---bg: #1A3C2A;             /* Deep Forest Green */
---card-bg: rgba(20, 45, 32, 0.8); /* Darker Green for cards */
---card-border: rgba(235, 230, 210, 0.15); 
---primary: #F0EAD6;        /* Cream Beige */
---accent: #A3BFB0;         /* Sage Green */
---text: #F0EAD6;           /* Cream Beige */
---text-secondary: #A3BFB0; 
+/* Coffee and Cream Theme Palette */
+--bg: #1B1411; /* Deep Espresso */
+--card-bg: rgba(43, 34, 30, 0.8); /* Roasted Coffee */
+--card-border: rgba(235, 227, 213, 0.15); /* Faint Cream border */
+--primary: #EBE3D5; /* Rich Cream */
+--accent: #B0926A; /* Caramel/Latte */
+--text: #F3EEEA; /* White Coffee */
+--text-secondary: #9A8378; /* Muted Cocoa */
 --danger: #A75D5D;
 --success: #607274;
 --pill-radius: 16px; 
@@ -29,8 +29,9 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    background-image: radial-gradient(circle at 10% 20%, rgba(163, 191, 176, 0.07) 0%, transparent 40%),
-                      radial-gradient(circle at 90% 80%, rgba(240, 234, 214, 0.04) 0%, transparent 40%);
+    /* Custom Coffee Gradient */
+    background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
 }
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
@@ -41,7 +42,7 @@ header{
     padding: 20px 5%; 
     position: sticky; 
     top: 0;
-    background: rgba(26, 60, 42, 0.95); 
+    background: rgba(27, 20, 17, 0.95); 
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--card-border);
     z-index: 2000;
@@ -62,7 +63,7 @@ h1{
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(rgba(26,60,42,0.7), rgba(26,60,42,0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
+    background: linear-gradient(rgba(27,20,17,0.7), rgba(27,20,17,0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
     border-radius: 30px;
     margin-top: 20px;
     padding: 20px;
@@ -75,7 +76,7 @@ footer {
     padding: 60px 0;
     border-top: 1px solid var(--card-border);
     text-align: center;
-    background: rgba(240, 234, 214, 0.02);
+    background: rgba(235, 227, 213, 0.02);
 }
 .footer-links { margin-bottom: 20px; }
 .footer-links a { color: var(--text-secondary); margin: 0 15px; text-decoration: none; font-size: 12px; transition: 0.3s; }
@@ -90,7 +91,7 @@ footer {
     right: -100%; 
     width: 280px; 
     height: 100vh;
-    background: #142D20; 
+    background: #2B221E; 
     display: flex; 
     flex-direction: column; 
     padding: 80px 20px; 
@@ -109,14 +110,14 @@ footer {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(13, 30, 21, 0.85);
+    background: rgba(27, 20, 17, 0.85);
     backdrop-filter: blur(12px);
     z-index: 3000;
     align-items: center;
     justify-content: center;
 }
 .modal-content {
-    background: linear-gradient(145deg, #1A3C2A, #142D20);
+    background: linear-gradient(145deg, #2B221E, #1B1411);
     color: var(--text);
     padding: 40px;
     border-radius: 24px;
@@ -151,27 +152,18 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-
-/* FIXING RATIO: Using object-fit and aspect-ratio to keep images identical */
-.card img{
-    width:100%; 
-    aspect-ratio: 4 / 5; 
-    object-fit: cover; 
-    border-radius:18px; 
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
-    transition: 0.3s;
-}
+.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
 
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
-.dot-white { background: #F0EAD6; border: 1px solid #ccc; }
+.dot-white { background: #F3EEEA; }
 .dot-black { background: #1B1411; }
 
 .qty-controls { display: flex; align-items: center; gap: 12px; }
-.qty-btn { background: rgba(240, 234, 214, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn { background: rgba(235, 227, 213, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 
 .order-record { 
-    background: rgba(240, 234, 214, 0.03); 
+    background: rgba(235, 227, 213, 0.03); 
     padding: 20px; 
     border-radius: 18px; 
     margin-bottom: 16px; 
@@ -185,7 +177,7 @@ footer {
     font-size: 10px; 
     font-weight: bold; 
     text-transform: uppercase; 
-    background: rgba(163, 191, 176, 0.2);
+    background: rgba(176, 146, 106, 0.2);
     color: var(--primary);
 }
 
@@ -206,7 +198,7 @@ select, input, textarea {
     width:100%; 
     padding:16px 22px; 
     margin-top:12px; 
-    background: rgba(240, 234, 214, 0.05);
+    background: rgba(235, 227, 213, 0.05);
     border:1px solid var(--card-border); 
     border-radius: var(--pill-radius); 
     color:var(--text); 
@@ -214,8 +206,8 @@ select, input, textarea {
     outline: none; 
 }
 .btn{ 
-    background: linear-gradient(135deg, #F0EAD6, #A3BFB0); 
-    color: #1A3C2A; 
+    background: linear-gradient(135deg, #EBE3D5, #B0926A); 
+    color: #1B1411; 
     width:100%; 
     margin-top:20px; 
     padding:16px; 
@@ -239,7 +231,7 @@ select, input, textarea {
         <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
         <h2 style="color: var(--primary);">GOTCHA!</h2>
         <p>Thank you for shopping with us. Your style journey begins now!</p>
-        <button class="btn" style="background: var(--primary); color: #1A3C2A;" onclick="closeSuccessModal()">PERFECT</button>
+        <button class="btn" style="background: var(--primary); color: var(--bg);" onclick="closeSuccessModal()">PERFECT</button>
     </div>
 </div>
 
@@ -256,6 +248,8 @@ select, input, textarea {
         <button class="btn" onclick="document.getElementById('detailModal').style.display='none'">CLOSE</button>
     </div>
 </div>
+
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#1B1411; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <header>
     <h1>GOTCHA</h1>
@@ -275,7 +269,7 @@ select, input, textarea {
 <div class="container">
     <div id="page-shop" class="page active">
         <section class="hero">
-            <p>LIMITED DROPS</p>
+            <p>FASNION MATTER!!</p>
             <h2>FIX YOUR FASHION WITH GOTCHA</h2>
             <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
@@ -300,7 +294,7 @@ select, input, textarea {
             <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
             <div id="authPrompt" style="margin-top: 20px; text-align: center;">
                 <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
-                <button class="btn" style="background: var(--primary); color: #1A3C2A;" onclick="handleAuth()">Google Sign In</button>
+                <button class="btn" style="background: var(--primary); color: var(--bg);" onclick="handleAuth()">Google Sign In</button>
             </div>
             <div id="checkoutForm" style="display: none;">
                 <input id="name" placeholder="Full Name">
@@ -426,11 +420,13 @@ async function sendOrder(){
     const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
 
     try{
+        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
 
+        // 2. Send to Telegram
         const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
@@ -441,6 +437,7 @@ async function sendOrder(){
 
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
+        
         trackOrders(email); 
         
     } catch(e) { 
@@ -468,6 +465,7 @@ async function trackOrders(email) {
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
             const status = f.Status || "Pending";
+            // Allow deletion for any order, not just delivered ones
             return `
                 <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -496,29 +494,39 @@ function showOrderDetail(index) {
 }
 
 async function deleteOrder(recordId, orderId) {
+    // Prompt for mandatory reason
     const reason = prompt(`Please provide a reason for deleting order ${orderId}:`);
-    if (reason === null) return; 
+    
+    // Check if reason is provided and not just spaces
+    if (reason === null) return; // User clicked Cancel
+    
     if (reason.trim() === "") {
-        alert("Deletion cancelled: A reason is required.");
+        alert("Deletion cancelled: A reason is required to delete an order.");
         return;
     }
 
     try {
+        // Send notification to Telegram about the deletion and reason
         const email = document.getElementById('email').value;
         const delMsg = `❌ ORDER CANCELLED: ${orderId}\n👤 User: ${email}\n💬 Reason: ${reason}`;
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: CONFIG.chatId, text: delMsg })
         });
 
+        // Delete from Airtable
         await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
-            method: "DELETE", headers: { Authorization: "Bearer " + CONFIG.airtableToken }
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + CONFIG.airtableToken }
         });
         
-        alert("Order deleted.");
+        alert("Order deleted successfully.");
         trackOrders(email);
-    } catch(e) { alert("Delete failed."); }
+    } catch(e) { 
+        alert("Delete failed. Please try again."); 
+    }
 }
 
 function addToCart(name,price,sizeId){
@@ -534,7 +542,7 @@ function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart
 function updateCartUI(){
     const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(235, 227, 213, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
