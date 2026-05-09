@@ -152,16 +152,7 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-
-/* FIXED IMAGE RATIO */
-.card img{
-    width:100%; 
-    aspect-ratio: 1 / 1; 
-    object-fit: cover; 
-    border-radius:18px; 
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
-    transition: 0.3s;
-}
+.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
 
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
@@ -195,10 +186,12 @@ footer {
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 5px 10px;
+    padding: 5px 12px;
     font-size: 10px;
     cursor: pointer;
     margin-top: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 select, input, textarea { 
@@ -445,7 +438,6 @@ async function sendOrder(){
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
         
-        // Fix: Ensure dashboard refreshes immediately
         trackOrders(email); 
         
     } catch(e) { 
@@ -473,7 +465,7 @@ async function trackOrders(email) {
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
             const status = f.Status || "Pending";
-            const isDelivered = status.toLowerCase() === "delivered";
+            // Allow deletion for any order, not just delivered ones
             return `
                 <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -481,7 +473,7 @@ async function trackOrders(email) {
                         <span class="status-badge">${status}</span>
                     </div>
                     <div style="font-size:13px;margin-top:10px; opacity:0.8;">Items: ${f.Items}</div>
-                    ${isDelivered ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}')">Delete Record</button>` : ''}
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteOrder('${record.id}', '${f.OrderID}')">Delete Order</button>
                 </div>`;
         }).join('');
     } catch (e) {
@@ -501,16 +493,40 @@ function showOrderDetail(index) {
     document.getElementById("detailModal").style.display = "flex";
 }
 
-async function deleteOrder(recordId) {
-    if(!confirm("Delete this delivered order record?")) return;
+async function deleteOrder(recordId, orderId) {
+    // Prompt for mandatory reason
+    const reason = prompt(`Please provide a reason for deleting order ${orderId}:`);
+    
+    // Check if reason is provided and not just spaces
+    if (reason === null) return; // User clicked Cancel
+    
+    if (reason.trim() === "") {
+        alert("Deletion cancelled: A reason is required to delete an order.");
+        return;
+    }
+
     try {
+        // Send notification to Telegram about the deletion and reason
+        const email = document.getElementById('email').value;
+        const delMsg = `❌ ORDER CANCELLED: ${orderId}\n👤 User: ${email}\n💬 Reason: ${reason}`;
+        
+        await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CONFIG.chatId, text: delMsg })
+        });
+
+        // Delete from Airtable
         await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
             method: "DELETE",
             headers: { Authorization: "Bearer " + CONFIG.airtableToken }
         });
-        const email = document.getElementById('email').value;
+        
+        alert("Order deleted successfully.");
         trackOrders(email);
-    } catch(e) { alert("Delete failed"); }
+    } catch(e) { 
+        alert("Delete failed. Please try again."); 
+    }
 }
 
 function addToCart(name,price,sizeId){
