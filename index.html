@@ -9,16 +9,16 @@
 
 <style>
 :root{
-/* Coffee and Cream Theme Palette */
---bg: #1B1411; /* Deep Espresso */
---card-bg: rgba(43, 34, 30, 0.8); /* Roasted Coffee */
---card-border: rgba(235, 227, 213, 0.15); /* Faint Cream border */
---primary: #EBE3D5; /* Rich Cream */
---accent: #B0926A; /* Caramel/Latte */
---text: #F3EEEA; /* White Coffee */
---text-secondary: #9A8378; /* Muted Cocoa */
---danger: #A75D5D;
---success: #607274;
+/* Custom Green and Beige Palette */
+--bg: #1A3C2A;             /* Deep Forest Green (Background) */
+--card-bg: rgba(26, 60, 42, 0.7); /* Translucent Forest Green for cards */
+--card-border: rgba(235, 230, 210, 0.15); /* Faint Beige border */
+--primary: #F0EAD6;        /* Cream Beige (Logo & Primary Accent) */
+--accent: #A3BFB0;         /* Muted Sage Green (Secondary Accent) */
+--text: #F0EAD6;           /* Cream Beige (Primary Text) */
+--text-secondary: #C4BFAC; /* Muted Beige (Secondary Text) */
+--danger: #D9534F;
+--success: #5CB85C;
 --pill-radius: 16px; 
 }
 
@@ -29,9 +29,10 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    /* Custom Coffee Gradient */
-    background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
-                      radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
+    /* Custom Green and Beige Gradient */
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(163, 191, 176, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(240, 234, 214, 0.04) 0%, transparent 40%);
 }
 .container{width:95%;max-width:1100px;margin:auto;padding:20px;}
 
@@ -39,44 +40,59 @@ header{
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding: 20px 5%; 
+    padding: 10px 5%; 
     position: sticky; 
     top: 0;
-    background: rgba(27, 20, 17, 0.95); 
+    background: rgba(26, 60, 42, 0.95); 
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--card-border);
     z-index: 2000;
 }
-h1{
-    color:var(--primary); 
-    letter-spacing: 0.4em; 
-    font-weight: 800; 
-    margin: 0; 
-    font-size: 22px;
-    text-transform: uppercase;
-}
+
+.site-logo { display: block; cursor: pointer; }
+.logo-image { height: 45px; width: auto; display: block; transition: 0.3s; }
+.logo-image:hover { opacity: 0.8; }
 
 .hero {
-    height: 60vh;
+    height: 75vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(rgba(27,20,17,0.7), rgba(27,20,17,0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
+    background: url('https://i.ibb.co/Rkh7TRsz/C07168-D4-5930-4240-BAD2-DA9-BC3-C73-B78.png') center/cover no-repeat;
     border-radius: 30px;
     margin-top: 20px;
-    padding: 20px;
+    padding: 40px;
 }
-.hero h2 { font-size: 3rem; margin: 0; letter-spacing: 5px; color: #fff; }
-.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+
+.premium-text-overlay {
+    font-size: 2.8rem;
+    margin: 20px 0 0 0;
+    letter-spacing: 5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    /* Update gradient texture to match Green & Beige */
+    background-image: linear-gradient(145deg, #F0EAD6 0%, #A3BFB0 30%, #5D7A6D 60%, #1A3C2A 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+}
+
+.hero p { color: var(--primary); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0;}
+
+.view-btn { 
+    width: 200px; 
+    margin-top: 180px;
+}
 
 footer {
     margin-top: 80px;
     padding: 60px 0;
     border-top: 1px solid var(--card-border);
     text-align: center;
-    background: rgba(235, 227, 213, 0.02);
+    background: rgba(240, 234, 214, 0.02);
 }
 .footer-links { margin-bottom: 20px; }
 .footer-links a { color: var(--text-secondary); margin: 0 15px; text-decoration: none; font-size: 12px; transition: 0.3s; }
@@ -91,7 +107,7 @@ footer {
     right: -100%; 
     width: 280px; 
     height: 100vh;
-    background: #2B221E; 
+    background: rgba(26, 60, 42, 0.98); 
     display: flex; 
     flex-direction: column; 
     padding: 80px 20px; 
@@ -110,14 +126,14 @@ footer {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(27, 20, 17, 0.85);
+    background: rgba(13, 30, 21, 0.85); /* Darker green modal background */
     backdrop-filter: blur(12px);
     z-index: 3000;
     align-items: center;
     justify-content: center;
 }
 .modal-content {
-    background: linear-gradient(145deg, #2B221E, #1B1411);
+    background: linear-gradient(145deg, #234D3A, #1A3C2A);
     color: var(--text);
     padding: 40px;
     border-radius: 24px;
@@ -152,18 +168,27 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
+
+/* FIXED IMAGE RATIO FOR BOTH BLACK AND WHITE */
+.card img{
+    width:100%; 
+    aspect-ratio: 1 / 1; 
+    object-fit: cover; 
+    border-radius:18px; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+    transition: 0.3s;
+}
 
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
-.dot-white { background: #F3EEEA; }
-.dot-black { background: #1B1411; }
+.dot-white { background: #F0EAD6; border-color: rgba(0,0,0,0.1); }
+.dot-black { background: #1A1A1A; }
 
 .qty-controls { display: flex; align-items: center; gap: 12px; }
-.qty-btn { background: rgba(235, 227, 213, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.qty-btn { background: rgba(240, 234, 214, 0.08); color: var(--primary); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: 0.2s; }
 
 .order-record { 
-    background: rgba(235, 227, 213, 0.03); 
+    background: rgba(240, 234, 214, 0.03); 
     padding: 20px; 
     border-radius: 18px; 
     margin-bottom: 16px; 
@@ -177,7 +202,7 @@ footer {
     font-size: 10px; 
     font-weight: bold; 
     text-transform: uppercase; 
-    background: rgba(176, 146, 106, 0.2);
+    background: rgba(163, 191, 176, 0.15);
     color: var(--primary);
 }
 
@@ -198,7 +223,7 @@ select, input, textarea {
     width:100%; 
     padding:16px 22px; 
     margin-top:12px; 
-    background: rgba(235, 227, 213, 0.05);
+    background: rgba(240, 234, 214, 0.05);
     border:1px solid var(--card-border); 
     border-radius: var(--pill-radius); 
     color:var(--text); 
@@ -206,8 +231,8 @@ select, input, textarea {
     outline: none; 
 }
 .btn{ 
-    background: linear-gradient(135deg, #EBE3D5, #B0926A); 
-    color: #1B1411; 
+    background: linear-gradient(135deg, #F0EAD6, #A3BFB0); 
+    color: #1A3C2A; 
     width:100%; 
     margin-top:20px; 
     padding:16px; 
@@ -249,10 +274,12 @@ select, input, textarea {
     </div>
 </div>
 
-<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#1B1411; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background: var(--primary); color:#1A3C2A; padding:14px 28px; border-radius: var(--pill-radius); display:none; z-index:2000; font-weight: bold;">Updated 📦</div>
 
 <header>
-    <h1>GOTCHA</h1>
+    <a href="#" class="site-logo" onclick="switchPage('shop')">
+        <img src="https://i.ibb.co/C07168-D4-5930-4240-BAD2-DA9-BC3-C73-B78/Gotcha-Design.png" alt="GOTCHA OFFICIAL" class="logo-image">
+    </a>
     <button class="menu-btn" onclick="toggleMenu()">
         <div></div><div style="margin: 5px 0;"></div><div></div>
     </button>
@@ -263,15 +290,15 @@ select, input, textarea {
         <span class="nav-link" id="link-shipping" onclick="switchPage('shipping')">Shipping</span>
         <span class="nav-link" id="link-contact" onclick="switchPage('contact')">Contact</span>
         <span class="nav-link" id="authBtn" onclick="handleAuth()">Sign In</span>
-    </div>
+        </div>
 </header>
 
 <div class="container">
     <div id="page-shop" class="page active">
         <section class="hero">
-            <p>FASNION MATTER!!</p>
-            <h2>FIX YOUR FASHION WITH GOTCHA</h2>
-            <button class="btn" style="width: 200px;" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
+            <p>Limited Release</p>
+            <h1 class="premium-text-overlay">FIX YOUR DRIP WITH GOTCHA</h1>
+            <button class="btn view-btn" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">View Collection</button>
         </section>
 
         <div id="collections" class="products">
@@ -294,7 +321,7 @@ select, input, textarea {
             <h3 style="text-align:right; margin-top: 20px;">Total: <span id="cartTotal" style="color: var(--primary);">0</span> MMK</h3>
             <div id="authPrompt" style="margin-top: 20px; text-align: center;">
                 <p style="color: var(--text-secondary); font-size: 13px;">🔒 Sign In with Google to checkout.</p>
-                <button class="btn" style="background: var(--primary); color: var(--bg);" onclick="handleAuth()">Google Sign In</button>
+                <button class="btn" style="background: var(--primary); color: #1A3C2A; font-weight:bold;" onclick="handleAuth()">Google Sign In</button>
             </div>
             <div id="checkoutForm" style="display: none;">
                 <input id="name" placeholder="Full Name">
@@ -327,6 +354,7 @@ select, input, textarea {
 </footer>
 
 <script type="module">
+/* Firebase and Authentication System (Preserved) */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -366,6 +394,7 @@ window.handleAuth = async () => {
 </script>
 
 <script>
+/* Order and Cart System (Preserved) */
 const CONFIG={
     token: "8631368822:AAHY31uXLftZJjFjXlSiUJszeiMj2hPu6Ik",
     chatId: "7194426571",
@@ -420,13 +449,11 @@ async function sendOrder(){
     const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
 
     try{
-        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
 
-        // 2. Send to Telegram
         const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
@@ -437,7 +464,6 @@ async function sendOrder(){
 
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-        
         trackOrders(email); 
         
     } catch(e) { 
@@ -465,7 +491,6 @@ async function trackOrders(email) {
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
             const status = f.Status || "Pending";
-            // Allow deletion for any order, not just delivered ones
             return `
                 <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -494,11 +519,9 @@ function showOrderDetail(index) {
 }
 
 async function deleteOrder(recordId, orderId) {
-    // Prompt for mandatory reason
     const reason = prompt(`Please provide a reason for deleting order ${orderId}:`);
     
-    // Check if reason is provided and not just spaces
-    if (reason === null) return; // User clicked Cancel
+    if (reason === null) return; 
     
     if (reason.trim() === "") {
         alert("Deletion cancelled: A reason is required to delete an order.");
@@ -506,7 +529,6 @@ async function deleteOrder(recordId, orderId) {
     }
 
     try {
-        // Send notification to Telegram about the deletion and reason
         const email = document.getElementById('email').value;
         const delMsg = `❌ ORDER CANCELLED: ${orderId}\n👤 User: ${email}\n💬 Reason: ${reason}`;
         
@@ -516,7 +538,6 @@ async function deleteOrder(recordId, orderId) {
             body: JSON.stringify({ chat_id: CONFIG.chatId, text: delMsg })
         });
 
-        // Delete from Airtable
         await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
             method: "DELETE",
             headers: { Authorization: "Bearer " + CONFIG.airtableToken }
@@ -542,7 +563,7 @@ function saveAndRefresh(){ localStorage.setItem("gotchaCart",JSON.stringify(cart
 function updateCartUI(){
     const div=document.getElementById("cartItems"); div.innerHTML=""; let total=0;
     cart.forEach((item,index)=>{ total+=item.price*item.qty;
-        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(235, 227, 213, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
+        div.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255, 255, 255, 0.05);"><div><b>${item.name}</b><br><small>${item.size}</small></div><div class="qty-controls"><button class="qty-btn" onclick="updateQty(${index},-1)">-</button><span>${item.qty}</span><button class="qty-btn" onclick="updateQty(${index},1)">+</button></div></div>`;
     });
     document.getElementById("cartTotal").innerText=total.toLocaleString();
 }
