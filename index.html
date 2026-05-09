@@ -152,7 +152,16 @@ footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 400px;
 }
-.card img{width:100%; border-radius:18px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;}
+
+/* FIX: Forces 1:1 ratio for all product images */
+.card img{
+    width:100%; 
+    aspect-ratio: 1 / 1; 
+    object-fit: cover; 
+    border-radius:18px; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+    transition: 0.3s;
+}
 
 .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
 .color-dot.active { border-color: var(--primary); transform: scale(1.2); }
