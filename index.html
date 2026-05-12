@@ -29,7 +29,6 @@ body{
     color:var(--text); 
     line-height: 1.6; 
     overflow-x: hidden;
-    /* Custom Coffee Gradient */
     background-image: radial-gradient(circle at 10% 20%, rgba(176, 146, 106, 0.07) 0%, transparent 40%),
                       radial-gradient(circle at 90% 80%, rgba(235, 227, 213, 0.04) 0%, transparent 40%);
 }
@@ -106,7 +105,8 @@ footer {
 .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;}
 .nav-link.active-tab { color: var(--primary); font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px;}
 
-#successModal, #detailModal {
+/* MODAL STYLES */
+#successModal, #detailModal, #reasonModal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -153,7 +153,6 @@ footer {
     max-width: 400px;
 }
 
-/* FIX: Forces 1:1 ratio for all product images */
 .card img{
     width:100%; 
     aspect-ratio: 1 / 1; 
@@ -203,6 +202,7 @@ footer {
     text-transform: uppercase;
 }
 
+/* THEME MATCHED INPUTS & SELECTS */
 select, input, textarea { 
     width:100%; 
     padding:16px 22px; 
@@ -213,7 +213,24 @@ select, input, textarea {
     color:var(--text); 
     box-sizing: border-box; 
     outline: none; 
+    font-size: 14px;
 }
+
+/* Custom Select Styling */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23EBE3D5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+select option {
+    background: #2B221E;
+    color: var(--text);
+}
+
 .btn{ 
     background: linear-gradient(135deg, #EBE3D5, #B0926A); 
     color: #1B1411; 
@@ -230,10 +247,23 @@ select, input, textarea {
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes modalSlide { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 
 <body>
+
+<div id="reasonModal">
+    <div class="modal-content" style="text-align: left;">
+        <h3 style="color: var(--primary); margin-top: 0;">Cancel Order</h3>
+        <p style="font-size: 13px; color: var(--text-secondary);">Reason for deleting <span id="targetOrderID" style="color: var(--primary); font-weight: bold;"></span>:</p>
+        <textarea id="reasonInput" placeholder="Enter reason here..." rows="3"></textarea>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn" style="background: transparent; border: 1px solid var(--card-border); color: var(--text);" onclick="closeReasonModal()">Back</button>
+            <button class="btn" id="confirmDeleteBtn" style="background: var(--danger); color: #fff;">Confirm</button>
+        </div>
+    </div>
+</div>
 
 <div id="successModal">
     <div class="modal-content">
@@ -385,6 +415,8 @@ const CONFIG={
 
 let cart=JSON.parse(localStorage.getItem("gotchaCart"))||[];
 let currentColor = "Black"; 
+let pendingDeleteId = null;
+let pendingDeleteOrderId = null;
 
 function toggleMenu() { document.getElementById("mainNav").classList.toggle("active"); }
 
@@ -429,13 +461,11 @@ async function sendOrder(){
     const totalVal = parseInt(document.getElementById("cartTotal").innerText.replace(/,/g,''));
 
     try{
-        // 1. Send to Airtable
         await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}`,{
             method:"POST", headers:{Authorization:`Bearer ${CONFIG.airtableToken}`, "Content-Type":"application/json"},
             body:JSON.stringify({fields:{OrderID:orderId, CustomerName:name, Phone:phone, Email:email, Address:address, Items:itemsSummary, Total:totalVal, Status:"Pending"}})
         });
 
-        // 2. Send to Telegram
         const tgMsg = "🛍️ NEW ORDER: " + orderId + "\n👤 Name: " + name + "\n📞 Phone: " + phone + "\n📍 Address: " + address + "\n📦 Items: " + itemsSummary + "\n💰 Total: " + totalVal.toLocaleString() + " MMK";
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
@@ -446,9 +476,7 @@ async function sendOrder(){
 
         document.getElementById("successModal").style.display = "flex";
         cart=[]; saveAndRefresh();
-        
         trackOrders(email); 
-        
     } catch(e) { 
         alert("Error sending order."); 
     }
@@ -474,7 +502,6 @@ async function trackOrders(email) {
         list.innerHTML = cachedOrders.map((record, index) => {
             const f = record.fields;
             const status = f.Status || "Pending";
-            // Allow deletion for any order, not just delivered ones
             return `
                 <div class="order-record" onclick="showOrderDetail(${index})">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -502,22 +529,30 @@ function showOrderDetail(index) {
     document.getElementById("detailModal").style.display = "flex";
 }
 
+// CUSTOM DELETION FLOW
+function closeReasonModal() {
+    document.getElementById("reasonModal").style.display = "none";
+    document.getElementById("reasonInput").value = "";
+}
+
 async function deleteOrder(recordId, orderId) {
-    // Prompt for mandatory reason
-    const reason = prompt(`Please provide a reason for deleting order ${orderId}:`);
-    
-    // Check if reason is provided and not just spaces
-    if (reason === null) return; // User clicked Cancel
-    
-    if (reason.trim() === "") {
-        alert("Deletion cancelled: A reason is required to delete an order.");
-        return;
-    }
+    pendingDeleteId = recordId;
+    pendingDeleteOrderId = orderId;
+    document.getElementById("targetOrderID").innerText = orderId;
+    document.getElementById("reasonModal").style.display = "flex";
+    document.getElementById("confirmDeleteBtn").onclick = submitDeletion;
+}
+
+async function submitDeletion() {
+    const reason = document.getElementById("reasonInput").value.trim();
+    if (!reason) { alert("Please provide a reason."); return; }
+
+    const btn = document.getElementById("confirmDeleteBtn");
+    btn.disabled = true; btn.innerText = "...";
 
     try {
-        // Send notification to Telegram about the deletion and reason
         const email = document.getElementById('email').value;
-        const delMsg = `❌ ORDER CANCELLED: ${orderId}\n👤 User: ${email}\n💬 Reason: ${reason}`;
+        const delMsg = `❌ ORDER CANCELLED: ${pendingDeleteOrderId}\n👤 User: ${email}\n💬 Reason: ${reason}`;
         
         await fetch("https://api.telegram.org/bot" + CONFIG.token + "/sendMessage", {
             method: 'POST',
@@ -525,16 +560,17 @@ async function deleteOrder(recordId, orderId) {
             body: JSON.stringify({ chat_id: CONFIG.chatId, text: delMsg })
         });
 
-        // Delete from Airtable
-        await fetch("https://api.airtable.com/v0/" + CONFIG.airtableBase + "/" + CONFIG.airtableTable + "/" + recordId, {
+        await fetch(`https://api.airtable.com/v0/${CONFIG.airtableBase}/${CONFIG.airtableTable}/${pendingDeleteId}`, {
             method: "DELETE",
             headers: { Authorization: "Bearer " + CONFIG.airtableToken }
         });
         
-        alert("Order deleted successfully.");
+        closeReasonModal();
         trackOrders(email);
     } catch(e) { 
-        alert("Delete failed. Please try again."); 
+        alert("Delete failed."); 
+    } finally {
+        btn.disabled = false; btn.innerText = "Confirm";
     }
 }
 
